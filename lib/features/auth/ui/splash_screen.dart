@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
+import 'package:w2t_mobile/features/auth/widgets/w2t_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,11 +16,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  static const _artboard = Size(1080, 1920);
   static const _duration = Duration(seconds: 4);
-
-  /// Covers the progress bar baked into [AppAssets.splash].
-  static const _barCover = Rect.fromLTWH(118, 1116, 852, 74);
 
   late final AnimationController _progress;
 
@@ -47,67 +44,54 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: const Color(0xFFF7FBFE),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            final view = constraints.biggest;
-            final scale = math.min(
-              view.width / _artboard.width,
-              view.height / _artboard.height,
-            );
-            final width = _artboard.width * scale;
-            final height = _artboard.height * scale;
-            final dx = (view.width - width) / 2;
-            final dy = (view.height - height) / 2;
-
-            return Stack(
-              children: [
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFFF7FBFE),
-                        Color(0xFFE7F4FE),
-                        Color(0xFF2E9FE0),
-                        Color(0xFF0257C1),
-                      ],
-                      stops: [0, 0.55, 0.82, 1],
-                    ),
-                  ),
-                  child: SizedBox.expand(),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              AppAssets.splash,
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+              filterQuality: FilterQuality.high,
+            ),
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0x00F8FCFF),
+                    Color(0xFFF8FCFF),
+                    Color(0xFFF8FCFF),
+                    Color(0x00F8FCFF),
+                  ],
+                  stops: [0.18, 0.32, 0.68, 0.84],
                 ),
-                Positioned(
-                  left: dx,
-                  top: dy,
-                  width: width,
-                  height: height,
-                  child: Image.asset(
-                    AppAssets.splash,
-                    fit: BoxFit.fill,
-                    filterQuality: FilterQuality.high,
-                  ),
-                ),
-                AnimatedBuilder(
-                  animation: _progress,
-                  builder: (context, _) {
-                    final t = Curves.easeInOutCubic.transform(_progress.value);
-                    return Stack(
-                      children: [
-                        Positioned(
-                          left: dx + _barCover.left * scale,
-                          top: dy + _barCover.top * scale,
-                          width: _barCover.width * scale,
-                          height: _barCover.height * scale,
-                          child: CustomPaint(
-                            painter: _SplashBarPainter(progress: t),
+              ),
+            ),
+            SafeArea(
+              child: Column(
+                children: [
+                  const Spacer(flex: 5),
+                  const W2tLogo(width: 240),
+                  const SizedBox(height: 36),
+                  AnimatedBuilder(
+                    animation: _progress,
+                    builder: (context, _) {
+                      final t = Curves.easeInOutCubic.transform(_progress.value);
+                      return Column(
+                        children: [
+                          SizedBox(
+                            height: 22,
+                            width: math.min(
+                              280,
+                              MediaQuery.sizeOf(context).width - 96,
+                            ),
+                            child: CustomPaint(
+                              painter: _SplashBarPainter(progress: t),
+                            ),
                           ),
-                        ),
-                        Positioned(
-                          left: dx,
-                          top: dy + 1204 * scale,
-                          width: width,
-                          child: Text(
+                          const SizedBox(height: 10),
+                          Text(
                             '${(t * 100).round()}%',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
@@ -117,14 +101,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                               color: const Color(0xFF1E4E9A),
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            );
-          },
+                        ],
+                      );
+                    },
+                  ),
+                  const Spacer(flex: 6),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
