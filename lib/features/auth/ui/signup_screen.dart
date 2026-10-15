@@ -104,6 +104,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   prefixIcon: Icons.lock_outline_rounded,
                   obscureText: true,
                 ),
+                const SizedBox(height: 14),
+                const AuthTextField(
+                  hint: 'Confirm password',
+                  prefixIcon: Icons.lock_outline_rounded,
+                  obscureText: true,
+                ),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -114,7 +120,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      _usePhone ? 'Try email?' : 'Try phone number?',
+                      _usePhone ? 'use email' : 'Try phone number?',
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

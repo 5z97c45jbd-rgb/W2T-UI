@@ -135,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      _usePhone ? 'Try email?' : 'Try phone number?',
+                      _usePhone ? 'use email' : 'use phone number',
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
