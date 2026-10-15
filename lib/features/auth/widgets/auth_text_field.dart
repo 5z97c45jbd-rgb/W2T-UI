@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 
@@ -9,12 +10,16 @@ class AuthTextField extends StatefulWidget {
     required this.prefixIcon,
     this.obscureText = false,
     this.controller,
+    this.keyboardType,
+    this.inputFormatters,
   });
 
   final String hint;
   final IconData prefixIcon;
   final bool obscureText;
   final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   State<AuthTextField> createState() => _AuthTextFieldState();
@@ -33,6 +38,8 @@ class _AuthTextFieldState extends State<AuthTextField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: widget.controller,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
       obscureText: _obscured,
       style: GoogleFonts.inter(
         fontSize: 15,

@@ -4,13 +4,21 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
+import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_text_field.dart';
 import 'package:w2t_mobile/features/auth/widgets/primary_button.dart';
 import 'package:w2t_mobile/features/auth/widgets/social_login_button.dart';
 import 'package:w2t_mobile/features/auth/widgets/w2t_logo.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _usePhone = false;
 
   @override
   Widget build(BuildContext context) {
@@ -75,9 +83,21 @@ class LoginScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 28),
-                const AuthTextField(
-                  hint: 'Username',
-                  prefixIcon: Icons.person_outline_rounded,
+                AuthTextField(
+                  key: ValueKey(_usePhone),
+                  hint: _usePhone ? 'Phone number' : 'Email',
+                  prefixIcon: _usePhone
+                      ? Icons.phone_outlined
+                      : Icons.mail_outline_rounded,
+                  keyboardType: _usePhone
+                      ? TextInputType.phone
+                      : TextInputType.emailAddress,
+                  inputFormatters: _usePhone
+                      ? [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ]
+                      : null,
                 ),
                 const SizedBox(height: 14),
                 const AuthTextField(
@@ -89,7 +109,7 @@ class LoginScreen extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () => context.push(AppRoutes.forgotPassword),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       minimumSize: Size.zero,
@@ -105,13 +125,32 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => setState(() => _usePhone = !_usePhone),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      _usePhone ? 'Try email?' : 'Try phone number?',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 18),
                 PrimaryButton(
                   label: 'Login',
                   onPressed: () {},
                 ),
                 const SizedBox(height: 22),
-                _OrDivider(),
+                const _OrDivider(),
                 const SizedBox(height: 22),
                 SocialLoginButton(
                   label: 'Continue with Google',
@@ -133,7 +172,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   onPressed: () {},
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -146,7 +185,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () => context.push(AppRoutes.signup),
                       child: Text(
                         'Sign Up',
                         style: GoogleFonts.inter(
@@ -166,9 +205,12 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
   @override
   Widget build(BuildContext context) {
     return Row(
