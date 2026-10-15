@@ -14,10 +14,9 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   static const _artboard = Size(1080, 1920);
-  static const _duration = Duration(milliseconds: 2600);
+  static const _duration = Duration(seconds: 4);
 
   /// Covers the progress bar baked into [AppAssets.splash].
   static const _barCover = Rect.fromLTWH(118, 1116, 852, 74);
@@ -27,8 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    _progress = AnimationController(vsync: this, duration: _duration)
-      ..forward();
+    _progress = AnimationController(vsync: this, duration: _duration)..forward();
     _progress.addStatusListener((status) {
       if (status != AnimationStatus.completed) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {

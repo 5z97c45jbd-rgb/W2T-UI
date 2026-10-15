@@ -7,7 +7,7 @@ class AuthTextField extends StatefulWidget {
   const AuthTextField({
     super.key,
     required this.hint,
-    required this.prefixIcon,
+    this.prefixIcon,
     this.obscureText = false,
     this.controller,
     this.keyboardType,
@@ -15,7 +15,7 @@ class AuthTextField extends StatefulWidget {
   });
 
   final String hint;
-  final IconData prefixIcon;
+  final IconData? prefixIcon;
   final bool obscureText;
   final TextEditingController? controller;
   final TextInputType? keyboardType;
@@ -56,11 +56,13 @@ class _AuthTextFieldState extends State<AuthTextField> {
         filled: true,
         fillColor: AppColors.fieldFill,
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-        prefixIcon: Icon(
-          widget.prefixIcon,
-          color: AppColors.textMuted,
-          size: 22,
-        ),
+        prefixIcon: widget.prefixIcon == null
+            ? null
+            : Icon(
+                widget.prefixIcon,
+                color: AppColors.textMuted,
+                size: 22,
+              ),
         suffixIcon: widget.obscureText
             ? IconButton(
                 onPressed: () => setState(() => _obscured = !_obscured),

@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
+import 'package:w2t_mobile/features/auth/widgets/auth_switch_link.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_text_field.dart';
+import 'package:w2t_mobile/features/auth/widgets/phone_number_field.dart';
 import 'package:w2t_mobile/features/auth/widgets/primary_button.dart';
 import 'package:w2t_mobile/features/auth/widgets/w2t_logo.dart';
 
@@ -82,23 +84,19 @@ class _SignupScreenState extends State<SignupScreen> {
                   ],
                 ),
                 const SizedBox(height: 28),
-                AuthTextField(
-                  key: ValueKey(_usePhone),
-                  hint: _usePhone ? 'Phone number' : 'Email',
-                  prefixIcon: _usePhone
-                      ? Icons.phone_outlined
-                      : Icons.mail_outline_rounded,
-                  keyboardType: _usePhone
-                      ? TextInputType.phone
-                      : TextInputType.emailAddress,
-                  inputFormatters: _usePhone
-                      ? [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(10),
-                        ]
-                      : null,
+                _usePhone
+                    ? const PhoneNumberField(key: ValueKey('phone'))
+                    : const AuthTextField(
+                        key: ValueKey('email'),
+                        hint: 'Email',
+                        prefixIcon: Icons.mail_outline_rounded,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                AuthSwitchLink(
+                  label: _usePhone ? 'Use email' : 'Use Phone?',
+                  onPressed: () => setState(() => _usePhone = !_usePhone),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 6),
                 const AuthTextField(
                   hint: 'Password',
                   prefixIcon: Icons.lock_outline_rounded,
@@ -109,25 +107,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   hint: 'Confirm password',
                   prefixIcon: Icons.lock_outline_rounded,
                   obscureText: true,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => setState(() => _usePhone = !_usePhone),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      _usePhone ? 'use email' : 'Try phone number?',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 18),
                 PrimaryButton(
