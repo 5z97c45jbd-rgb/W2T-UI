@@ -25,6 +25,7 @@ class DioClient {
           if (kDebugMode) {
             debugPrint(
               '[network] ${options.method} ${options.uri}\n'
+              'query: ${options.queryParameters}\n'
               'request: ${options.data}',
             );
           }
@@ -45,6 +46,7 @@ class DioClient {
             final options = error.requestOptions;
             debugPrint(
               '[network] ${options.method} ${options.uri}\n'
+              'query: ${options.queryParameters}\n'
               'request: ${options.data}\n'
               'response ${error.response?.statusCode}: ${error.response?.data}',
             );

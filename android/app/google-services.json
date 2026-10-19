@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "801621377297",
+    "project_id": "wsquaret-39a45",
+    "storage_bucket": "wsquaret-39a45.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801621377297:android:e5ce38b05aec2b0c980cb0",
+        "android_client_info": {
+          "package_name": "com.example.w2t_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjMqt5KYXdk1nqRPEvje-j0ipPVHNsbuw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

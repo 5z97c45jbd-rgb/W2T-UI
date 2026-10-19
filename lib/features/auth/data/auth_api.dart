@@ -14,10 +14,12 @@ class AuthApi {
     String? email,
     String? phoneNumber,
     required String password,
+    required String deviceToken,
   }) {
     return _guard(() async {
       await _dio.post<dynamic>(
-        '/api/auth/register/otp',
+        '/api/auth/register',
+        queryParameters: {'deviceToken': deviceToken},
         data: {
           if (email != null) 'email': email,
           if (phoneNumber != null) 'phoneNumber': phoneNumber,
@@ -27,17 +29,15 @@ class AuthApi {
     });
   }
 
-  Future<AuthSession?> register({
+  Future<void> verifyRegisterOtp({
     String? email,
     String? phoneNumber,
     required String password,
     required String otpCode,
-    required String deviceToken,
   }) {
     return _guard(() async {
-      final response = await _dio.post<dynamic>(
-        '/api/auth/register',
-        queryParameters: {'deviceToken': deviceToken},
+      await _dio.post<dynamic>(
+        '/api/auth/register/otp',
         data: {
           if (email != null) 'email': email,
           if (phoneNumber != null) 'phoneNumber': phoneNumber,
@@ -45,7 +45,6 @@ class AuthApi {
           'otpCode': otpCode,
         },
       );
-      return _sessionFrom(response.data);
     });
   }
 

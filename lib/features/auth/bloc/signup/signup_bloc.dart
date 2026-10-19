@@ -43,10 +43,12 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     emit(state.copyWith(status: SignupStatus.loading, clearError: true));
     try {
       final contact = _contact(event.identifier, event.usePhone);
+      final deviceToken = await DeviceTokenService.current();
       await _api.requestRegisterOtp(
         email: contact.email,
         phoneNumber: contact.phoneNumber,
         password: event.password,
+        deviceToken: deviceToken,
       );
       emit(const SignupState(status: SignupStatus.idle, otpSent: true));
     } catch (error) {
@@ -89,15 +91,13 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     emit(state.copyWith(status: SignupStatus.loading, clearError: true));
     try {
       final contact = _contact(event.identifier, event.usePhone);
-      final deviceToken = await DeviceTokenService.current();
-      var session = await _api.register(
+      await _api.verifyRegisterOtp(
         email: contact.email,
         phoneNumber: contact.phoneNumber,
         password: event.password,
         otpCode: otp,
-        deviceToken: deviceToken,
       );
-      session ??= await _api.login(
+      final session = await _api.login(
         email: contact.email,
         phoneNumber: contact.phoneNumber,
         password: event.password,
