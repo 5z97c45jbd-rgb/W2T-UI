@@ -22,32 +22,22 @@ class DioClient {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          if (kDebugMode) {
-            debugPrint(
-              '[network] ${options.method} ${options.uri}\n'
-              'query: ${options.queryParameters}\n'
-              'request: ${options.data}',
-            );
-          }
+
           handler.next(options);
         },
         onResponse: (response, handler) {
           if (kDebugMode) {
             final options = response.requestOptions;
             debugPrint(
-              '[network] ${options.method} ${options.uri}\n'
-              'response ${response.statusCode}: ${response.data}',
+              '${options.method} ${options.uri}\n'
+              'Body: ${options.data}',
             );
           }
           handler.next(response);
         },
         onError: (error, handler) {
           if (kDebugMode) {
-            final options = error.requestOptions;
             debugPrint(
-              '[network] ${options.method} ${options.uri}\n'
-              'query: ${options.queryParameters}\n'
-              'request: ${options.data}\n'
               'response ${error.response?.statusCode}: ${error.response?.data}',
             );
           }
