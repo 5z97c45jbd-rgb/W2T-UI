@@ -1,0 +1,3 @@
+class AuthTokenHolder {
+  String? accessToken;
+}

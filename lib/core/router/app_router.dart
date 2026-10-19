@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:w2t_mobile/features/auth/ui/confirm_password_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/forgot_password_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/full_name_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/login_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/phone_number_screen.dart';
+import 'package:w2t_mobile/features/auth/ui/signed_in_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/signup_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/splash_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/welcome_screen.dart';
@@ -17,7 +17,7 @@ abstract final class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String fullName = '/signup/full-name';
   static const String phone = '/signup/phone';
-  static const String confirmPassword = '/signup/confirm-password';
+  static const String home = '/home';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -73,10 +73,10 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: AppRoutes.confirmPassword,
-      name: 'confirmPassword',
+      path: AppRoutes.home,
+      name: 'home',
       pageBuilder: (context, state) => const MaterialPage(
-        child: ConfirmPasswordScreen(),
+        child: SignedInScreen(),
       ),
     ),
   ],
