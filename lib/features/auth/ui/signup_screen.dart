@@ -9,6 +9,7 @@ import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/auth/bloc/signup/signup_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/signup/signup_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/signup/signup_state.dart';
+import 'package:w2t_mobile/features/auth/data/auth_validators.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_error_text.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_switch_link.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_text_field.dart';
@@ -32,7 +33,18 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _usePhone = false;
 
   @override
+  void initState() {
+    super.initState();
+    for (final controller in [_email, _phone, _password, _confirm, _otp]) {
+      controller.addListener(_onFieldsChanged);
+    }
+  }
+
+  @override
   void dispose() {
+    for (final controller in [_email, _phone, _password, _confirm, _otp]) {
+      controller.removeListener(_onFieldsChanged);
+    }
     _email.dispose();
     _phone.dispose();
     _password.dispose();
@@ -41,7 +53,25 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
+  void _onFieldsChanged() => setState(() {});
+
+  bool _canRequestOtp() => AuthValidators.canRequestSignupOtp(
+        identifier: _usePhone ? _phone.text : _email.text,
+        usePhone: _usePhone,
+        password: _password.text,
+        confirmPassword: _confirm.text,
+      );
+
+  bool _canSignUp() => AuthValidators.canSubmitSignup(
+        identifier: _usePhone ? _phone.text : _email.text,
+        usePhone: _usePhone,
+        password: _password.text,
+        confirmPassword: _confirm.text,
+        otp: _otp.text,
+      );
+
   void _requestOtp() {
+    if (!_canRequestOtp()) return;
     context.read<SignupBloc>().add(
           SignupOtpRequested(
             identifier: _usePhone ? _phone.text : _email.text,
@@ -53,6 +83,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   void _signUp() {
+    if (!_canSignUp()) return;
     context.read<SignupBloc>().add(
           SignupSubmitted(
             identifier: _usePhone ? _phone.text : _email.text,
@@ -70,7 +101,7 @@ class _SignupScreenState extends State<SignupScreen> {
       listenWhen: (previous, current) =>
           previous.status != SignupStatus.registered &&
           current.status == SignupStatus.registered,
-      listener: (context, state) => context.push(AppRoutes.fullName),
+      listener: (context, state) => context.go(AppRoutes.home),
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
         child: Scaffold(
@@ -183,7 +214,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       PrimaryButton(
                         label: state.otpSent ? 'Sign Up' : 'Get OTP',
                         isLoading: loading,
-                        onPressed: state.otpSent ? _signUp : _requestOtp,
+                        onPressed: state.otpSent
+                            ? (_canSignUp() ? _signUp : null)
+                            : (_canRequestOtp() ? _requestOtp : null),
                       ),
                       if (state.otpSent) ...[
                         const SizedBox(height: 8),

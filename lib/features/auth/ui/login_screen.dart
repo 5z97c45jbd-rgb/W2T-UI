@@ -9,6 +9,7 @@ import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/auth/bloc/login/login_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/login/login_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/login/login_state.dart';
+import 'package:w2t_mobile/features/auth/data/auth_validators.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_error_text.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_switch_link.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_text_field.dart';
@@ -31,14 +32,34 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _usePhone = false;
 
   @override
+  void initState() {
+    super.initState();
+    for (final controller in [_email, _phone, _password]) {
+      controller.addListener(_onFieldsChanged);
+    }
+  }
+
+  @override
   void dispose() {
+    for (final controller in [_email, _phone, _password]) {
+      controller.removeListener(_onFieldsChanged);
+    }
     _email.dispose();
     _phone.dispose();
     _password.dispose();
     super.dispose();
   }
 
+  void _onFieldsChanged() => setState(() {});
+
+  bool get _isValid => AuthValidators.canSubmitLogin(
+        identifier: _usePhone ? _phone.text : _email.text,
+        password: _password.text,
+        usePhone: _usePhone,
+      );
+
   void _submit() {
+    if (!_isValid) return;
     context.read<LoginBloc>().add(
           LoginSubmitted(
             identifier: _usePhone ? _phone.text : _email.text,
@@ -167,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       PrimaryButton(
                         label: 'Login',
                         isLoading: loading,
-                        onPressed: _submit,
+                        onPressed: _isValid ? _submit : null,
                       ),
                       const SizedBox(height: 22),
                       const _OrDivider(),

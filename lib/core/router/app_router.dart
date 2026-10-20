@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/ui/forgot_password_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/full_name_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/login_screen.dart';
@@ -20,8 +22,22 @@ abstract final class AppRoutes {
   static const String home = '/home';
 }
 
+const _authGateRoutes = {
+  AppRoutes.welcome,
+  AppRoutes.login,
+  AppRoutes.signup,
+  AppRoutes.forgotPassword,
+};
+
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
+  redirect: (context, state) {
+    final signedIn = context.read<SessionBloc>().state.isSignedIn;
+    if (signedIn && _authGateRoutes.contains(state.matchedLocation)) {
+      return AppRoutes.home;
+    }
+    return null;
+  },
   routes: [
     GoRoute(
       path: AppRoutes.splash,

@@ -2,10 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
+import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/widgets/w2t_logo.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,7 +29,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _progress.addStatusListener((status) {
       if (status != AnimationStatus.completed) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.go(AppRoutes.welcome);
+        if (!mounted) return;
+        final signedIn = context.read<SessionBloc>().state.isSignedIn;
+        context.go(signedIn ? AppRoutes.home : AppRoutes.welcome);
       });
     });
   }

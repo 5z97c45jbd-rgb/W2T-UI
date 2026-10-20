@@ -5,6 +5,7 @@ import 'package:w2t_mobile/features/auth/bloc/login/login_state.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_event.dart';
 import 'package:w2t_mobile/features/auth/data/auth_api.dart';
+import 'package:w2t_mobile/features/auth/data/auth_validators.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc({
@@ -23,33 +24,24 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginSubmitted event,
     Emitter<LoginState> emit,
   ) async {
-    final identifier = event.identifier.trim();
-    if (identifier.isEmpty) {
+    if (state.status == LoginStatus.loading) return;
+
+    final error = AuthValidators.login(
+      identifier: event.identifier,
+      password: event.password,
+      usePhone: event.usePhone,
+    );
+    if (error != null) {
       emit(LoginState(
         status: LoginStatus.failure,
-        errorMessage: event.usePhone
-            ? 'Enter your phone number'
-            : 'Enter your email',
-      ));
-      return;
-    }
-    if (event.usePhone && identifier.length != 10) {
-      emit(const LoginState(
-        status: LoginStatus.failure,
-        errorMessage: 'Enter a 10-digit phone number',
-      ));
-      return;
-    }
-    if (event.password.isEmpty) {
-      emit(const LoginState(
-        status: LoginStatus.failure,
-        errorMessage: 'Enter your password',
+        errorMessage: error,
       ));
       return;
     }
 
     emit(const LoginState(status: LoginStatus.loading));
     try {
+      final identifier = event.identifier.trim();
       final session = await _api.login(
         email: event.usePhone ? null : identifier,
         phoneNumber: event.usePhone ? '+91$identifier' : null,

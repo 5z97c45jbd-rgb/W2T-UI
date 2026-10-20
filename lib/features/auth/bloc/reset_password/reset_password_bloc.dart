@@ -3,6 +3,7 @@ import 'package:w2t_mobile/core/network/api_exception.dart';
 import 'package:w2t_mobile/features/auth/bloc/reset_password/reset_password_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/reset_password/reset_password_state.dart';
 import 'package:w2t_mobile/features/auth/data/auth_api.dart';
+import 'package:w2t_mobile/features/auth/data/auth_validators.dart';
 import 'package:w2t_mobile/features/auth/data/device_token_service.dart';
 
 class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
@@ -19,7 +20,9 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
     ResetOtpRequested event,
     Emitter<ResetPasswordState> emit,
   ) async {
-    final error = _validate(
+    if (state.status == ResetPasswordStatus.loading) return;
+
+    final error = AuthValidators.resetPassword(
       userUq: event.userUq,
       password: event.password,
       confirmPassword: event.confirmPassword,
@@ -57,10 +60,14 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
     ResetPasswordSubmitted event,
     Emitter<ResetPasswordState> emit,
   ) async {
-    final error = _validate(
+    if (state.status == ResetPasswordStatus.loading) return;
+
+    final error = AuthValidators.resetPassword(
       userUq: event.userUq,
       password: event.password,
       confirmPassword: event.confirmPassword,
+      otp: event.otp,
+      requireOtp: true,
     );
     if (error != null) {
       emit(ResetPasswordState(
@@ -71,14 +78,6 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
       return;
     }
     final otp = event.otp.trim();
-    if (otp.isEmpty) {
-      emit(const ResetPasswordState(
-        status: ResetPasswordStatus.failure,
-        otpSent: true,
-        errorMessage: 'Enter the OTP',
-      ));
-      return;
-    }
 
     emit(state.copyWith(status: ResetPasswordStatus.loading, clearError: true));
     try {
@@ -99,21 +98,5 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
       ));
     }
   }
-
-  String? _validate({
-    required String userUq,
-    required String password,
-    required String confirmPassword,
-  }) {
-    if (userUq.trim().isEmpty) {
-      return 'Enter your email or phone number';
-    }
-    if (password.isEmpty || confirmPassword.isEmpty) {
-      return 'Enter and confirm your password';
-    }
-    if (password != confirmPassword) {
-      return 'Passwords do not match';
-    }
-    return null;
-  }
 }
+

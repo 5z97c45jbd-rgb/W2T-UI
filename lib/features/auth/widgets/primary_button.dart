@@ -13,21 +13,27 @@ class PrimaryButton extends StatelessWidget {
   });
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool showArrow;
   final double height;
   final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
+    final enabled = onPressed != null;
     return SizedBox(
       width: double.infinity,
       height: height,
       child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: isLoading
+            ? () {}
+            : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor:
+              enabled || isLoading ? AppColors.primary : AppColors.indicatorInactive,
           foregroundColor: AppColors.white,
+          disabledBackgroundColor: AppColors.indicatorInactive,
+          disabledForegroundColor: AppColors.white,
           elevation: 0,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(

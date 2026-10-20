@@ -5,6 +5,7 @@ import 'package:w2t_mobile/features/auth/bloc/session/session_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/signup/signup_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/signup/signup_state.dart';
 import 'package:w2t_mobile/features/auth/data/auth_api.dart';
+import 'package:w2t_mobile/features/auth/data/auth_validators.dart';
 import 'package:w2t_mobile/features/auth/data/device_token_service.dart';
 
 class SignupBloc extends Bloc<SignupEvent, SignupState> {
@@ -25,7 +26,9 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     SignupOtpRequested event,
     Emitter<SignupState> emit,
   ) async {
-    final error = _validate(
+    if (state.status == SignupStatus.loading) return;
+
+    final error = AuthValidators.signup(
       identifier: event.identifier,
       usePhone: event.usePhone,
       password: event.password,
@@ -64,11 +67,15 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     SignupSubmitted event,
     Emitter<SignupState> emit,
   ) async {
-    final error = _validate(
+    if (state.status == SignupStatus.loading) return;
+
+    final error = AuthValidators.signup(
       identifier: event.identifier,
       usePhone: event.usePhone,
       password: event.password,
       confirmPassword: event.confirmPassword,
+      otp: event.otp,
+      requireOtp: true,
     );
     if (error != null) {
       emit(SignupState(
@@ -79,14 +86,6 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
       return;
     }
     final otp = event.otp.trim();
-    if (otp.isEmpty) {
-      emit(const SignupState(
-        status: SignupStatus.failure,
-        otpSent: true,
-        errorMessage: 'Enter the OTP',
-      ));
-      return;
-    }
 
     emit(state.copyWith(status: SignupStatus.loading, clearError: true));
     try {
@@ -114,27 +113,6 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
         errorMessage: apiErrorMessage(error),
       ));
     }
-  }
-
-  String? _validate({
-    required String identifier,
-    required bool usePhone,
-    required String password,
-    required String confirmPassword,
-  }) {
-    final trimmed = identifier.trim();
-    if (usePhone) {
-      if (trimmed.length != 10) return 'Enter a 10-digit phone number';
-    } else if (trimmed.isEmpty || !trimmed.contains('@')) {
-      return 'Enter a valid email';
-    }
-    if (password.isEmpty || confirmPassword.isEmpty) {
-      return 'Enter and confirm your password';
-    }
-    if (password != confirmPassword) {
-      return 'Passwords do not match';
-    }
-    return null;
   }
 
   ({String? email, String? phoneNumber}) _contact(String identifier, bool usePhone) {

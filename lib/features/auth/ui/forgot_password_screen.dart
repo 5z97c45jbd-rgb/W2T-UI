@@ -8,6 +8,7 @@ import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/auth/bloc/reset_password/reset_password_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/reset_password/reset_password_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/reset_password/reset_password_state.dart';
+import 'package:w2t_mobile/features/auth/data/auth_validators.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_error_text.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_page.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_text_field.dart';
@@ -27,7 +28,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _otp = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    for (final controller in [_userUq, _password, _confirm, _otp]) {
+      controller.addListener(_onFieldsChanged);
+    }
+  }
+
+  @override
   void dispose() {
+    for (final controller in [_userUq, _password, _confirm, _otp]) {
+      controller.removeListener(_onFieldsChanged);
+    }
     _userUq.dispose();
     _password.dispose();
     _confirm.dispose();
@@ -35,7 +47,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
+  void _onFieldsChanged() => setState(() {});
+
+  bool _canRequestOtp() => AuthValidators.canRequestResetOtp(
+        userUq: _userUq.text,
+        password: _password.text,
+        confirmPassword: _confirm.text,
+      );
+
+  bool _canReset() => AuthValidators.canSubmitReset(
+        userUq: _userUq.text,
+        password: _password.text,
+        confirmPassword: _confirm.text,
+        otp: _otp.text,
+      );
+
   void _requestOtp() {
+    if (!_canRequestOtp()) return;
     context.read<ResetPasswordBloc>().add(
           ResetOtpRequested(
             userUq: _userUq.text,
@@ -46,6 +74,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _reset() {
+    if (!_canReset()) return;
     context.read<ResetPasswordBloc>().add(
           ResetPasswordSubmitted(
             userUq: _userUq.text,
@@ -108,7 +137,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               PrimaryButton(
                 label: state.otpSent ? 'Reset Password' : 'Get OTP',
                 isLoading: loading,
-                onPressed: state.otpSent ? _reset : _requestOtp,
+                onPressed: state.otpSent
+                    ? (_canReset() ? _reset : null)
+                    : (_canRequestOtp() ? _requestOtp : null),
               ),
               if (state.otpSent) ...[
                 const SizedBox(height: 8),
