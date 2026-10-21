@@ -6,7 +6,7 @@ import 'package:w2t_mobile/features/auth/ui/forgot_password_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/full_name_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/login_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/phone_number_screen.dart';
-import 'package:w2t_mobile/features/auth/ui/signed_in_screen.dart';
+import 'package:w2t_mobile/features/home/ui/home_shell.dart';
 import 'package:w2t_mobile/features/auth/ui/signup_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/splash_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/welcome_screen.dart';
@@ -30,7 +30,7 @@ const _authGateRoutes = {
 };
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.splash,
+  initialLocation: AppRoutes.home,
   redirect: (context, state) {
     final signedIn = context.read<SessionBloc>().state.isSignedIn;
     if (signedIn && _authGateRoutes.contains(state.matchedLocation)) {
@@ -92,7 +92,7 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.home,
       name: 'home',
       pageBuilder: (context, state) => const MaterialPage(
-        child: SignedInScreen(),
+        child: HomeShell(),
       ),
     ),
   ],
