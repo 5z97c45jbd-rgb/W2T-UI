@@ -3,6 +3,7 @@ import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/features/home/data/home_content.dart';
 import 'package:w2t_mobile/features/home/widgets/catalog_product_card.dart';
 import 'package:w2t_mobile/features/home/widgets/featured_restaurant_card.dart';
+import 'package:w2t_mobile/features/home/widgets/home_categories_grid.dart';
 import 'package:w2t_mobile/features/home/widgets/home_header.dart';
 import 'package:w2t_mobile/features/home/widgets/home_hero_banner.dart';
 import 'package:w2t_mobile/features/home/widgets/home_horizontal_carousel.dart';
@@ -30,6 +31,7 @@ class HomeScreen extends StatelessWidget {
             sliver: const SliverToBoxAdapter(child: HomeHeader()),
           ),
           const SliverToBoxAdapter(child: HomeHeroBanner()),
+          const SliverToBoxAdapter(child: HomeCategoriesGrid()),
           SliverToBoxAdapter(
             child: HomeSectionHeader(
               icon: Icons.restaurant_rounded,

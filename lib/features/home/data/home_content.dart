@@ -1,8 +1,57 @@
+import 'package:flutter/material.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/features/home/data/models/catalog_item.dart';
+import 'package:w2t_mobile/features/home/data/models/category_item.dart';
 import 'package:w2t_mobile/features/home/data/models/restaurant_item.dart';
 
 abstract final class HomeContent {
+  static const categories = <CategoryItem>[
+    CategoryItem(
+      label: 'Food',
+      emoji: '🍔',
+      background: Color(0xFFFFE8D6),
+    ),
+    CategoryItem(
+      label: 'Grocery',
+      emoji: '🧺',
+      background: Color(0xFFE4F6EA),
+    ),
+    CategoryItem(
+      label: 'Pharmacy',
+      emoji: '💊',
+      background: Color(0xFFEDE8FB),
+    ),
+    CategoryItem(
+      label: 'Flowers',
+      emoji: '🌷',
+      background: Color(0xFFE9F8EE),
+    ),
+    CategoryItem(
+      label: 'Electronics',
+      emoji: '💻',
+      background: Color(0xFFE8EEF6),
+    ),
+    CategoryItem(
+      label: 'Home & Living',
+      emoji: '🛋️',
+      background: Color(0xFFE4F6EA),
+    ),
+    CategoryItem(
+      label: 'Beauty',
+      emoji: '🧴',
+      background: Color(0xFFFCE8EF),
+    ),
+    CategoryItem(
+      label: 'Pet Care',
+      emoji: '🐾',
+      background: Color(0xFFFCE4EA),
+    ),
+    CategoryItem(
+      label: 'More',
+      background: Color(0xFFEEF1F4),
+    ),
+  ];
+
   static const featuredRestaurants = <RestaurantItem>[
     RestaurantItem(
       name: 'Paradise Biryani',
