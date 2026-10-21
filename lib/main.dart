@@ -6,6 +6,7 @@ import 'package:w2t_mobile/core/network/dio_client.dart';
 import 'package:w2t_mobile/core/notifications/push_notification_service.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/core/theme/app_theme.dart';
+import 'package:w2t_mobile/core/ui/app_snack_bar.dart';
 import 'package:w2t_mobile/features/auth/bloc/login/login_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/profile/profile_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/reset_password/reset_password_bloc.dart';
@@ -15,6 +16,7 @@ import 'package:w2t_mobile/features/auth/data/auth_api.dart';
 import 'package:w2t_mobile/features/auth/data/device_token_service.dart';
 import 'package:w2t_mobile/features/auth/data/models/auth_session.dart';
 import 'package:w2t_mobile/features/auth/data/session_store.dart';
+import 'package:w2t_mobile/features/auth/widgets/auth_feedback_listener.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,7 +95,13 @@ class _W2tAppState extends State<W2tApp> {
         title: 'W2T',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
+        scaffoldMessengerKey: AppSnackBar.messengerKey,
         routerConfig: _router,
+        builder: (context, child) {
+          return AuthFeedbackListener(
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
       ),
     );
   }
