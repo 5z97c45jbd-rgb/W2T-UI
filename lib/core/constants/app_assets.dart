@@ -7,8 +7,6 @@ abstract final class AppAssets {
 
   static const String homeHero = 'assets/place.png';
   static const String bottomNavAi = 'assets/icon/WT2AI.svg';
-  /// Cropped viewBox so sparkle + label read at nav-bar sizes.
-  static const String bottomNavAiNav = 'assets/icon/WT2AI_nav.svg';
 
   static const String paradiseBiryani = 'assets/paradise_biriyani.jpeg';
   static const String foodCourt = 'assets/foodcourt.jpeg';

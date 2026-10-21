@@ -40,7 +40,6 @@ class HomeBottomNavBar extends StatelessWidget {
       ),
       child: _NavSurface(
         height: _barHeight,
-        clipBehavior: Clip.none,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: _barVerticalPadding),
           child: Row(
@@ -128,7 +127,7 @@ class _LocateNavItem extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  static const _badgeSize = 50.0;
+  static const _badgeSize = 28.0;
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +140,6 @@ class _LocateNavItem extends StatelessWidget {
       selected: selected,
       child: Material(
         color: Colors.transparent,
-        clipBehavior: Clip.none,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(22),
@@ -159,30 +157,13 @@ class _LocateNavItem extends StatelessWidget {
               children: [
                 SizedBox(
                   height: _NavItem.iconSlotHeight,
-                  child: OverflowBox(
-                    alignment: Alignment.center,
-                    maxWidth: _badgeSize,
-                    maxHeight: _badgeSize,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: SvgPicture.asset(
-                          AppAssets.bottomNavAiNav,
-                          width: _badgeSize,
-                          height: _badgeSize,
-                          fit: BoxFit.cover,
-                          excludeFromSemantics: true,
-                        ),
-                      ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      AppAssets.bottomNavAi,
+                      width: _badgeSize,
+                      height: _badgeSize,
+                      fit: BoxFit.contain,
+                      excludeFromSemantics: true,
                     ),
                   ),
                 ),
