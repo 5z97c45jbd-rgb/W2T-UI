@@ -101,7 +101,19 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
         phoneNumber: contact.phoneNumber,
         password: event.password,
       );
+      final established = _sessionBloc.stream.firstWhere(
+        (state) => state.isSignedIn || state.didExpire,
+      );
       _sessionBloc.add(SessionSignedIn(session));
+      final next = await established;
+      if (!next.isSignedIn) {
+        emit(const SignupState(
+          status: SignupStatus.failure,
+          otpSent: true,
+          errorMessage: 'Your session expired. Please sign in again.',
+        ));
+        return;
+      }
       emit(const SignupState(
         status: SignupStatus.registered,
         otpSent: true,

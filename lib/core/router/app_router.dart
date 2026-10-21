@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/ui/forgot_password_screen.dart';
@@ -29,71 +30,101 @@ const _authGateRoutes = {
   AppRoutes.forgotPassword,
 };
 
-final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.home,
-  redirect: (context, state) {
-    final signedIn = context.read<SessionBloc>().state.isSignedIn;
-    if (signedIn && _authGateRoutes.contains(state.matchedLocation)) {
-      return AppRoutes.home;
-    }
-    return null;
-  },
-  routes: [
-    GoRoute(
-      path: AppRoutes.splash,
-      name: 'splash',
-      pageBuilder: (context, state) => const MaterialPage(
-        child: SplashScreen(),
+GoRouter createAppRouter(SessionBloc sessionBloc) {
+  return GoRouter(
+    initialLocation: AppRoutes.splash,
+    refreshListenable: GoRouterRefreshStream(sessionBloc.stream),
+    redirect: (context, state) {
+      final session = sessionBloc.state;
+      final location = state.matchedLocation;
+
+      if (!session.isResolved) {
+        return location == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
+      if (session.isSignedIn) {
+        if (_authGateRoutes.contains(location)) {
+          return AppRoutes.home;
+        }
+        return null;
+      }
+
+      if (location == AppRoutes.home) {
+        return session.didExpire ? AppRoutes.login : AppRoutes.welcome;
+      }
+      return null;
+    },
+    routes: [
+      GoRoute(
+        path: AppRoutes.splash,
+        name: 'splash',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: SplashScreen(),
+        ),
       ),
-    ),
-    GoRoute(
-      path: AppRoutes.welcome,
-      name: 'welcome',
-      pageBuilder: (context, state) => const MaterialPage(
-        child: WelcomeScreen(),
+      GoRoute(
+        path: AppRoutes.welcome,
+        name: 'welcome',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: WelcomeScreen(),
+        ),
       ),
-    ),
-    GoRoute(
-      path: AppRoutes.login,
-      name: 'login',
-      pageBuilder: (context, state) => const MaterialPage(
-        child: LoginScreen(),
+      GoRoute(
+        path: AppRoutes.login,
+        name: 'login',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: LoginScreen(),
+        ),
       ),
-    ),
-    GoRoute(
-      path: AppRoutes.signup,
-      name: 'signup',
-      pageBuilder: (context, state) => const MaterialPage(
-        child: SignupScreen(),
+      GoRoute(
+        path: AppRoutes.signup,
+        name: 'signup',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: SignupScreen(),
+        ),
       ),
-    ),
-    GoRoute(
-      path: AppRoutes.forgotPassword,
-      name: 'forgotPassword',
-      pageBuilder: (context, state) => const MaterialPage(
-        child: ForgotPasswordScreen(),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        name: 'forgotPassword',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: ForgotPasswordScreen(),
+        ),
       ),
-    ),
-    GoRoute(
-      path: AppRoutes.fullName,
-      name: 'fullName',
-      pageBuilder: (context, state) => const MaterialPage(
-        child: FullNameScreen(),
+      GoRoute(
+        path: AppRoutes.fullName,
+        name: 'fullName',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: FullNameScreen(),
+        ),
       ),
-    ),
-    GoRoute(
-      path: AppRoutes.phone,
-      name: 'phone',
-      pageBuilder: (context, state) => const MaterialPage(
-        child: PhoneNumberScreen(),
+      GoRoute(
+        path: AppRoutes.phone,
+        name: 'phone',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: PhoneNumberScreen(),
+        ),
       ),
-    ),
-    GoRoute(
-      path: AppRoutes.home,
-      name: 'home',
-      pageBuilder: (context, state) => const MaterialPage(
-        child: HomeShell(),
+      GoRoute(
+        path: AppRoutes.home,
+        name: 'home',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: HomeShell(),
+        ),
       ),
-    ),
-  ],
-);
+    ],
+  );
+}
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    _subscription = stream.listen((_) => notifyListeners());
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}

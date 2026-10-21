@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:w2t_mobile/core/network/auth_token_holder.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
 import 'package:w2t_mobile/core/notifications/push_notification_service.dart';
@@ -36,28 +37,36 @@ class _W2tAppState extends State<W2tApp> {
   late final AuthTokenHolder _tokenHolder;
   late final SessionStore _sessionStore;
   late final AuthApi _api;
+  late final SessionBloc _sessionBloc;
+  late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
-    _tokenHolder = AuthTokenHolder()
-      ..accessToken = widget.initialSession?.accessToken;
+    _tokenHolder = AuthTokenHolder();
     _sessionStore = SessionStore();
     _api = AuthApi(DioClient(_tokenHolder));
+    _sessionBloc = SessionBloc(
+      api: _api,
+      store: _sessionStore,
+      tokenHolder: _tokenHolder,
+      storedSession: widget.initialSession,
+    );
+    _router = createAppRouter(_sessionBloc);
+  }
+
+  @override
+  void dispose() {
+    _router.dispose();
+    _sessionBloc.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) => SessionBloc(
-            api: _api,
-            store: _sessionStore,
-            tokenHolder: _tokenHolder,
-            initialSession: widget.initialSession,
-          ),
-        ),
+        BlocProvider.value(value: _sessionBloc),
         BlocProvider(
           create: (context) => LoginBloc(
             api: _api,
@@ -84,7 +93,7 @@ class _W2tAppState extends State<W2tApp> {
         title: 'W2T',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
-        routerConfig: appRouter,
+        routerConfig: _router,
       ),
     );
   }

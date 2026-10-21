@@ -50,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    state.session?.userId ?? '',
+                    state.profile?.displayName ?? state.session?.userId ?? '',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       fontSize: 13,

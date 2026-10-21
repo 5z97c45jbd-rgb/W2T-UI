@@ -1,9 +1,13 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:w2t_mobile/features/auth/ui/splash_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/welcome_screen.dart';
 import 'package:w2t_mobile/main.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  FlutterSecureStorage.setMockInitialValues({});
+
   testWidgets('App opens on splash then welcome', (WidgetTester tester) async {
     await tester.pumpWidget(const W2tApp());
     await tester.pump();

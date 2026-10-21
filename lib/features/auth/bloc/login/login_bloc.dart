@@ -47,7 +47,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         phoneNumber: event.usePhone ? '+91$identifier' : null,
         password: event.password,
       );
+      final established = _sessionBloc.stream.firstWhere(
+        (state) => state.isSignedIn || state.didExpire,
+      );
       _sessionBloc.add(SessionSignedIn(session));
+      final next = await established;
+      if (!next.isSignedIn) {
+        emit(const LoginState(
+          status: LoginStatus.failure,
+          errorMessage: 'Your session expired. Please sign in again.',
+        ));
+        return;
+      }
       emit(const LoginState(status: LoginStatus.success));
     } catch (error) {
       emit(LoginState(

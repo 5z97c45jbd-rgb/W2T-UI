@@ -41,6 +41,9 @@ class DioClient {
               'response ${error.response?.statusCode}: ${error.response?.data}',
             );
           }
+          if (_shouldInvalidateSession(error)) {
+            tokenHolder.notifyUnauthorized();
+          }
           handler.next(error);
         },
       ),
@@ -49,4 +52,15 @@ class DioClient {
 
   final AuthTokenHolder tokenHolder;
   late final Dio dio;
+
+  bool _shouldInvalidateSession(DioException error) {
+    if (error.response?.statusCode != 401) return false;
+    if (tokenHolder.accessToken == null || tokenHolder.accessToken!.isEmpty) {
+      return false;
+    }
+    final path = error.requestOptions.path;
+    return !path.contains('/api/auth/login') &&
+        !path.contains('/api/auth/register') &&
+        !path.contains('/reset-password');
+  }
 }

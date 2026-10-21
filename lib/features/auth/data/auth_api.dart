@@ -5,6 +5,7 @@ import 'package:w2t_mobile/core/network/api_exception.dart';
 import 'package:w2t_mobile/core/network/api_response.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
 import 'package:w2t_mobile/features/auth/data/models/auth_session.dart';
+import 'package:w2t_mobile/features/auth/data/models/user_profile.dart';
 
 class AuthApi {
   AuthApi(this._client);
@@ -103,17 +104,39 @@ class AuthApi {
     });
   }
 
+  Future<UserProfile> getProfile({required String userId}) {
+    return _guard(() async {
+      final response = await _dio.get<dynamic>(
+        '/api/auth/user/$userId/profile/me',
+      );
+      return UserProfile.fromData(
+        ApiResponse.parse(response.data).data,
+        fallbackUserId: userId,
+      );
+    });
+  }
+
   Future<void> updateProfile({
     required String userId,
-    required String fullName,
-    required String phoneNumber,
+    String? fullName,
+    String? phoneNumber,
+    DateTime? dateOfBirth,
+    String? color,
   }) {
     return _send(() {
       return _dio.post<dynamic>(
         '/api/auth/user/$userId/profile/me',
         data: {
-          'fullName': fullName,
-          'phoneNumber': phoneNumber,
+          if (fullName != null) 'fullName': fullName,
+          if (phoneNumber != null) 'phoneNumber': phoneNumber,
+          if (dateOfBirth != null)
+            'dateOfBirth': DateTime.utc(
+              dateOfBirth.year,
+              dateOfBirth.month,
+              dateOfBirth.day,
+              12,
+            ).toIso8601String(),
+          if (color != null) 'color': color,
         },
       );
     });
@@ -162,7 +185,7 @@ class AuthApi {
     try {
       return await run();
     } on DioException catch (error) {
-      throw ApiException(apiErrorMessage(error));
+      throw apiExceptionFrom(error);
     }
   }
 }

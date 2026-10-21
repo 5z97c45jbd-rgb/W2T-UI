@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
+import 'package:w2t_mobile/features/auth/bloc/session/session_state.dart';
 import 'package:w2t_mobile/features/auth/widgets/w2t_logo.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,7 +18,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   static const _duration = Duration(seconds: 4);
 
   late final AnimationController _progress;
@@ -25,14 +27,25 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _progress = AnimationController(vsync: this, duration: _duration)..forward();
+    _progress = AnimationController(vsync: this, duration: _duration)
+      ..forward();
     _progress.addStatusListener((status) {
-      if (status != AnimationStatus.completed) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final signedIn = context.read<SessionBloc>().state.isSignedIn;
-        context.go(signedIn ? AppRoutes.home : AppRoutes.welcome);
-      });
+      if (status == AnimationStatus.completed) _leaveIfReady();
+    });
+  }
+
+  void _leaveIfReady() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_progress.isCompleted) return;
+      final session = context.read<SessionBloc>().state;
+      if (!session.isResolved) return;
+      if (session.isSignedIn) {
+        context.go(AppRoutes.home);
+      } else if (session.didExpire) {
+        context.go(AppRoutes.login);
+      } else {
+        context.go(AppRoutes.welcome);
+      }
     });
   }
 
@@ -44,76 +57,82 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF7FBFE),
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(
-              AppAssets.splash,
-              fit: BoxFit.cover,
-              alignment: Alignment.center,
-              filterQuality: FilterQuality.high,
-            ),
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0x00F8FCFF),
-                    Color(0xFFF8FCFF),
-                    Color(0xFFF8FCFF),
-                    Color(0x00F8FCFF),
-                  ],
-                  stops: [0.18, 0.32, 0.68, 0.84],
+    return BlocListener<SessionBloc, SessionState>(
+      listenWhen: (previous, current) =>
+          !previous.isResolved && current.isResolved,
+      listener: (context, state) => _leaveIfReady(),
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF7FBFE),
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(
+                AppAssets.splash,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+                filterQuality: FilterQuality.high,
+              ),
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0x00F8FCFF),
+                      Color(0xFFF8FCFF),
+                      Color(0xFFF8FCFF),
+                      Color(0x00F8FCFF),
+                    ],
+                    stops: [0.18, 0.32, 0.68, 0.84],
+                  ),
                 ),
               ),
-            ),
-            SafeArea(
-              child: Column(
-                children: [
-                  const Spacer(flex: 5),
-                  const W2tLogo(width: 240),
-                  const SizedBox(height: 36),
-                  AnimatedBuilder(
-                    animation: _progress,
-                    builder: (context, _) {
-                      final t = Curves.easeInOutCubic.transform(_progress.value);
-                      return Column(
-                        children: [
-                          SizedBox(
-                            height: 22,
-                            width: math.min(
-                              280,
-                              MediaQuery.sizeOf(context).width - 96,
+              SafeArea(
+                child: Column(
+                  children: [
+                    const Spacer(flex: 5),
+                    const W2tLogo(width: 240),
+                    const SizedBox(height: 36),
+                    AnimatedBuilder(
+                      animation: _progress,
+                      builder: (context, _) {
+                        final t =
+                            Curves.easeInOutCubic.transform(_progress.value);
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: 22,
+                              width: math.min(
+                                280,
+                                MediaQuery.sizeOf(context).width - 96,
+                              ),
+                              child: CustomPaint(
+                                painter: _SplashBarPainter(progress: t),
+                              ),
                             ),
-                            child: CustomPaint(
-                              painter: _SplashBarPainter(progress: t),
+                            const SizedBox(height: 10),
+                            Text(
+                              '${(t * 100).round()}%',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.4,
+                                color: const Color(0xFF1E4E9A),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            '${(t * 100).round()}%',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.inter(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.4,
-                              color: const Color(0xFF1E4E9A),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  const Spacer(flex: 6),
-                ],
+                          ],
+                        );
+                      },
+                    ),
+                    const Spacer(flex: 6),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
