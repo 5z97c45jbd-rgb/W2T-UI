@@ -161,7 +161,7 @@ class _LocationChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.primary,
+          color: AppColors.orderNow,
           borderRadius: BorderRadius.circular(22),
         ),
         child: Row(
