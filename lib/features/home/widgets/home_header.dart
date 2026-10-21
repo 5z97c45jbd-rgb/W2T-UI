@@ -19,36 +19,18 @@ class HomeHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const W2tLogo(width: 92),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Everything nearby delivered quickly',
-                      style: GoogleFonts.inter(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textSecondary,
-                        height: 1.25,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const W2tLogo(width: 86),
+              const SizedBox(width: 8),
+              const Expanded(child: _LocationChip()),
               const SizedBox(width: 8),
               _HeaderActions(),
             ],
           ),
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: _LocationChip(),
-          ),
+         
           const SizedBox(height: 14),
           Container(
             height: 48,
@@ -171,39 +153,45 @@ class _HeaderActions extends StatelessWidget {
 }
 
 class _LocationChip extends StatelessWidget {
+  const _LocationChip();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.location_on_rounded,
-            size: 14,
-            color: AppColors.white,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            'Hanamkonda, Warangal',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.location_on_rounded,
+              size: 14,
               color: AppColors.white,
             ),
-          ),
-          const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            size: 16,
-            color: AppColors.white,
-          ),
-        ],
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                'Hanamkonda, Warangal',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 16,
+              color: AppColors.white,
+            ),
+          ],
+        ),
       ),
     );
   }
