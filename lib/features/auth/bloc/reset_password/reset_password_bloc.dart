@@ -84,6 +84,7 @@ class ResetPasswordBloc extends Bloc<ResetPasswordEvent, ResetPasswordState> {
       await _api.resetPassword(
         userUq: event.userUq.trim(),
         newPassword: event.password,
+        confirmPassword: event.confirmPassword,
         otp: otp,
       );
       emit(const ResetPasswordState(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:w2t_mobile/core/network/auth_token_holder.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
+import 'package:w2t_mobile/core/notifications/push_notification_service.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/core/theme/app_theme.dart';
 import 'package:w2t_mobile/features/auth/bloc/login/login_bloc.dart';
@@ -17,6 +18,7 @@ import 'package:w2t_mobile/features/auth/data/session_store.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DeviceTokenService.ensureInitialized();
+  await PushNotificationService.ensureInitialized();
   final session = await SessionStore().read();
   runApp(W2tApp(initialSession: session));
 }

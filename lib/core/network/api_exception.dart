@@ -14,7 +14,7 @@ String apiErrorMessage(Object error) {
   if (error is DioException) {
     final data = error.response?.data;
     if (data is Map) {
-      final message = data['message'] ?? data['error'] ?? data['detail'];
+      final message = data['error'] ?? data['message'] ?? data['detail'];
       if (message is String && message.trim().isNotEmpty) return message.trim();
     }
     if (data is String && data.trim().isNotEmpty) return data.trim();
