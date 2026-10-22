@@ -7,6 +7,7 @@ import 'package:w2t_mobile/features/auth/ui/forgot_password_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/full_name_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/login_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/phone_number_screen.dart';
+import 'package:w2t_mobile/features/home/ui/featured_restaurants_screen.dart';
 import 'package:w2t_mobile/features/home/ui/home_shell.dart';
 import 'package:w2t_mobile/features/auth/ui/signup_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/splash_screen.dart';
@@ -21,6 +22,7 @@ abstract final class AppRoutes {
   static const String fullName = '/signup/full-name';
   static const String phone = '/signup/phone';
   static const String home = '/home';
+  static const String featuredRestaurants = '/featured-restaurants';
 }
 
 const _authGateRoutes = {
@@ -49,7 +51,8 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
         return null;
       }
 
-      if (location == AppRoutes.home) {
+      if (location == AppRoutes.home ||
+          location == AppRoutes.featuredRestaurants) {
         return session.didExpire ? AppRoutes.login : AppRoutes.welcome;
       }
       return null;
@@ -109,6 +112,13 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
         name: 'home',
         pageBuilder: (context, state) => const MaterialPage(
           child: HomeShell(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.featuredRestaurants,
+        name: 'featuredRestaurants',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: FeaturedRestaurantsScreen(),
         ),
       ),
     ],

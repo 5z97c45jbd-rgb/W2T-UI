@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
+import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/home/data/home_content.dart';
 import 'package:w2t_mobile/features/home/widgets/catalog_product_card.dart';
 import 'package:w2t_mobile/features/home/widgets/featured_restaurant_card.dart';
@@ -25,10 +27,10 @@ class HomeScreen extends StatelessWidget {
       color: AppColors.homeBackground,
       child: CustomScrollView(
         slivers: [
-          SliverSafeArea(
-            minimum: const EdgeInsets.only(top: 8),
+          const SliverSafeArea(
+            minimum: EdgeInsets.only(top: 8),
             bottom: false,
-            sliver: const SliverToBoxAdapter(child: HomeHeader()),
+            sliver: SliverToBoxAdapter(child: HomeHeader()),
           ),
           const SliverToBoxAdapter(child: HomeHeroBanner()),
           const SliverToBoxAdapter(child: HomeCategoriesGrid()),
@@ -36,7 +38,7 @@ class HomeScreen extends StatelessWidget {
             child: HomeSectionHeader(
               icon: Icons.restaurant_rounded,
               title: 'Featured Restaurants',
-              onSeeAll: () {},
+              onSeeAll: () => context.push(AppRoutes.featuredRestaurants),
             ),
           ),
           SliverToBoxAdapter(

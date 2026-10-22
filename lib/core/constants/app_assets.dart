@@ -10,8 +10,10 @@ abstract final class AppAssets {
 
   static const String paradiseBiryani = 'assets/paradise_biriyani.jpeg';
   static const String foodCourt = 'assets/foodcourt.jpeg';
-  static const String urbanBites = 'assets/urban_bytes.jpeg';
-  static const String greenBowl = 'assets/green_bowl.jpeg';
+  static const String urbanBites = 'assets/urban_bytes.jpg';
+  static const String greenBowl = 'assets/green_bowl.jpg';
+  static const String spiceVilla = 'assets/spice_villa.jpg';
+  static const String noodleHub = 'assets/icon/noodle_hub.jpg';
 
   static const String freshFruits = 'assets/fresh_fruits.jpeg';
   static const String freshMilk = 'assets/fresh_milk.jpeg';

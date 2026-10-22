@@ -73,7 +73,7 @@ class FeaturedRestaurantCard extends StatelessWidget {
                 ),
               ),
               Text(
-                ' (${item.reviewCount})',
+                ' (${item.formattedReviewCount})',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w400,

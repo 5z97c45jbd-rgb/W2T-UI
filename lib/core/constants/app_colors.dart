@@ -17,4 +17,8 @@ abstract final class AppColors {
   static const Color ratingStar = Color(0xFFFFB800);
   static const Color cartBadge = Color(0xFFE53935);
   static const Color navInactive = Color(0xFF9AA3AD);
+  static const Color offerOrange = Color(0xFFE67A28);
+  static const Color offerGreen = Color(0xFF2F9E57);
+  static const Color chipFill = Color(0xFFF3F4F6);
+  static const Color titleNavy = Color(0xFF1B2A4A);
 }
