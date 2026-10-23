@@ -7,7 +7,9 @@ import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_state.dart';
 import 'package:w2t_mobile/features/home/bloc/city_image/city_image_bloc.dart';
+import 'package:w2t_mobile/features/home/bloc/home_merchants/home_merchants_bloc.dart';
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
+import 'package:w2t_mobile/features/home/data/merchants_api.dart';
 import 'package:w2t_mobile/features/home/ui/home_screen.dart';
 import 'package:w2t_mobile/features/home/ui/locate_screen.dart';
 import 'package:w2t_mobile/features/home/ui/orders_screen.dart';
@@ -82,8 +84,16 @@ class _HomeShellState extends State<HomeShell> {
         }
         _maybeShowPersonalize(state);
       },
-      child: BlocProvider(
-        create: (context) => CityImageBloc(api: context.read<CitiesApi>()),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => CityImageBloc(api: context.read<CitiesApi>()),
+          ),
+          BlocProvider(
+            create: (context) =>
+                HomeMerchantsBloc(api: context.read<MerchantsApi>()),
+          ),
+        ],
         child: Scaffold(
           extendBody: true,
           backgroundColor: AppColors.homeBackground,

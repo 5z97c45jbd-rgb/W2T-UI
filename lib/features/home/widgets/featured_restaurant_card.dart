@@ -23,6 +23,7 @@ class FeaturedRestaurantCard extends StatelessWidget {
         children: [
           HomeCatalogImage(
             imageAsset: item.imageAsset,
+            imageUrl: item.imageUrl,
             size: cardWidth,
             backgroundColor: AppColors.homeSurface,
             overlay: Positioned(
@@ -72,35 +73,38 @@ class FeaturedRestaurantCard extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              Text(
-                ' (${item.formattedReviewCount})',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: AppColors.textSecondary,
+              if (item.reviewCount > 0)
+                Text(
+                  ' (${item.formattedReviewCount})',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
             ],
           ),
-          const SizedBox(height: 2),
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time_rounded,
-                size: 13,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                item.deliveryTime,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
+          if (item.deliveryTime.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Row(
+              children: [
+                const Icon(
+                  Icons.access_time_rounded,
+                  size: 13,
                   color: AppColors.textSecondary,
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 4),
+                Text(
+                  item.deliveryTime,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

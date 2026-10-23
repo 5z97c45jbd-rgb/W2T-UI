@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
+import 'package:w2t_mobile/features/home/bloc/merchant_list/merchant_list_bloc.dart';
+import 'package:w2t_mobile/features/home/bloc/merchant_list/merchant_list_event.dart';
+import 'package:w2t_mobile/features/home/bloc/merchant_list/merchant_list_state.dart';
 import 'package:w2t_mobile/features/home/data/home_content.dart';
+import 'package:w2t_mobile/features/home/data/models/merchant.dart';
 import 'package:w2t_mobile/features/home/data/models/restaurant_item.dart';
 import 'package:w2t_mobile/features/home/widgets/featured_restaurant_list_card.dart';
 import 'package:w2t_mobile/features/home/widgets/restaurant_logo.dart';
@@ -9,7 +14,12 @@ import 'package:w2t_mobile/features/home/widgets/restaurant_logo.dart';
 enum _RestaurantSort { relevance, rating, delivery, cost, distance }
 
 class FeaturedRestaurantsScreen extends StatefulWidget {
-  const FeaturedRestaurantsScreen({super.key});
+  const FeaturedRestaurantsScreen({
+    super.key,
+    this.category = MerchantCategory.food,
+  });
+
+  final MerchantCategory category;
 
   @override
   State<FeaturedRestaurantsScreen> createState() =>
@@ -39,9 +49,9 @@ class _FeaturedRestaurantsScreenState extends State<FeaturedRestaurantsScreen> {
     super.dispose();
   }
 
-  List<RestaurantItem> get _filtered {
+  List<RestaurantItem> _filtered(List<RestaurantItem> source) {
     final query = _searchController.text.trim().toLowerCase();
-    var items = HomeContent.featuredRestaurants.where((item) {
+    var items = source.where((item) {
       final matchesCuisine =
           _cuisine == 'All' || item.cuisines.contains(_cuisine);
       final matchesQuery = query.isEmpty ||
@@ -216,23 +226,38 @@ class _FeaturedRestaurantsScreenState extends State<FeaturedRestaurantsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final restaurants = _filtered;
-
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            _Header(onBack: () => Navigator.of(context).maybePop()),
-            const SizedBox(height: 12),
-            _SearchField(controller: _searchController),
-            const SizedBox(height: 12),
-            _CuisineRow(
-              selected: _cuisine,
-              onSelected: (value) => setState(() => _cuisine = value),
-            ),
-            const SizedBox(height: 10),
-            _FilterRow(
+        child: BlocBuilder<MerchantListBloc, MerchantListState>(
+          builder: (context, state) {
+            final source =
+                state.merchants.map((merchant) => merchant.toRestaurantItem());
+            final restaurants = _filtered(source.toList());
+            final showCuisineFilters =
+                source.any((item) => item.cuisines.isNotEmpty);
+
+            return Column(
+              children: [
+                _Header(
+                  title: widget.category.title,
+                  subtitle: widget.category.subtitle,
+                  onBack: () => Navigator.of(context).maybePop(),
+                ),
+                const SizedBox(height: 12),
+                _SearchField(
+                  controller: _searchController,
+                  hintText: widget.category.searchHint,
+                ),
+                if (showCuisineFilters) ...[
+                  const SizedBox(height: 12),
+                  _CuisineRow(
+                    selected: _cuisine,
+                    onSelected: (value) => setState(() => _cuisine = value),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                _FilterRow(
               sortLabel: _sort == _RestaurantSort.relevance
                   ? 'Sort by'
                   : _sortLabel(_sort),
@@ -256,62 +281,136 @@ class _FeaturedRestaurantsScreenState extends State<FeaturedRestaurantsScreen> {
               onFilters: _openFiltersSheet,
             ),
             const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${restaurants.length} restaurants found',
-                      style: GoogleFonts.inter(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          state.status == MerchantListStatus.loading
+                              ? 'Loading ${widget.category.countLabel}...'
+                              : '${restaurants.length} ${widget.category.countLabel} found',
+                          style: GoogleFonts.inter(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ),
-                    ),
+                      _ViewToggle(
+                        showMap: _showMap,
+                        onChanged: (value) => setState(() => _showMap = value),
+                      ),
+                    ],
                   ),
-                  _ViewToggle(
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: _MerchantListBody(
+                    state: state,
+                    category: widget.category,
+                    restaurants: restaurants,
                     showMap: _showMap,
-                    onChanged: (value) => setState(() => _showMap = value),
+                    favorites: _favorites,
+                    onFavoriteTap: (id) {
+                      setState(() {
+                        if (!_favorites.add(id)) {
+                          _favorites.remove(id);
+                        }
+                      });
+                    },
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: restaurants.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No restaurants match your filters',
-                        style: GoogleFonts.inter(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    )
-                  : _showMap
-                      ? _RestaurantMapView(items: restaurants)
-                      : _RestaurantGrid(
-                          items: restaurants,
-                          favorites: _favorites,
-                          onFavoriteTap: (name) {
-                            setState(() {
-                              if (!_favorites.add(name)) {
-                                _favorites.remove(name);
-                              }
-                            });
-                          },
-                        ),
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header({required this.onBack});
+class _MerchantListBody extends StatelessWidget {
+  const _MerchantListBody({
+    required this.state,
+    required this.category,
+    required this.restaurants,
+    required this.showMap,
+    required this.favorites,
+    required this.onFavoriteTap,
+  });
 
+  final MerchantListState state;
+  final MerchantCategory category;
+  final List<RestaurantItem> restaurants;
+  final bool showMap;
+  final Set<String> favorites;
+  final ValueChanged<String> onFavoriteTap;
+
+  @override
+  Widget build(BuildContext context) {
+    if (state.status == MerchantListStatus.loading) {
+      return const Center(child: CircularProgressIndicator(strokeWidth: 2.4));
+    }
+
+    if (state.status == MerchantListStatus.failure) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                state.errorMessage ?? 'Could not load ${category.countLabel}.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => context
+                    .read<MerchantListBloc>()
+                    .add(const MerchantListRequested()),
+                child: Text(
+                  'Try again',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (restaurants.isEmpty) {
+      return Center(
+        child: Text(
+          category.emptyLabel,
+          style: GoogleFonts.inter(color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    if (showMap) {
+      return _RestaurantMapView(items: restaurants);
+    }
+
+    return _RestaurantGrid(
+      items: restaurants,
+      favorites: favorites,
+      onFavoriteTap: onFavoriteTap,
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.title,
+    required this.subtitle,
+    required this.onBack,
+  });
+
+  final String title;
+  final String subtitle;
   final VoidCallback onBack;
 
   @override
@@ -336,7 +435,7 @@ class _Header extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Featured Restaurants',
+                    title,
                     style: GoogleFonts.inter(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -346,7 +445,7 @@ class _Header extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    'Discover top restaurants near you',
+                    subtitle,
                     style: GoogleFonts.inter(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w400,
@@ -364,9 +463,13 @@ class _Header extends StatelessWidget {
 }
 
 class _SearchField extends StatelessWidget {
-  const _SearchField({required this.controller});
+  const _SearchField({
+    required this.controller,
+    required this.hintText,
+  });
 
   final TextEditingController controller;
+  final String hintText;
 
   @override
   Widget build(BuildContext context) {
@@ -398,7 +501,7 @@ class _SearchField extends StatelessWidget {
                 decoration: InputDecoration(
                   isDense: true,
                   border: InputBorder.none,
-                  hintText: 'Search restaurants, cuisines, or dishes...',
+                  hintText: hintText,
                   hintStyle: GoogleFonts.inter(
                     fontSize: 13,
                     color: AppColors.textMuted,
@@ -704,8 +807,8 @@ class _RestaurantGrid extends StatelessWidget {
               Expanded(
                 child: FeaturedRestaurantListCard(
                   item: left,
-                  isFavorite: favorites.contains(left.name),
-                  onFavoriteTap: () => onFavoriteTap(left.name),
+                  isFavorite: favorites.contains(left.id ?? left.name),
+                  onFavoriteTap: () => onFavoriteTap(left.id ?? left.name),
                 ),
               ),
               const SizedBox(width: 12),
@@ -713,9 +816,12 @@ class _RestaurantGrid extends StatelessWidget {
                 child: hasRight
                     ? FeaturedRestaurantListCard(
                         item: items[row * 2 + 1],
-                        isFavorite: favorites.contains(items[row * 2 + 1].name),
-                        onFavoriteTap: () =>
-                            onFavoriteTap(items[row * 2 + 1].name),
+                        isFavorite: favorites.contains(
+                          items[row * 2 + 1].id ?? items[row * 2 + 1].name,
+                        ),
+                        onFavoriteTap: () => onFavoriteTap(
+                          items[row * 2 + 1].id ?? items[row * 2 + 1].name,
+                        ),
                       )
                     : const SizedBox.shrink(),
               ),

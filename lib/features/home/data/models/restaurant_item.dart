@@ -16,8 +16,10 @@ class RestaurantBrand {
 
 class RestaurantItem {
   const RestaurantItem({
+    this.id,
     required this.name,
     required this.imageAsset,
+    this.imageUrl,
     required this.rating,
     required this.reviewCount,
     required this.deliveryTime,
@@ -29,8 +31,10 @@ class RestaurantItem {
     this.offerHighlight = false,
   });
 
+  final String? id;
   final String name;
   final String imageAsset;
+  final String? imageUrl;
   final double rating;
   final int reviewCount;
   final String deliveryTime;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/features/home/data/models/restaurant_item.dart';
+import 'package:w2t_mobile/features/home/widgets/home_catalog_image.dart';
 import 'package:w2t_mobile/features/home/widgets/restaurant_logo.dart';
 
 class FeaturedRestaurantListCard extends StatelessWidget {
@@ -89,47 +90,68 @@ class FeaturedRestaurantListCard extends StatelessWidget {
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        TextSpan(
-                          text:
-                              ' (${item.formattedReviewCount})  ·  ₹${item.priceForTwo} for two  ·  ${item.distanceKm.toStringAsFixed(1)} km',
-                          style: GoogleFonts.inter(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.textSecondary,
+                        if (item.reviewCount > 0)
+                          TextSpan(
+                            text: ' (${item.formattedReviewCount})',
+                            style: GoogleFonts.inter(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
+                        if (item.priceForTwo > 0)
+                          TextSpan(
+                            text: '  ·  ₹${item.priceForTwo} for two',
+                            style: GoogleFonts.inter(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        if (item.distanceKm > 0)
+                          TextSpan(
+                            text:
+                                '  ·  ${item.distanceKm.toStringAsFixed(1)} km',
+                            style: GoogleFonts.inter(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
                       ],
                     ),
                     maxLines: 1,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: item.cuisines
-                      .map(
-                        (cuisine) => Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.chipFill,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            cuisine,
-                            style: GoogleFonts.inter(
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF6B7280),
+                if (item.cuisines.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: item.cuisines
+                        .map(
+                          (cuisine) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.chipFill,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              cuisine,
+                              style: GoogleFonts.inter(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF6B7280),
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                      .toList(),
-                ),
+                        )
+                        .toList(),
+                  ),
+                ],
               ],
             ),
           ),
@@ -157,10 +179,9 @@ class _ImageHeader extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            item.imageAsset,
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.high,
+          HomeFillImage(
+            imageUrl: item.imageUrl,
+            fallbackAsset: item.imageAsset,
           ),
           if (item.offerLabel != null)
             Positioned(
@@ -210,36 +231,37 @@ class _ImageHeader extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
-            right: 10,
-            bottom: 10,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.62),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.access_time_rounded,
-                    size: 11,
-                    color: AppColors.white,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    item.deliveryTime,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
+          if (item.deliveryTime.isNotEmpty)
+            Positioned(
+              right: 10,
+              bottom: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.62),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.access_time_rounded,
+                      size: 11,
                       color: AppColors.white,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    Text(
+                      item.deliveryTime,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
