@@ -23,6 +23,8 @@ class DioClient {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+          options.headers['X-Latitude'] = '25.2048';
+          options.headers['X-Longitude'] = '55.2708';
 
           handler.next(options);
         },
