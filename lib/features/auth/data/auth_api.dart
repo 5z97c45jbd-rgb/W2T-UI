@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:w2t_mobile/core/network/api_config.dart';
 import 'package:w2t_mobile/core/network/api_exception.dart';
 import 'package:w2t_mobile/core/network/api_response.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
@@ -22,7 +23,7 @@ class AuthApi {
   }) {
     return _send(() {
       return _dio.post<dynamic>(
-        '/api/auth/register',
+        '${ApiConfig.auth}/api/auth/register',
         queryParameters: {'deviceToken': deviceToken},
         data: {
           if (email != null) 'email': email,
@@ -41,7 +42,7 @@ class AuthApi {
   }) {
     return _send(() {
       return _dio.post<dynamic>(
-        '/api/auth/register/otp',
+        '${ApiConfig.auth}/api/auth/register/otp',
         data: {
           if (email != null) 'email': email,
           if (phoneNumber != null) 'phoneNumber': phoneNumber,
@@ -59,7 +60,7 @@ class AuthApi {
   }) {
     return _guard(() async {
       final response = await _dio.post<dynamic>(
-        '/api/auth/login',
+        '${ApiConfig.auth}/api/auth/login',
         data: {
           'password': password,
           if (email != null) 'email': email,
@@ -80,7 +81,7 @@ class AuthApi {
   }) {
     return _send(() {
       return _dio.get<dynamic>(
-        '/api/auth/users/${Uri.encodeComponent(userUq)}/reset-password',
+        '${ApiConfig.auth}/api/auth/users/${Uri.encodeComponent(userUq)}/reset-password',
         queryParameters: {'deviceToken': deviceToken},
       );
     });
@@ -94,7 +95,7 @@ class AuthApi {
   }) {
     return _send(() {
       return _dio.post<dynamic>(
-        '/api/auth/users/${Uri.encodeComponent(userUq)}/reset-password/otp',
+        '${ApiConfig.auth}/api/auth/users/${Uri.encodeComponent(userUq)}/reset-password/otp',
         data: {
           'newPassword': newPassword,
           'confirmPassword': confirmPassword,
@@ -107,7 +108,7 @@ class AuthApi {
   Future<UserProfile> getProfile({required String userId}) {
     return _guard(() async {
       final response = await _dio.get<dynamic>(
-        '/api/auth/user/$userId/profile/me',
+        '${ApiConfig.auth}/api/auth/user/$userId/profile/me',
       );
       return UserProfile.fromData(
         ApiResponse.parse(response.data).data,
@@ -125,7 +126,7 @@ class AuthApi {
   }) {
     return _send(() {
       return _dio.post<dynamic>(
-        '/api/auth/user/$userId/profile/me',
+        '${ApiConfig.auth}/api/auth/user/$userId/profile/me',
         data: {
           if (fullName != null) 'fullName': fullName,
           if (phoneNumber != null) 'phoneNumber': phoneNumber,
@@ -143,7 +144,9 @@ class AuthApi {
   }
 
   Future<void> logout() {
-    return _send(() => _dio.post<dynamic>('/api/auth/logout'));
+    return _send(
+      () => _dio.post<dynamic>('${ApiConfig.auth}/api/auth/logout'),
+    );
   }
 
   AuthSession? _sessionFrom(dynamic data) {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:w2t_mobile/core/network/api_config.dart';
 import 'package:w2t_mobile/core/network/api_exception.dart';
 import 'package:w2t_mobile/core/network/api_response.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
@@ -19,7 +20,7 @@ class CitiesApi {
   }) {
     return _guard(() async {
       final response = await _dio.get<dynamic>(
-        '/api/cities/images',
+        '${ApiConfig.order}/api/cities/images',
         queryParameters: {
           'city': location.city,
           if (location.country != null && location.country!.isNotEmpty)
@@ -84,7 +85,12 @@ class CitiesApi {
   String _absoluteUrl(String value) {
     final uri = Uri.parse(value);
     if (uri.hasScheme) return value;
-    return Uri.parse(_dio.options.baseUrl).resolve(value).toString();
+    if (value.startsWith('/')) {
+      return '${ApiConfig.baseUrl}${ApiConfig.order}$value';
+    }
+    return Uri.parse(
+      '${ApiConfig.baseUrl}${ApiConfig.order}/',
+    ).resolve(value).toString();
   }
 
   Future<T> _guard<T>(Future<T> Function() run) async {

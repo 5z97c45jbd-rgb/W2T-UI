@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:w2t_mobile/core/network/api_config.dart';
 import 'package:w2t_mobile/core/network/auth_token_holder.dart';
 
 class DioClient {
   DioClient(this.tokenHolder) {
     dio = Dio(
       BaseOptions(
-        baseUrl: 'https://auth.wsquaret.com',
+        baseUrl: ApiConfig.baseUrl,
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: const {
@@ -59,8 +60,8 @@ class DioClient {
       return false;
     }
     final path = error.requestOptions.path;
-    return !path.contains('/api/auth/login') &&
-        !path.contains('/api/auth/register') &&
+    return !path.contains('${ApiConfig.auth}/api/auth/login') &&
+        !path.contains('${ApiConfig.auth}/api/auth/register') &&
         !path.contains('/reset-password');
   }
 }
