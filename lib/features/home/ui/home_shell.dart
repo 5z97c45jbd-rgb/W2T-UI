@@ -6,6 +6,8 @@ import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_state.dart';
+import 'package:w2t_mobile/features/home/bloc/city_image/city_image_bloc.dart';
+import 'package:w2t_mobile/features/home/data/cities_api.dart';
 import 'package:w2t_mobile/features/home/ui/home_screen.dart';
 import 'package:w2t_mobile/features/home/ui/locate_screen.dart';
 import 'package:w2t_mobile/features/home/ui/orders_screen.dart';
@@ -80,21 +82,24 @@ class _HomeShellState extends State<HomeShell> {
         }
         _maybeShowPersonalize(state);
       },
-      child: Scaffold(
-        extendBody: true,
-        backgroundColor: AppColors.homeBackground,
-        body: IndexedStack(
-          index: _currentTab.index,
-          children: const [
-            HomeScreen(),
-            OrdersScreen(),
-            LocateScreen(),
-            ProfileScreen(),
-          ],
-        ),
-        bottomNavigationBar: HomeBottomNavBar(
-          currentTab: _currentTab,
-          onTabSelected: (tab) => setState(() => _currentTab = tab),
+      child: BlocProvider(
+        create: (context) => CityImageBloc(api: context.read<CitiesApi>()),
+        child: Scaffold(
+          extendBody: true,
+          backgroundColor: AppColors.homeBackground,
+          body: IndexedStack(
+            index: _currentTab.index,
+            children: const [
+              HomeScreen(),
+              OrdersScreen(),
+              LocateScreen(),
+              ProfileScreen(),
+            ],
+          ),
+          bottomNavigationBar: HomeBottomNavBar(
+            currentTab: _currentTab,
+            onTabSelected: (tab) => setState(() => _currentTab = tab),
+          ),
         ),
       ),
     );

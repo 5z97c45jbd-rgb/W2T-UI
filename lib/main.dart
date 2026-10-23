@@ -17,6 +17,7 @@ import 'package:w2t_mobile/features/auth/data/device_token_service.dart';
 import 'package:w2t_mobile/features/auth/data/models/auth_session.dart';
 import 'package:w2t_mobile/features/auth/data/session_store.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_feedback_listener.dart';
+import 'package:w2t_mobile/features/home/data/cities_api.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +39,9 @@ class W2tApp extends StatefulWidget {
 class _W2tAppState extends State<W2tApp> {
   late final AuthTokenHolder _tokenHolder;
   late final SessionStore _sessionStore;
+  late final DioClient _dioClient;
   late final AuthApi _api;
+  late final CitiesApi _citiesApi;
   late final SessionBloc _sessionBloc;
   late final GoRouter _router;
 
@@ -47,7 +50,9 @@ class _W2tAppState extends State<W2tApp> {
     super.initState();
     _tokenHolder = AuthTokenHolder();
     _sessionStore = SessionStore();
-    _api = AuthApi(DioClient(_tokenHolder));
+    _dioClient = DioClient(_tokenHolder);
+    _api = AuthApi(_dioClient);
+    _citiesApi = CitiesApi(_dioClient);
     _sessionBloc = SessionBloc(
       api: _api,
       store: _sessionStore,
@@ -66,42 +71,45 @@ class _W2tAppState extends State<W2tApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider.value(value: _sessionBloc),
-        BlocProvider(
-          create: (context) => LoginBloc(
-            api: _api,
-            sessionBloc: context.read<SessionBloc>(),
+    return RepositoryProvider.value(
+      value: _citiesApi,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: _sessionBloc),
+          BlocProvider(
+            create: (context) => LoginBloc(
+              api: _api,
+              sessionBloc: context.read<SessionBloc>(),
+            ),
           ),
-        ),
-        BlocProvider(
-          create: (context) => SignupBloc(
-            api: _api,
-            sessionBloc: context.read<SessionBloc>(),
+          BlocProvider(
+            create: (context) => SignupBloc(
+              api: _api,
+              sessionBloc: context.read<SessionBloc>(),
+            ),
           ),
-        ),
-        BlocProvider(
-          create: (_) => ResetPasswordBloc(api: _api),
-        ),
-        BlocProvider(
-          create: (context) => ProfileBloc(
-            api: _api,
-            sessionBloc: context.read<SessionBloc>(),
+          BlocProvider(
+            create: (_) => ResetPasswordBloc(api: _api),
           ),
+          BlocProvider(
+            create: (context) => ProfileBloc(
+              api: _api,
+              sessionBloc: context.read<SessionBloc>(),
+            ),
+          ),
+        ],
+        child: MaterialApp.router(
+          title: 'W2T',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          scaffoldMessengerKey: AppSnackBar.messengerKey,
+          routerConfig: _router,
+          builder: (context, child) {
+            return AuthFeedbackListener(
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
         ),
-      ],
-      child: MaterialApp.router(
-        title: 'W2T',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        scaffoldMessengerKey: AppSnackBar.messengerKey,
-        routerConfig: _router,
-        builder: (context, child) {
-          return AuthFeedbackListener(
-            child: child ?? const SizedBox.shrink(),
-          );
-        },
       ),
     );
   }
