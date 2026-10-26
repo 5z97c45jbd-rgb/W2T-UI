@@ -15,7 +15,7 @@ class MerchantsApi {
   Future<HomeMerchants> fetchHomeMerchants() {
     return _guard(() async {
       final response = await _dio.get<dynamic>(
-        '${ApiConfig.order}/api/merchants/',
+        '${ApiConfig.order}/api/merchants',
       );
       final merchants = HomeMerchants.fromJson(
         ApiResponse.parse(response.data).data,
@@ -23,7 +23,7 @@ class MerchantsApi {
       return HomeMerchants(
         restaurants: _withAbsoluteUrls(merchants.restaurants),
         groceries: _withAbsoluteUrls(merchants.groceries),
-        pharmacy: _withAbsoluteUrls(merchants.pharmacy),
+        individuals: _withAbsoluteUrls(merchants.individuals),
       );
     });
   }

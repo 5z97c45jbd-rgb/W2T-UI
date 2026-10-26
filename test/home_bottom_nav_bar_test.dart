@@ -24,10 +24,16 @@ void main() {
 
     expect(find.byType(FloatingActionButton), findsOneWidget);
     expect(find.byIcon(Icons.auto_awesome_rounded), findsOneWidget);
+    expect(find.text('Explore'), findsOneWidget);
 
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pump();
 
     expect(current, HomeTab.locate);
+
+    await tester.tap(find.text('Explore'));
+    await tester.pump();
+
+    expect(current, HomeTab.explore);
   });
 }

@@ -21,13 +21,13 @@ void main() {
           'ratings': 4,
         },
       ],
-      'pharmacy': [],
+      'individuals': [],
     });
 
     expect(merchants.restaurants.single.name, 'Sample Restaurant');
     expect(merchants.restaurants.single.category, MerchantCategory.food);
     expect(merchants.groceries.single.category, MerchantCategory.groceries);
-    expect(merchants.pharmacy, isEmpty);
+    expect(merchants.individuals, isEmpty);
   });
 
   test('parses a category list of merchants', () {
@@ -51,7 +51,7 @@ void main() {
   test('maps API category values for see-all routes', () {
     expect(MerchantCategory.food.apiValue, 'FOOD');
     expect(MerchantCategory.groceries.apiValue, 'GROCERIES');
-    expect(MerchantCategory.pharmacy.apiValue, 'PHARMACY');
+    expect(MerchantCategory.individuals.apiValue, 'INDIVIDUALS');
     expect(MerchantCategory.tryParse('FOOD'), MerchantCategory.food);
   });
 }

@@ -58,8 +58,8 @@ class HomeScreen extends StatelessWidget {
               ),
               ..._merchantSection(
                 context: context,
-                category: MerchantCategory.pharmacy,
-                merchants: state.merchants.pharmacy,
+                category: MerchantCategory.individuals,
+                merchants: state.merchants.individuals,
                 status: state.status,
                 errorMessage: state.errorMessage,
                 cardWidth: cardWidth,

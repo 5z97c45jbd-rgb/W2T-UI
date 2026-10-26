@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 
-enum HomeTab { home, order, locate, profile }
+enum HomeTab { home, order, locate, explore, profile }
 
 class HomeBottomNavBar extends StatelessWidget {
   const HomeBottomNavBar({
@@ -20,6 +20,8 @@ class HomeBottomNavBar extends StatelessWidget {
   static const _bottomGap = 10.0;
   static const _fabSize = 56.0;
   static const _fabOverhang = 20.0;
+  static const _tabCount = 5;
+  static const _fabIndex = 2;
 
   /// Total vertical space the home body should reserve above the system inset.
   static double contentBottomInset(BuildContext context) {
@@ -42,8 +44,9 @@ class HomeBottomNavBar extends StatelessWidget {
         height: _barHeight + _fabOverhang,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final slotWidth = constraints.maxWidth / 4;
-            final fabLeft = slotWidth * 2 + (slotWidth - _fabSize) / 2;
+            final slotWidth = constraints.maxWidth / _tabCount;
+            final fabLeft =
+                slotWidth * _fabIndex + (slotWidth - _fabSize) / 2;
             final fabBottom = (_barHeight - _fabSize) / 2 + _fabOverhang * 0.35;
 
             return Stack(
@@ -78,6 +81,15 @@ class HomeBottomNavBar extends StatelessWidget {
                             ),
                           ),
                           const Expanded(child: SizedBox.shrink()),
+                          Expanded(
+                            child: _NavItem(
+                              label: 'Explore',
+                              selectedIcon: Icons.explore_rounded,
+                              unselectedIcon: Icons.explore_outlined,
+                              selected: currentTab == HomeTab.explore,
+                              onTap: () => onTabSelected(HomeTab.explore),
+                            ),
+                          ),
                           Expanded(
                             child: _NavItem(
                               label: 'Profile',

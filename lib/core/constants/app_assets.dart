@@ -7,6 +7,8 @@ abstract final class AppAssets {
 
   static const String homeHero = 'assets/place.png';
   static const String bottomNavAi = 'assets/icon/WT2AI.svg';
+  static const String categorySelfTalent = 'assets/icon/category_self_talent.png';
+  static const String categoryChildCare = 'assets/icon/category_child_care.png';
 
   static const String paradiseBiryani = 'assets/paradise_biriyani.jpeg';
   static const String foodCourt = 'assets/foodcourt.jpeg';

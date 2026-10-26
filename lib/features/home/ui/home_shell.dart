@@ -11,6 +11,7 @@ import 'package:w2t_mobile/features/home/bloc/home_merchants/home_merchants_bloc
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
 import 'package:w2t_mobile/features/home/data/merchants_api.dart';
 import 'package:w2t_mobile/features/home/ui/home_screen.dart';
+import 'package:w2t_mobile/features/home/ui/explore_screen.dart';
 import 'package:w2t_mobile/features/home/ui/locate_screen.dart';
 import 'package:w2t_mobile/features/home/ui/orders_screen.dart';
 import 'package:w2t_mobile/features/home/ui/profile_screen.dart';
@@ -103,6 +104,7 @@ class _HomeShellState extends State<HomeShell> {
               HomeScreen(),
               OrdersScreen(),
               LocateScreen(),
+              ExploreScreen(),
               ProfileScreen(),
             ],
           ),

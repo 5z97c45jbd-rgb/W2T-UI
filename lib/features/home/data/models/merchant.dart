@@ -6,54 +6,54 @@ import 'package:w2t_mobile/features/home/data/models/restaurant_item.dart';
 enum MerchantCategory {
   food,
   groceries,
-  pharmacy;
+  individuals;
 
   String get apiValue => switch (this) {
         food => 'FOOD',
         groceries => 'GROCERIES',
-        pharmacy => 'PHARMACY',
+        individuals => 'INDIVIDUALS',
       };
 
   String get title => switch (this) {
         food => 'Featured Restaurants',
         groceries => 'Grocery Essentials',
-        pharmacy => 'Pharmacy Care',
+        individuals => 'Individuals',
       };
 
   String get subtitle => switch (this) {
         food => 'Discover top restaurants near you',
         groceries => 'Everyday grocery stores near you',
-        pharmacy => 'Pharmacies and care stores near you',
+        individuals => 'Independent sellers and service providers near you',
       };
 
   String get searchHint => switch (this) {
         food => 'Search restaurants...',
         groceries => 'Search grocery stores...',
-        pharmacy => 'Search pharmacies...',
+        individuals => 'Search individuals...',
       };
 
   String get emptyLabel => switch (this) {
         food => 'No restaurants yet',
         groceries => 'No grocery stores yet',
-        pharmacy => 'No pharmacies yet',
+        individuals => 'No individuals yet',
       };
 
   String get countLabel => switch (this) {
         food => 'restaurants',
         groceries => 'stores',
-        pharmacy => 'pharmacies',
+        individuals => 'individuals',
       };
 
   IconData get icon => switch (this) {
         food => Icons.restaurant_rounded,
         groceries => Icons.shopping_cart_outlined,
-        pharmacy => Icons.medical_services_outlined,
+        individuals => Icons.person_outline_rounded,
       };
 
   String get fallbackAsset => switch (this) {
         food => AppAssets.paradiseBiryani,
         groceries => AppAssets.freshFruits,
-        pharmacy => AppAssets.firstAidKit,
+        individuals => AppAssets.personBackground,
       };
 
   RestaurantBrand get brand => switch (this) {
@@ -67,10 +67,10 @@ enum MerchantCategory {
             icon: Icons.shopping_basket_rounded,
             iconColor: Color(0xFF7CDB6A),
           ),
-        pharmacy => const RestaurantBrand(
-            background: Color(0xFF241B2A),
-            icon: Icons.local_pharmacy_rounded,
-            iconColor: Color(0xFFB48CFF),
+        individuals => const RestaurantBrand(
+            background: Color(0xFF1E2A38),
+            icon: Icons.person_rounded,
+            iconColor: Color(0xFF6BCBFF),
           ),
       };
 
@@ -83,9 +83,11 @@ enum MerchantCategory {
       case 'GROCERIES':
       case 'GROCERY':
         return MerchantCategory.groceries;
+      case 'INDIVIDUALS':
+      case 'INDIVIDUAL':
       case 'PHARMACY':
       case 'PHARMACIES':
-        return MerchantCategory.pharmacy;
+        return MerchantCategory.individuals;
       default:
         return MerchantCategory.food;
     }
@@ -188,18 +190,18 @@ class HomeMerchants extends Equatable {
   const HomeMerchants({
     this.restaurants = const [],
     this.groceries = const [],
-    this.pharmacy = const [],
+    this.individuals = const [],
   });
 
   final List<Merchant> restaurants;
   final List<Merchant> groceries;
-  final List<Merchant> pharmacy;
+  final List<Merchant> individuals;
 
   List<Merchant> forCategory(MerchantCategory category) {
     return switch (category) {
       MerchantCategory.food => restaurants,
       MerchantCategory.groceries => groceries,
-      MerchantCategory.pharmacy => pharmacy,
+      MerchantCategory.individuals => individuals,
     };
   }
 
@@ -208,10 +210,12 @@ class HomeMerchants extends Equatable {
     return HomeMerchants(
       restaurants: Merchant.listFrom(json['restaurants']),
       groceries: Merchant.listFrom(json['groceries']),
-      pharmacy: Merchant.listFrom(json['pharmacy']),
+      individuals: Merchant.listFrom(
+        json['individuals'] ?? json['pharmacy'],
+      ),
     );
   }
 
   @override
-  List<Object?> get props => [restaurants, groceries, pharmacy];
+  List<Object?> get props => [restaurants, groceries, individuals];
 }

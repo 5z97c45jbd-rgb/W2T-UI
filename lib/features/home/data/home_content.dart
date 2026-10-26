@@ -17,14 +17,9 @@ abstract final class HomeContent {
       background: Color(0xFFE4F6EA),
     ),
     CategoryItem(
-      label: 'Pharmacy',
-      emoji: '💊',
-      background: Color(0xFFEDE8FB),
-    ),
-    CategoryItem(
-      label: 'Flowers',
-      emoji: '🌷',
-      background: Color(0xFFE9F8EE),
+      label: 'Individuals',
+      emoji: '🧑‍💼',
+      background: Color(0xFFE8EEF6),
     ),
     CategoryItem(
       label: 'Electronics',
@@ -32,23 +27,19 @@ abstract final class HomeContent {
       background: Color(0xFFE8EEF6),
     ),
     CategoryItem(
-      label: 'Home & Living',
-      emoji: '🛋️',
-      background: Color(0xFFE4F6EA),
-    ),
-    CategoryItem(
-      label: 'Beauty',
-      emoji: '🧴',
-      background: Color(0xFFFCE8EF),
-    ),
-    CategoryItem(
       label: 'Pet Care',
       emoji: '🐾',
       background: Color(0xFFFCE4EA),
     ),
     CategoryItem(
-      label: 'More',
-      background: Color(0xFFEEF1F4),
+      label: 'Self Talent',
+      imageAsset: AppAssets.categorySelfTalent,
+      background: Color(0xFFEDE8F8),
+    ),
+    CategoryItem(
+      label: 'Child Care',
+      imageAsset: AppAssets.categoryChildCare,
+      background: Color(0xFFFFF6EA),
     ),
   ];
 
