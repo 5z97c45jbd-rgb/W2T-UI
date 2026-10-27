@@ -14,5 +14,10 @@ class CityImageRequested extends CityImageEvent {
   final PlaceLocation location;
 
   @override
-  List<Object?> get props => [location.city, location.country, location.latitude, location.longitude];
+  List<Object?> get props => [
+        location.district,
+        location.country,
+        location.latitude,
+        location.longitude,
+      ];
 }

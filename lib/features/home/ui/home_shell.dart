@@ -8,6 +8,8 @@ import 'package:w2t_mobile/features/auth/bloc/session/session_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_state.dart';
 import 'package:w2t_mobile/features/home/bloc/city_image/city_image_bloc.dart';
 import 'package:w2t_mobile/features/home/bloc/home_merchants/home_merchants_bloc.dart';
+import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
+import 'package:w2t_mobile/features/home/bloc/orders/orders_bloc.dart';
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
 import 'package:w2t_mobile/features/home/data/merchants_api.dart';
 import 'package:w2t_mobile/features/home/ui/home_screen.dart';
@@ -26,7 +28,6 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> {
-  HomeTab _currentTab = HomeTab.home;
   bool _personalizeOpen = false;
 
   @override
@@ -94,24 +95,30 @@ class _HomeShellState extends State<HomeShell> {
             create: (context) =>
                 HomeMerchantsBloc(api: context.read<MerchantsApi>()),
           ),
+          BlocProvider(create: (_) => OrdersBloc()),
         ],
-        child: Scaffold(
-          extendBody: true,
-          backgroundColor: AppColors.homeBackground,
-          body: IndexedStack(
-            index: _currentTab.index,
-            children: const [
-              HomeScreen(),
-              OrdersScreen(),
-              LocateScreen(),
-              ExploreScreen(),
-              ProfileScreen(),
-            ],
-          ),
-          bottomNavigationBar: HomeBottomNavBar(
-            currentTab: _currentTab,
-            onTabSelected: (tab) => setState(() => _currentTab = tab),
-          ),
+        child: BlocBuilder<HomeTabCubit, HomeTab>(
+          builder: (context, currentTab) {
+            return Scaffold(
+              extendBody: true,
+              backgroundColor: AppColors.homeBackground,
+              body: IndexedStack(
+                index: currentTab.index,
+                children: const [
+                  HomeScreen(),
+                  OrdersScreen(),
+                  LocateScreen(),
+                  ExploreScreen(),
+                  ProfileScreen(),
+                ],
+              ),
+              bottomNavigationBar: HomeBottomNavBar(
+                currentTab: currentTab,
+                onTabSelected: (tab) =>
+                    context.read<HomeTabCubit>().select(tab),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -17,6 +17,7 @@ import 'package:w2t_mobile/features/auth/data/device_token_service.dart';
 import 'package:w2t_mobile/features/auth/data/models/auth_session.dart';
 import 'package:w2t_mobile/features/auth/data/session_store.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_feedback_listener.dart';
+import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
 import 'package:w2t_mobile/features/home/data/merchants_api.dart';
 
@@ -103,6 +104,7 @@ class _W2tAppState extends State<W2tApp> {
               sessionBloc: context.read<SessionBloc>(),
             ),
           ),
+          BlocProvider(create: (_) => HomeTabCubit()),
         ],
         child: MaterialApp.router(
           title: 'W2T',

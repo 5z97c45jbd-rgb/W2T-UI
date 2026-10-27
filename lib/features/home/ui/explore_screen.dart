@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
+import 'package:w2t_mobile/core/router/app_router.dart';
+import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
 import 'package:w2t_mobile/features/home/data/explore_content.dart';
 import 'package:w2t_mobile/features/home/data/home_content.dart';
 import 'package:w2t_mobile/features/home/data/models/category_item.dart';
+import 'package:w2t_mobile/features/home/data/models/explore_reels_extra.dart';
 import 'package:w2t_mobile/features/home/data/models/explore_video.dart';
 import 'package:w2t_mobile/features/home/widgets/explore_header.dart';
 import 'package:w2t_mobile/features/home/widgets/explore_video_cards.dart';
+import 'package:w2t_mobile/features/home/widgets/home_bottom_nav_bar.dart';
 import 'package:w2t_mobile/features/home/widgets/home_layout.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -34,6 +39,23 @@ class _ExploreScreenState extends State<ExploreScreen> {
     final popular = videos.length > 1 ? videos.skip(1).toList() : videos;
     final bottomPadding = HomeLayout.scrollBottomPadding(context);
 
+    void openReels(ExploreVideo video) {
+      final router = GoRouter.maybeOf(context);
+      if (router == null) return;
+      final index = videos.indexOf(video);
+      router.push(
+        AppRoutes.exploreReels,
+        extra: ExploreReelsExtra(
+          videos: videos,
+          initialIndex: index < 0 ? 0 : index,
+        ),
+      );
+    }
+
+    void openOrders() {
+      HomeTabCubit.maybeOf(context)?.select(HomeTab.order);
+    }
+
     return ColoredBox(
       color: AppColors.homeBackground,
       child: CustomScrollView(
@@ -60,13 +82,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
               child: _FeaturedRow(
                 featured: featured,
                 sideVideos: sideVideos,
+                onPlay: openReels,
+                onOpenOrder: openOrders,
               ),
             ),
           SliverToBoxAdapter(
             child: _PopularHeader(onSeeAll: () {}),
           ),
           SliverToBoxAdapter(
-            child: _PopularRow(videos: popular),
+            child: _PopularRow(
+              videos: popular,
+              onPlay: openReels,
+              onOpenOrder: openOrders,
+            ),
           ),
           SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
         ],
@@ -256,10 +284,14 @@ class _FeaturedRow extends StatelessWidget {
   const _FeaturedRow({
     required this.featured,
     required this.sideVideos,
+    required this.onPlay,
+    required this.onOpenOrder,
   });
 
   final ExploreVideo featured;
   final List<ExploreVideo> sideVideos;
+  final ValueChanged<ExploreVideo> onPlay;
+  final VoidCallback onOpenOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +308,11 @@ class _FeaturedRow extends StatelessWidget {
           children: [
             Expanded(
               flex: 58,
-              child: ExploreFeaturedVideoCard(video: featured),
+              child: ExploreFeaturedVideoCard(
+                video: featured,
+                onPlay: () => onPlay(featured),
+                onOpenOrder: onOpenOrder,
+              ),
             ),
             if (sideVideos.isNotEmpty) ...[
               const SizedBox(width: 10),
@@ -287,7 +323,11 @@ class _FeaturedRow extends StatelessWidget {
                     for (var i = 0; i < sideVideos.length; i++) ...[
                       if (i > 0) const SizedBox(height: 8),
                       Expanded(
-                        child: ExploreSideVideoCard(video: sideVideos[i]),
+                        child: ExploreSideVideoCard(
+                          video: sideVideos[i],
+                          onPlay: () => onPlay(sideVideos[i]),
+                          onOpenOrder: onOpenOrder,
+                        ),
                       ),
                     ],
                   ],
@@ -345,9 +385,15 @@ class _PopularHeader extends StatelessWidget {
 }
 
 class _PopularRow extends StatelessWidget {
-  const _PopularRow({required this.videos});
+  const _PopularRow({
+    required this.videos,
+    required this.onPlay,
+    required this.onOpenOrder,
+  });
 
   final List<ExploreVideo> videos;
+  final ValueChanged<ExploreVideo> onPlay;
+  final VoidCallback onOpenOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -365,6 +411,8 @@ class _PopularRow extends StatelessWidget {
           return ExplorePopularVideoCard(
             video: videos[index],
             width: width,
+            onPlay: () => onPlay(videos[index]),
+            onOpenOrder: onOpenOrder,
           );
         },
       ),

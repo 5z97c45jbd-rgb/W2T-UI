@@ -11,6 +11,8 @@ import 'package:w2t_mobile/features/auth/ui/phone_number_screen.dart';
 import 'package:w2t_mobile/features/home/bloc/merchant_list/merchant_list_bloc.dart';
 import 'package:w2t_mobile/features/home/data/merchants_api.dart';
 import 'package:w2t_mobile/features/home/data/models/merchant.dart';
+import 'package:w2t_mobile/features/home/data/models/explore_reels_extra.dart';
+import 'package:w2t_mobile/features/home/ui/explore_reels_screen.dart';
 import 'package:w2t_mobile/features/home/ui/featured_restaurants_screen.dart';
 import 'package:w2t_mobile/features/home/ui/home_shell.dart';
 import 'package:w2t_mobile/features/auth/ui/signup_screen.dart';
@@ -27,6 +29,7 @@ abstract final class AppRoutes {
   static const String phone = '/signup/phone';
   static const String home = '/home';
   static const String featuredRestaurants = '/featured-restaurants';
+  static const String exploreReels = '/explore/reels';
   static const String merchantsPath = '/merchants/:category';
 
   static String merchants(MerchantCategory category) =>
@@ -61,6 +64,7 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
 
       if (location == AppRoutes.home ||
           location == AppRoutes.featuredRestaurants ||
+          location == AppRoutes.exploreReels ||
           location.startsWith('/merchants/')) {
         return session.didExpire ? AppRoutes.login : AppRoutes.welcome;
       }
@@ -122,6 +126,18 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
         pageBuilder: (context, state) => const MaterialPage(
           child: HomeShell(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.exploreReels,
+        name: 'exploreReels',
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+          return MaterialPage(
+            child: ExploreReelsScreen(
+              extra: extra is ExploreReelsExtra ? extra : null,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.featuredRestaurants,

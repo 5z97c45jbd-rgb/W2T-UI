@@ -6,9 +6,16 @@ import 'package:w2t_mobile/features/home/widgets/home_catalog_image.dart';
 import 'package:w2t_mobile/features/home/widgets/home_layout.dart';
 
 class ExploreFeaturedVideoCard extends StatelessWidget {
-  const ExploreFeaturedVideoCard({super.key, required this.video});
+  const ExploreFeaturedVideoCard({
+    super.key,
+    required this.video,
+    this.onPlay,
+    this.onOpenOrder,
+  });
 
   final ExploreVideo video;
+  final VoidCallback? onPlay;
+  final VoidCallback? onOpenOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +50,7 @@ class ExploreFeaturedVideoCard extends StatelessWidget {
             right: 12,
             child: _DurationChip(duration: video.duration),
           ),
-          const Center(child: _PlayButton(size: 54)),
+          Center(child: _PlayButton(size: 54, onTap: onPlay)),
           Positioned(
             left: 12,
             right: 12,
@@ -125,8 +132,12 @@ class ExploreFeaturedVideoCard extends StatelessWidget {
                         color: AppColors.white,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const Spacer(),
                     _VideoCostChip(costLabel: video.costLabel),
+                    if (onOpenOrder != null) ...[
+                      const SizedBox(width: 6),
+                      _OrderArrowButton(onTap: onOpenOrder!),
+                    ],
                   ],
                 ),
               ],
@@ -139,9 +150,16 @@ class ExploreFeaturedVideoCard extends StatelessWidget {
 }
 
 class ExploreSideVideoCard extends StatelessWidget {
-  const ExploreSideVideoCard({super.key, required this.video});
+  const ExploreSideVideoCard({
+    super.key,
+    required this.video,
+    this.onPlay,
+    this.onOpenOrder,
+  });
 
   final ExploreVideo video;
+  final VoidCallback? onPlay;
+  final VoidCallback? onOpenOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +183,7 @@ class ExploreSideVideoCard extends StatelessWidget {
             right: 8,
             child: _HeartButton(),
           ),
-          const Center(child: _PlayButton(size: 32)),
+          Center(child: _PlayButton(size: 32, onTap: onPlay)),
           Positioned(
             right: 8,
             bottom: 36,
@@ -210,6 +228,10 @@ class ExploreSideVideoCard extends StatelessWidget {
                         color: const Color(0xFFFFD56A),
                       ),
                     ),
+                    if (onOpenOrder != null) ...[
+                      const SizedBox(width: 4),
+                      _OrderArrowButton(onTap: onOpenOrder!, compact: true),
+                    ],
                   ],
                 ),
               ],
@@ -226,10 +248,14 @@ class ExplorePopularVideoCard extends StatelessWidget {
     super.key,
     required this.video,
     required this.width,
+    this.onPlay,
+    this.onOpenOrder,
   });
 
   final ExploreVideo video;
   final double width;
+  final VoidCallback? onPlay;
+  final VoidCallback? onOpenOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +272,7 @@ class ExplorePopularVideoCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   HomeFillImage(fallbackAsset: video.imageAsset),
-                  const Center(child: _PlayButton(size: 34)),
+                  Center(child: _PlayButton(size: 34, onTap: onPlay)),
                   const Positioned(
                     top: 8,
                     right: 8,
@@ -260,7 +286,16 @@ class ExplorePopularVideoCard extends StatelessWidget {
                   Positioned(
                     left: 8,
                     bottom: 8,
-                    child: _VideoCostChip(costLabel: video.costLabel),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _VideoCostChip(costLabel: video.costLabel),
+                        if (onOpenOrder != null) ...[
+                          const SizedBox(width: 6),
+                          _OrderArrowButton(onTap: onOpenOrder!),
+                        ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -337,24 +372,67 @@ class _VideoCostChip extends StatelessWidget {
   }
 }
 
-class _PlayButton extends StatelessWidget {
-  const _PlayButton({required this.size});
+class _OrderArrowButton extends StatelessWidget {
+  const _OrderArrowButton({
+    required this.onTap,
+    this.compact = false,
+  });
 
-  final double size;
+  final VoidCallback onTap;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        shape: BoxShape.circle,
+    final size = compact ? 18.0 : 22.0;
+    return Semantics(
+      button: true,
+      label: 'View order',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: const BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.arrow_forward_rounded,
+            size: compact ? 12 : 14,
+            color: AppColors.white,
+          ),
+        ),
       ),
-      child: Icon(
-        Icons.play_arrow_rounded,
-        size: size * 0.62,
-        color: AppColors.textPrimary,
+    );
+  }
+}
+
+class _PlayButton extends StatelessWidget {
+  const _PlayButton({required this.size, this.onTap});
+
+  final double size;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Play video',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.92),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.play_arrow_rounded,
+            size: size * 0.62,
+            color: AppColors.textPrimary,
+          ),
+        ),
       ),
     );
   }

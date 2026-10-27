@@ -175,7 +175,7 @@ class _LocationChip extends StatelessWidget {
             const SizedBox(width: 4),
             Flexible(
               child: Text(
-                'Hanamkonda, Warangal',
+                'Warangal',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(

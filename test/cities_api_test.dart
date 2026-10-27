@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
+import 'package:w2t_mobile/features/home/data/models/place_location.dart';
 
 void main() {
   test('reads a plain image URL from data', () {
@@ -25,5 +26,10 @@ void main() {
       }),
       'https://cdn.example.com/nested.jpg',
     );
+  });
+
+  test('city images use hardcoded Warangal city', () {
+    expect(PlaceLocation.cityImagesCity, 'Warangal');
+    expect(PlaceLocation.current.city, 'Warangal');
   });
 }

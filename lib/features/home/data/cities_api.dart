@@ -22,7 +22,7 @@ class CitiesApi {
       final response = await _dio.get<dynamic>(
         '${ApiConfig.order}/api/cities/images',
         queryParameters: {
-          'city': location.city,
+          'city': PlaceLocation.cityImagesCity,
           if (location.country != null && location.country!.isNotEmpty)
             'country': location.country,
           'latitude': location.latitude,

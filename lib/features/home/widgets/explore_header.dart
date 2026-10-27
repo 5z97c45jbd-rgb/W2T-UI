@@ -130,7 +130,7 @@ class ExploreHeader extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Search recipes, food, grocery, pharmacy, more...',
+                    'Search recipes, food, grocery, individuals, more...',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
