@@ -114,7 +114,7 @@ class _CategoryStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categories = HomeContent.categories;
+    const categories = HomeContent.categories;
     return SizedBox(
       height: 96,
       child: ListView.separated(
