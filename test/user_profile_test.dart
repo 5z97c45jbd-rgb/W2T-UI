@@ -19,13 +19,12 @@ void main() {
       ).needsPersonalization,
       isTrue,
     );
-    expect(complete.copyWith(dateOfBirth: DateTime.utc(1994, 1, 25))
-        .needsPersonalization, isFalse);
+    expect(complete.copyWith(dateOfBirth: DateTime.utc(1994, 1, 25)).needsPersonalization, isFalse);
   });
 
   test('parses dateOfBirth and color from profile payload', () {
     final profile = UserProfile.fromData(
-      {
+      const {
         'userId': 'u1',
         'dateOfBirth': '1994-01-25T00:00:00.000Z',
         'color': 'Blue',

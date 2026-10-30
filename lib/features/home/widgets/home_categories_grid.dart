@@ -15,15 +15,14 @@ class HomeCategoriesGrid extends StatelessWidget {
 
   static double _tileWidth(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final horizontalInset = HomeLayout.horizontalPadding * 2;
-    final available =
-        screenWidth - horizontalInset - _gap * (_referenceColumns - 1);
+    const horizontalInset = HomeLayout.horizontalPadding * 2;
+    final available = screenWidth - horizontalInset - _gap * (_referenceColumns - 1);
     return available / _referenceColumns;
   }
 
   @override
   Widget build(BuildContext context) {
-    final categories = HomeContent.categories;
+    const categories = HomeContent.categories;
     final rows = (categories.length / _rowColumns).ceil();
     final tileWidth = _tileWidth(context);
     final iconHeight = tileWidth / _iconAspectRatio;
@@ -48,9 +47,7 @@ class HomeCategoriesGrid extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.topCenter,
                       child: _CategoryTile(
-                        item: row * _rowColumns + col < categories.length
-                            ? categories[row * _rowColumns + col]
-                            : null,
+                        item: row * _rowColumns + col < categories.length ? categories[row * _rowColumns + col] : null,
                         width: tileWidth,
                         iconHeight: iconHeight,
                       ),

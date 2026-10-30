@@ -45,9 +45,8 @@ class HomeBottomNavBar extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final slotWidth = constraints.maxWidth / _tabCount;
-            final fabLeft =
-                slotWidth * _fabIndex + (slotWidth - _fabSize) / 2;
-            final fabBottom = (_barHeight - _fabSize) / 2 + _fabOverhang * 0.35;
+            final fabLeft = slotWidth * _fabIndex + (slotWidth - _fabSize) / 2;
+            const fabBottom = (_barHeight - _fabSize) / 2 + _fabOverhang * 0.35;
 
             return Stack(
               clipBehavior: Clip.none,
@@ -204,10 +203,8 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor =
-        selected ? AppColors.textPrimary : AppColors.navInactive;
-    final labelColor =
-        selected ? AppColors.textPrimary : AppColors.navInactive;
+    final iconColor = selected ? AppColors.textPrimary : AppColors.navInactive;
+    final labelColor = selected ? AppColors.textPrimary : AppColors.navInactive;
 
     return Semantics(
       button: true,
