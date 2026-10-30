@@ -377,72 +377,157 @@ class _BotBubble extends StatelessWidget {
   }
 }
 
-class _StepRow extends StatelessWidget {
-  const _StepRow({
+class _StepAccordion extends StatelessWidget {
+  const _StepAccordion({
     required this.number,
     required this.icon,
     required this.title,
     required this.detail,
+    required this.hint,
+    required this.expanded,
+    required this.controller,
+    required this.onToggle,
   });
 
   final int number;
   final IconData icon;
   final String title;
   final String detail;
+  final String hint;
+  final bool expanded;
+  final TextEditingController controller;
+  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 26,
-          height: 26,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: Color(0xFFE5F6FB),
-            shape: BoxShape.circle,
-          ),
-          child: Text(
-            '$number',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF12A8C7),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      decoration: BoxDecoration(
+        color: expanded ? const Color(0xFFF4FBFD) : Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: expanded ? const Color(0xFFC9EAF3) : const Color(0xFFE8EEF2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: onToggle,
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 26,
+                    height: 26,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE5F6FB),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$number',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF12A8C7),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(icon, size: 18, color: const Color(0xFF12A8C7)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1B2A4A),
+                      ),
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 220),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 22,
+                      color: expanded
+                          ? const Color(0xFF12A8C7)
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Padding(
-          padding: const EdgeInsets.only(top: 3),
-          child: Icon(icon, size: 18, color: const Color(0xFF12A8C7)),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1B2A4A),
-                ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox(width: double.infinity),
+            secondChild: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    detail,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: controller,
+                    textInputAction: TextInputAction.done,
+                    style: GoogleFonts.inter(
+                      fontSize: 13.5,
+                      color: AppColors.textPrimary,
+                    ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: hint,
+                      hintStyle: GoogleFonts.inter(
+                        fontSize: 13.5,
+                        color: const Color(0xFFB0B8C1),
+                      ),
+                      filled: true,
+                      fillColor: AppColors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 11,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFE6EEF2)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFE6EEF2)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF12A8C7),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 2),
-              Text(
-                detail,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  height: 1.3,
-                ),
-              ),
-            ],
+            ),
+            crossFadeState: expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 220),
+            sizeCurve: Curves.easeOutCubic,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
