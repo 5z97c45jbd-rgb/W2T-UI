@@ -13,41 +13,60 @@ class AiRegisterScreen extends StatefulWidget {
 
 class _AiRegisterScreenState extends State<AiRegisterScreen> {
   bool _showDocuments = false;
+  int? _expandedStep = 0;
   final _inputController = TextEditingController();
   final _inputFocus = FocusNode();
+  late final List<TextEditingController> _stepControllers;
 
   static const _steps = [
     (
       icon: Icons.person_add_alt_1_rounded,
       title: 'Create Merchant Account',
       detail: 'Provide basic business details',
+      hint: 'Business name',
     ),
     (
       icon: Icons.shopping_cart_rounded,
       title: 'Select Category',
       detail: "Choose 'Grocery' from the list",
+      hint: 'e.g. Grocery',
     ),
     (
       icon: Icons.storefront_rounded,
       title: 'Add Store Information',
       detail: 'Store name, address, contact details',
+      hint: 'Store name or address',
     ),
     (
       icon: Icons.file_upload_rounded,
       title: 'Upload Documents',
       detail: 'GST, shop license (optional), store photos',
+      hint: 'Document type or GST number',
     ),
     (
       icon: Icons.fact_check_rounded,
       title: 'Start Listing Products',
       detail: 'Add your products, prices and delivery details',
+      hint: 'Product name',
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _stepControllers = List.generate(
+      _steps.length,
+      (_) => TextEditingController(),
+    );
+  }
 
   @override
   void dispose() {
     _inputController.dispose();
     _inputFocus.dispose();
+    for (final controller in _stepControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -87,12 +106,20 @@ class _AiRegisterScreenState extends State<AiRegisterScreen> {
                         ),
                         const SizedBox(height: 18),
                         for (var i = 0; i < _steps.length; i++) ...[
-                          if (i > 0) const SizedBox(height: 16),
-                          _StepRow(
+                          if (i > 0) const SizedBox(height: 10),
+                          _StepAccordion(
                             number: i + 1,
                             icon: _steps[i].icon,
                             title: _steps[i].title,
                             detail: _steps[i].detail,
+                            hint: _steps[i].hint,
+                            expanded: _expandedStep == i,
+                            controller: _stepControllers[i],
+                            onToggle: () {
+                              setState(() {
+                                _expandedStep = _expandedStep == i ? null : i;
+                              });
+                            },
                           ),
                         ],
                         const SizedBox(height: 18),
