@@ -4,6 +4,7 @@ abstract final class AppAssets {
   static const String loginMapBackground = 'assets/signup_baground.png';
   static const String googleIcon = 'assets/google.png';
   static const String splash = 'assets/splash.png';
+  static const String bot = 'assets/bot.png';
 
   static const String homeHero = 'assets/place.png';
   static const String bottomNavAi = 'assets/icon/WT2AI.svg';

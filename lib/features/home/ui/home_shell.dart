@@ -12,9 +12,9 @@ import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
 import 'package:w2t_mobile/features/home/bloc/orders/orders_bloc.dart';
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
 import 'package:w2t_mobile/features/home/data/merchants_api.dart';
+import 'package:w2t_mobile/features/home/ui/ai_screen.dart';
 import 'package:w2t_mobile/features/home/ui/home_screen.dart';
 import 'package:w2t_mobile/features/home/ui/explore_screen.dart';
-import 'package:w2t_mobile/features/home/ui/locate_screen.dart';
 import 'package:w2t_mobile/features/home/ui/orders_screen.dart';
 import 'package:w2t_mobile/features/home/ui/profile_screen.dart';
 import 'package:w2t_mobile/features/home/widgets/home_bottom_nav_bar.dart';
@@ -107,7 +107,7 @@ class _HomeShellState extends State<HomeShell> {
                 children: const [
                   HomeScreen(),
                   OrdersScreen(),
-                  LocateScreen(),
+                  AiScreen(),
                   ExploreScreen(),
                   ProfileScreen(),
                 ],
