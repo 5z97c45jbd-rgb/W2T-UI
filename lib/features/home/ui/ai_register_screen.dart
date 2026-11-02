@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
-import 'package:w2t_mobile/core/ui/app_snack_bar.dart';
+import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/home/widgets/ai_app_bar.dart';
 
 class AiRegisterScreen extends StatefulWidget {
@@ -13,60 +14,41 @@ class AiRegisterScreen extends StatefulWidget {
 
 class _AiRegisterScreenState extends State<AiRegisterScreen> {
   bool _showDocuments = false;
-  int? _expandedStep = 0;
   final _inputController = TextEditingController();
   final _inputFocus = FocusNode();
-  late final List<TextEditingController> _stepControllers;
 
   static const _steps = [
     (
       icon: Icons.person_add_alt_1_rounded,
       title: 'Create Merchant Account',
       detail: 'Provide basic business details',
-      hint: 'Business name',
     ),
     (
       icon: Icons.shopping_cart_rounded,
       title: 'Select Category',
       detail: "Choose 'Grocery' from the list",
-      hint: 'e.g. Grocery',
     ),
     (
       icon: Icons.storefront_rounded,
       title: 'Add Store Information',
       detail: 'Store name, address, contact details',
-      hint: 'Store name or address',
     ),
     (
       icon: Icons.file_upload_rounded,
       title: 'Upload Documents',
       detail: 'GST, shop license (optional), store photos',
-      hint: 'Document type or GST number',
     ),
     (
       icon: Icons.fact_check_rounded,
       title: 'Start Listing Products',
       detail: 'Add your products, prices and delivery details',
-      hint: 'Product name',
     ),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _stepControllers = List.generate(
-      _steps.length,
-      (_) => TextEditingController(),
-    );
-  }
 
   @override
   void dispose() {
     _inputController.dispose();
     _inputFocus.dispose();
-    for (final controller in _stepControllers) {
-      controller.dispose();
-    }
     super.dispose();
   }
 
@@ -106,20 +88,12 @@ class _AiRegisterScreenState extends State<AiRegisterScreen> {
                         ),
                         const SizedBox(height: 18),
                         for (var i = 0; i < _steps.length; i++) ...[
-                          if (i > 0) const SizedBox(height: 10),
-                          _StepAccordion(
+                          if (i > 0) const SizedBox(height: 16),
+                          _StepRow(
                             number: i + 1,
                             icon: _steps[i].icon,
                             title: _steps[i].title,
                             detail: _steps[i].detail,
-                            hint: _steps[i].hint,
-                            expanded: _expandedStep == i,
-                            controller: _stepControllers[i],
-                            onToggle: () {
-                              setState(() {
-                                _expandedStep = _expandedStep == i ? null : i;
-                              });
-                            },
                           ),
                         ],
                         const SizedBox(height: 18),
@@ -161,12 +135,7 @@ class _AiRegisterScreenState extends State<AiRegisterScreen> {
                         child: _ActionButton(
                           label: 'Yes, take me there',
                           filled: true,
-                          onTap: () {
-                            AppSnackBar.show(
-                              context,
-                              'Merchant registration will be available soon.',
-                            );
-                          },
+                          onTap: () => context.push(AppRoutes.kyc),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -377,157 +346,72 @@ class _BotBubble extends StatelessWidget {
   }
 }
 
-class _StepAccordion extends StatelessWidget {
-  const _StepAccordion({
+class _StepRow extends StatelessWidget {
+  const _StepRow({
     required this.number,
     required this.icon,
     required this.title,
     required this.detail,
-    required this.hint,
-    required this.expanded,
-    required this.controller,
-    required this.onToggle,
   });
 
   final int number;
   final IconData icon;
   final String title;
   final String detail;
-  final String hint;
-  final bool expanded;
-  final TextEditingController controller;
-  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      decoration: BoxDecoration(
-        color: expanded ? const Color(0xFFF4FBFD) : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: expanded ? const Color(0xFFC9EAF3) : const Color(0xFFE8EEF2),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 26,
+          height: 26,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            color: Color(0xFFE5F6FB),
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            '$number',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF12A8C7),
+            ),
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            onTap: onToggle,
-            borderRadius: BorderRadius.circular(14),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: Row(
-                children: [
-                  Container(
-                    width: 26,
-                    height: 26,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE5F6FB),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$number',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF12A8C7),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(icon, size: 18, color: const Color(0xFF12A8C7)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1B2A4A),
-                      ),
-                    ),
-                  ),
-                  AnimatedRotation(
-                    turns: expanded ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 220),
-                    child: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 22,
-                      color: expanded
-                          ? const Color(0xFF12A8C7)
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                ],
+        const SizedBox(width: 10),
+        Padding(
+          padding: const EdgeInsets.only(top: 3),
+          child: Icon(icon, size: 18, color: const Color(0xFF12A8C7)),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1B2A4A),
+                ),
               ),
-            ),
-          ),
-          AnimatedCrossFade(
-            firstChild: const SizedBox(width: double.infinity),
-            secondChild: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    detail,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                      height: 1.3,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: controller,
-                    textInputAction: TextInputAction.done,
-                    style: GoogleFonts.inter(
-                      fontSize: 13.5,
-                      color: AppColors.textPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: hint,
-                      hintStyle: GoogleFonts.inter(
-                        fontSize: 13.5,
-                        color: const Color(0xFFB0B8C1),
-                      ),
-                      filled: true,
-                      fillColor: AppColors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 11,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xFFE6EEF2)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xFFE6EEF2)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF12A8C7),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 2),
+              Text(
+                detail,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  height: 1.3,
+                ),
               ),
-            ),
-            crossFadeState: expanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 220),
-            sizeCurve: Curves.easeOutCubic,
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

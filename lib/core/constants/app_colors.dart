@@ -21,4 +21,9 @@ abstract final class AppColors {
   static const Color offerGreen = Color(0xFF2F9E57);
   static const Color chipFill = Color(0xFFF3F4F6);
   static const Color titleNavy = Color(0xFF1B2A4A);
+  static const Color kycGradientStart = Color(0xFF3EC8EA);
+  static const Color kycGradientEnd = Color(0xFF1296C8);
+  static const Color kycPage = Color(0xFFF7FBFE);
+  static const Color kycFieldBorder = Color(0xFFE3EDF2);
+  static const Color kycSoftBlue = Color(0xFFE7F6FB);
 }

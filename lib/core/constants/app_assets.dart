@@ -5,6 +5,8 @@ abstract final class AppAssets {
   static const String googleIcon = 'assets/google.png';
   static const String splash = 'assets/splash.png';
   static const String bot = 'assets/bot.png';
+  static const String w2tShop = 'assets/w2t_shop.png';
+  static const String kycStoreMap = 'assets/kyc_store_map.jpg';
 
   static const String homeHero = 'assets/place.png';
   static const String bottomNavAi = 'assets/icon/WT2AI.svg';

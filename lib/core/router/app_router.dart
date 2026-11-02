@@ -18,6 +18,11 @@ import 'package:w2t_mobile/features/home/ui/home_shell.dart';
 import 'package:w2t_mobile/features/auth/ui/signup_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/splash_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/welcome_screen.dart';
+import 'package:w2t_mobile/features/kyc/ui/kyc_business_details_screen.dart';
+import 'package:w2t_mobile/features/kyc/ui/kyc_category_screen.dart';
+import 'package:w2t_mobile/features/kyc/ui/kyc_store_location_screen.dart';
+import 'package:w2t_mobile/features/kyc/ui/merchant_landing_screen.dart';
+import 'package:w2t_mobile/features/kyc/widgets/kyc_scope.dart';
 
 abstract final class AppRoutes {
   static const String splash = '/';
@@ -31,6 +36,10 @@ abstract final class AppRoutes {
   static const String featuredRestaurants = '/featured-restaurants';
   static const String exploreReels = '/explore/reels';
   static const String merchantsPath = '/merchants/:category';
+  static const String kyc = '/kyc';
+  static const String kycCategory = '/kyc/category';
+  static const String kycBusiness = '/kyc/business';
+  static const String kycLocation = '/kyc/location';
 
   static String merchants(MerchantCategory category) =>
       '/merchants/${category.apiValue}';
@@ -65,7 +74,8 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
       if (location == AppRoutes.home ||
           location == AppRoutes.featuredRestaurants ||
           location == AppRoutes.exploreReels ||
-          location.startsWith('/merchants/')) {
+          location.startsWith('/merchants/') ||
+          location.startsWith('/kyc')) {
         return session.didExpire ? AppRoutes.login : AppRoutes.welcome;
       }
       return null;
@@ -143,6 +153,39 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
         path: AppRoutes.featuredRestaurants,
         name: 'featuredRestaurants',
         redirect: (_, __) => AppRoutes.merchants(MerchantCategory.food),
+      ),
+      ShellRoute(
+        builder: (context, state, child) => KycScope(child: child),
+        routes: [
+          GoRoute(
+            path: AppRoutes.kyc,
+            name: 'kyc',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: MerchantLandingScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.kycCategory,
+            name: 'kycCategory',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: KycCategoryScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.kycBusiness,
+            name: 'kycBusiness',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: KycBusinessDetailsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.kycLocation,
+            name: 'kycLocation',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: KycStoreLocationScreen(),
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.merchantsPath,
