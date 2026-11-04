@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 
 enum OrderSide { sold, purchased }
@@ -12,6 +13,7 @@ enum OrderStatus {
   cancelled,
   outForDelivery,
   returnRequested,
+  paymentFailed,
 }
 
 class OrderCategoryFilter extends Equatable {
@@ -42,6 +44,8 @@ class OrderItem extends Equatable {
     required this.placedAt,
     required this.status,
     required this.imageAsset,
+    this.imageUrl,
+    this.statusLabel,
   });
 
   final String id;
@@ -53,6 +57,38 @@ class OrderItem extends Equatable {
   final DateTime placedAt;
   final OrderStatus status;
   final String imageAsset;
+  final String? imageUrl;
+  final String? statusLabel;
+
+  String get displayStatus => statusLabel ?? status.label;
+
+  OrderItem copyWith({
+    String? id,
+    OrderSide? side,
+    String? category,
+    String? partyName,
+    int? itemCount,
+    String? amountLabel,
+    DateTime? placedAt,
+    OrderStatus? status,
+    String? imageAsset,
+    String? imageUrl,
+    String? statusLabel,
+  }) {
+    return OrderItem(
+      id: id ?? this.id,
+      side: side ?? this.side,
+      category: category ?? this.category,
+      partyName: partyName ?? this.partyName,
+      itemCount: itemCount ?? this.itemCount,
+      amountLabel: amountLabel ?? this.amountLabel,
+      placedAt: placedAt ?? this.placedAt,
+      status: status ?? this.status,
+      imageAsset: imageAsset ?? this.imageAsset,
+      imageUrl: imageUrl ?? this.imageUrl,
+      statusLabel: statusLabel ?? this.statusLabel,
+    );
+  }
 
   String get itemCountLabel =>
       itemCount == 1 ? '1 item' : '$itemCount items';
@@ -79,6 +115,124 @@ class OrderItem extends Equatable {
         '${hour.toString().padLeft(2, '0')}:$minute $period';
   }
 
+  static OrderItem? fromJson(dynamic json, OrderSide side) {
+    if (json is! Map) return null;
+    final id = _nonEmpty(json['orderId']);
+    if (id == null) return null;
+
+    final statusValue = _nonEmpty(json['orderStatus']);
+    return OrderItem(
+      id: _displayId(id),
+      side: side,
+      category: _nonEmpty(json['category']) ?? '',
+      partyName: _partyName(json, side),
+      itemCount: _int(json['quantity'] ?? json['itemCount']) ?? 1,
+      amountLabel: _amountLabel(json['amount'], json['currency']),
+      placedAt: _date(json['createdAt']) ?? DateTime.now(),
+      status: OrderStatusX.fromApi(statusValue),
+      statusLabel: statusValue == null ? null : _humanize(statusValue),
+      imageAsset: _fallbackAsset(_nonEmpty(json['category'])),
+      imageUrl: _nonEmpty(json['orderPic']),
+    );
+  }
+
+  static List<OrderItem> listFrom(dynamic json, OrderSide side) {
+    if (json is! List) return const [];
+    return json
+        .map((item) => fromJson(item, side))
+        .whereType<OrderItem>()
+        .toList(growable: false);
+  }
+
+  static String _displayId(String id) {
+    if (id.startsWith('#')) return id;
+    final compact = id.replaceAll('-', '');
+    if (compact.length <= 8) return '#$compact';
+    return '#${compact.substring(0, 8).toUpperCase()}';
+  }
+
+  static String _partyName(Map json, OrderSide side) {
+    final purchasedBy = _nonEmpty(json['purchasedBy']);
+    if (purchasedBy != null && !_looksLikeId(purchasedBy)) {
+      return purchasedBy;
+    }
+    final orderBy = _nonEmpty(json['orderBy']);
+    if (orderBy != null && !_looksLikeId(orderBy)) return orderBy;
+    return side == OrderSide.purchased ? 'Merchant' : 'Customer';
+  }
+
+  static bool _looksLikeId(String value) {
+    final compact = value.replaceAll('-', '');
+    return RegExp(r'^[0-9a-fA-F]{16,}$').hasMatch(compact);
+  }
+
+  static String _amountLabel(Object? amount, Object? currency) {
+    final value = amount is num
+        ? amount.toDouble()
+        : double.tryParse(amount?.toString() ?? '') ?? 0;
+    final code = (currency?.toString() ?? 'INR').trim().toUpperCase();
+    final symbol = switch (code) {
+      'INR' || 'RS' || 'RUPEE' || 'RUPEES' => '₹',
+      'USD' => '\$',
+      'EUR' => '€',
+      'AED' => 'AED ',
+      _ => code.isEmpty ? '₹' : '$code ',
+    };
+    if (value == value.roundToDouble()) {
+      return '$symbol${value.toInt()}';
+    }
+    return '$symbol${value.toStringAsFixed(2)}';
+  }
+
+  static DateTime? _date(Object? value) {
+    if (value is DateTime) return value.toLocal();
+    if (value is String && value.trim().isNotEmpty) {
+      return DateTime.tryParse(value.trim())?.toLocal();
+    }
+    return null;
+  }
+
+  static int? _int(Object? value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value.trim());
+    return null;
+  }
+
+  static String? _nonEmpty(Object? value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  static String _humanize(String raw) {
+    return raw
+        .split(RegExp(r'[_\s-]+'))
+        .where((part) => part.isNotEmpty)
+        .map(
+          (part) =>
+              '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}',
+        )
+        .join(' ');
+  }
+
+  static String _fallbackAsset(String? category) {
+    switch (category?.trim().toLowerCase()) {
+      case 'grocery':
+      case 'groceries':
+        return AppAssets.freshVegetables;
+      case 'individuals':
+      case 'individual':
+        return AppAssets.skincarePersonalCare;
+      case 'electronics':
+        return AppAssets.urbanBites;
+      case 'fashion':
+        return AppAssets.skincarePersonalCare;
+      default:
+        return AppAssets.noodleHub;
+    }
+  }
+
   @override
   List<Object?> get props => [
         id,
@@ -90,16 +244,19 @@ class OrderItem extends Equatable {
         placedAt,
         status,
         imageAsset,
+        imageUrl,
+        statusLabel,
       ];
 }
 
-extension OrderStatusStyle on OrderStatus {
+extension OrderStatusX on OrderStatus {
   String get label => switch (this) {
         OrderStatus.delivered => 'Delivered',
         OrderStatus.preparing => 'Preparing',
         OrderStatus.cancelled => 'Cancelled',
         OrderStatus.outForDelivery => 'Out for Delivery',
         OrderStatus.returnRequested => 'Return Requested',
+        OrderStatus.paymentFailed => 'Payment Failed',
       };
 
   Color get foreground => switch (this) {
@@ -108,6 +265,7 @@ extension OrderStatusStyle on OrderStatus {
         OrderStatus.cancelled => const Color(0xFFE25C5C),
         OrderStatus.outForDelivery => const Color(0xFF3D4A5C),
         OrderStatus.returnRequested => AppColors.offerOrange,
+        OrderStatus.paymentFailed => const Color(0xFFE25C5C),
       };
 
   Color get background => switch (this) {
@@ -116,7 +274,33 @@ extension OrderStatusStyle on OrderStatus {
         OrderStatus.cancelled => const Color(0xFFFDECEC),
         OrderStatus.outForDelivery => const Color(0xFFEEF1F4),
         OrderStatus.returnRequested => const Color(0xFFFFF1E6),
+        OrderStatus.paymentFailed => const Color(0xFFFDECEC),
       };
+
+  static OrderStatus fromApi(String? value) {
+    switch (value?.trim().toUpperCase()) {
+      case 'DELIVERED':
+      case 'COMPLETED':
+      case 'SUCCESS':
+        return OrderStatus.delivered;
+      case 'OUT_FOR_DELIVERY':
+      case 'SHIPPED':
+      case 'DISPATCHED':
+        return OrderStatus.outForDelivery;
+      case 'CANCELLED':
+      case 'CANCELED':
+        return OrderStatus.cancelled;
+      case 'PAYMENT_FAILED':
+      case 'FAILED':
+        return OrderStatus.paymentFailed;
+      case 'RETURN_REQUESTED':
+      case 'RETURN':
+      case 'RETURNED':
+        return OrderStatus.returnRequested;
+      default:
+        return OrderStatus.preparing;
+    }
+  }
 }
 
 extension OrderSortLabel on OrderSort {

@@ -65,6 +65,21 @@ class KycRegistrationCubit extends Cubit<KycRegistrationState> {
     );
   }
 
+  void updatePan(String value) => emit(state.copyWith(pan: value));
+
+  void updateGstin(String value) => emit(state.copyWith(gstin: value));
+
+  void updateShopEstablishment(String value) =>
+      emit(state.copyWith(shopEstablishment: value));
+
+  void updateFssai(String value) => emit(state.copyWith(fssai: value));
+
+  void updateStoreImagePath(String? path) =>
+      emit(state.copyWith(storeImagePath: path));
+
+  void updateTermsAccepted(bool value) =>
+      emit(state.copyWith(termsAccepted: value));
+
   void useCurrentLocation() {
     emit(
       state.copyWith(

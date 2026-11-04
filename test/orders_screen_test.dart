@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:w2t_mobile/core/network/auth_token_holder.dart';
+import 'package:w2t_mobile/core/network/dio_client.dart';
 import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
 import 'package:w2t_mobile/features/home/bloc/orders/orders_bloc.dart';
+import 'package:w2t_mobile/features/home/data/models/order_item.dart';
+import 'package:w2t_mobile/features/home/data/orders_api.dart';
+import 'package:w2t_mobile/features/home/data/orders_content.dart';
 import 'package:w2t_mobile/features/home/ui/orders_screen.dart';
+
+class _FakeOrdersApi extends OrdersApi {
+  _FakeOrdersApi() : super(DioClient(AuthTokenHolder()));
+
+  @override
+  Future<List<OrderItem>> fetchOrders() async => OrdersContent.orders;
+}
 
 void main() {
   testWidgets('Orders screen matches sold/purchased layout with Individuals',
@@ -17,11 +29,12 @@ void main() {
       MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => HomeTabCubit()),
-          BlocProvider(create: (_) => OrdersBloc()),
+          BlocProvider(create: (_) => OrdersBloc(api: _FakeOrdersApi())),
         ],
         child: const MaterialApp(home: Scaffold(body: OrdersScreen())),
       ),
     );
+    await tester.pump();
 
     expect(find.text('Orders'), findsOneWidget);
     expect(find.text('Manage all your orders in one place'), findsOneWidget);

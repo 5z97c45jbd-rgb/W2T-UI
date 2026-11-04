@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
+import 'package:w2t_mobile/features/home/bloc/explore/explore_bloc.dart';
+import 'package:w2t_mobile/features/home/bloc/explore/explore_event.dart';
+import 'package:w2t_mobile/features/home/bloc/explore/explore_state.dart';
 import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
 import 'package:w2t_mobile/features/home/data/explore_content.dart';
 import 'package:w2t_mobile/features/home/data/home_content.dart';
@@ -14,30 +18,21 @@ import 'package:w2t_mobile/features/home/widgets/explore_video_cards.dart';
 import 'package:w2t_mobile/features/home/widgets/home_bottom_nav_bar.dart';
 import 'package:w2t_mobile/features/home/widgets/home_layout.dart';
 
-class ExploreScreen extends StatefulWidget {
+class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
 
   @override
-  State<ExploreScreen> createState() => _ExploreScreenState();
-}
-
-class _ExploreScreenState extends State<ExploreScreen> {
-  late String _selectedCategory;
-  String _selectedTopic = ExploreContent.topics.first;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedCategory = ExploreContent.defaultCategory();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final videos = ExploreContent.videosFor(_selectedCategory);
-    final featured = videos.isNotEmpty ? videos.first : null;
-    final sideVideos = videos.skip(1).take(3).toList();
-    final popular = videos.length > 1 ? videos.skip(1).toList() : videos;
     final bottomPadding = HomeLayout.scrollBottomPadding(context);
+
+    return ColoredBox(
+      color: AppColors.homeBackground,
+      child: BlocBuilder<ExploreBloc, ExploreState>(
+        builder: (context, state) {
+          final videos = state.visibleVideos;
+          final featured = videos.isNotEmpty ? videos.first : null;
+          final sideVideos = videos.skip(1).take(3).toList();
+          final popular = videos.skip(1).toList();
 
     void openReels(ExploreVideo video) {
       final router = GoRouter.maybeOf(context);
@@ -56,47 +51,143 @@ class _ExploreScreenState extends State<ExploreScreen> {
       HomeTabCubit.maybeOf(context)?.select(HomeTab.order);
     }
 
-    return ColoredBox(
-      color: AppColors.homeBackground,
-      child: CustomScrollView(
-        slivers: [
-          const SliverSafeArea(
-            minimum: EdgeInsets.only(top: 8),
-            bottom: false,
-            sliver: SliverToBoxAdapter(child: ExploreHeader()),
+          return CustomScrollView(
+            slivers: [
+              const SliverSafeArea(
+                minimum: EdgeInsets.only(top: 8),
+                bottom: false,
+                sliver: SliverToBoxAdapter(child: ExploreHeader()),
+              ),
+              SliverToBoxAdapter(
+                child: _CategoryStrip(
+                  selectedCategory: state.category,
+                  onSelected: (label) {
+                    context
+                        .read<ExploreBloc>()
+                        .add(ExploreCategoryChanged(label));
+                  },
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: _TopicTabs(
+                  selectedTopic: state.topic,
+                  onSelected: (topic) {
+                    context.read<ExploreBloc>().add(ExploreTopicChanged(topic));
+                  },
+                ),
+              ),
+              if (state.status == ExploreStatus.loading)
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 48),
+                    child: Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(strokeWidth: 2.4),
+                      ),
+                    ),
+                  ),
+                )
+              else if (state.status == ExploreStatus.failure)
+                SliverToBoxAdapter(
+                  child: _ExploreError(
+                    message: state.errorMessage,
+                    onRetry: () => context
+                        .read<ExploreBloc>()
+                        .add(const ExploreRequested()),
+                  ),
+                )
+              else if (featured == null)
+                const SliverToBoxAdapter(child: _ExploreEmpty())
+              else ...[
+                SliverToBoxAdapter(
+                  child: _FeaturedRow(
+                    featured: featured,
+                    sideVideos: sideVideos,
+                    onPlay: openReels,
+                    onOpenOrder: openOrders,
+                  ),
+                ),
+                if (popular.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: _PopularHeader(onSeeAll: () {}),
+                  ),
+                  SliverToBoxAdapter(
+                    child: _PopularRow(
+                      videos: popular,
+                      onPlay: openReels,
+                      onOpenOrder: openOrders,
+                    ),
+                  ),
+                ],
+              ],
+              SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ExploreEmpty extends StatelessWidget {
+  const _ExploreEmpty();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+      child: Center(
+        child: Text(
+          'No videos near you yet',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
           ),
-          SliverToBoxAdapter(
-            child: _CategoryStrip(
-              selectedCategory: _selectedCategory,
-              onSelected: (label) => setState(() => _selectedCategory = label),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExploreError extends StatelessWidget {
+  const _ExploreError({
+    required this.message,
+    required this.onRetry,
+  });
+
+  final String? message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+      child: Column(
+        children: [
+          Text(
+            message ?? 'Could not load videos',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
             ),
           ),
-          SliverToBoxAdapter(
-            child: _TopicTabs(
-              selectedTopic: _selectedTopic,
-              onSelected: (topic) => setState(() => _selectedTopic = topic),
-            ),
-          ),
-          if (featured != null)
-            SliverToBoxAdapter(
-              child: _FeaturedRow(
-                featured: featured,
-                sideVideos: sideVideos,
-                onPlay: openReels,
-                onOpenOrder: openOrders,
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(
+              'Tap to retry',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
               ),
             ),
-          SliverToBoxAdapter(
-            child: _PopularHeader(onSeeAll: () {}),
           ),
-          SliverToBoxAdapter(
-            child: _PopularRow(
-              videos: popular,
-              onPlay: openReels,
-              onOpenOrder: openOrders,
-            ),
-          ),
-          SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
         ],
       ),
     );

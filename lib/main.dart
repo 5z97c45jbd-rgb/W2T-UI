@@ -19,7 +19,9 @@ import 'package:w2t_mobile/features/auth/data/session_store.dart';
 import 'package:w2t_mobile/features/auth/widgets/auth_feedback_listener.dart';
 import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
+import 'package:w2t_mobile/features/home/data/explore_api.dart';
 import 'package:w2t_mobile/features/home/data/merchants_api.dart';
+import 'package:w2t_mobile/features/home/data/orders_api.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +47,8 @@ class _W2tAppState extends State<W2tApp> {
   late final AuthApi _api;
   late final CitiesApi _citiesApi;
   late final MerchantsApi _merchantsApi;
+  late final OrdersApi _ordersApi;
+  late final ExploreApi _exploreApi;
   late final SessionBloc _sessionBloc;
   late final GoRouter _router;
 
@@ -57,6 +61,8 @@ class _W2tAppState extends State<W2tApp> {
     _api = AuthApi(_dioClient);
     _citiesApi = CitiesApi(_dioClient);
     _merchantsApi = MerchantsApi(_dioClient);
+    _ordersApi = OrdersApi(_dioClient);
+    _exploreApi = ExploreApi(_dioClient);
     _sessionBloc = SessionBloc(
       api: _api,
       store: _sessionStore,
@@ -79,6 +85,8 @@ class _W2tAppState extends State<W2tApp> {
       providers: [
         RepositoryProvider.value(value: _citiesApi),
         RepositoryProvider.value(value: _merchantsApi),
+        RepositoryProvider.value(value: _ordersApi),
+        RepositoryProvider.value(value: _exploreApi),
       ],
       child: MultiBlocProvider(
         providers: [

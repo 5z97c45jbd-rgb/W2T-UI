@@ -17,6 +17,8 @@ class KycCategory {
   String? get imageAsset => item.imageAsset;
 
   static const foodId = 'food';
+  static const groceryId = 'grocery';
+  static const selfTalentId = 'self_talent';
 
   static final all = [
     for (final item in HomeContent.categories)
@@ -28,6 +30,12 @@ class KycCategory {
 
   static KycCategory get food =>
       all.firstWhere((category) => category.id == foodId);
+
+  static KycCategory get grocery =>
+      all.firstWhere((category) => category.id == groceryId);
+
+  static KycCategory get selfTalent =>
+      all.firstWhere((category) => category.id == selfTalentId);
 
   static String idFor(String label) {
     return label.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');

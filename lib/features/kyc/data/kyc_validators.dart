@@ -84,6 +84,103 @@ abstract final class KycValidators {
         state.trim().isNotEmpty;
   }
 
+  static bool isSelfTalent(String? categoryId) =>
+      categoryId == KycCategory.selfTalentId;
+
+  static bool isFood(String? categoryId) => categoryId == KycCategory.foodId;
+
+  static bool isGrocery(String? categoryId) =>
+      categoryId == KycCategory.groceryId;
+
+  /// Food & Grocery ₹399, Self Talent ₹299, every other category ₹499.
+  static int registrationFee(String? categoryId) {
+    if (isSelfTalent(categoryId)) return 299;
+    if (isFood(categoryId) || isGrocery(categoryId)) return 399;
+    return 499;
+  }
+
+  static String registrationFeeLabel(String? categoryId) =>
+      '₹${registrationFee(categoryId)}';
+
+  static bool requiresBusinessNumbers(String? categoryId) =>
+      canContinueCategory(categoryId) && !isSelfTalent(categoryId);
+
+  static bool requiresFssai(String? categoryId) => isFood(categoryId);
+
+  static bool isPan(String value) =>
+      RegExp(r'^[A-Z0-9]{10}$').hasMatch(value.trim().toUpperCase());
+
+  static bool isGstin(String value) =>
+      RegExp(r'^[A-Z0-9]{15}$').hasMatch(value.trim().toUpperCase());
+
+  static String? panError(String value) {
+    if (value.trim().isEmpty) return null;
+    if (isPan(value)) return null;
+    return 'Enter a 10-character PAN';
+  }
+
+  static String? gstinError(String value) {
+    if (value.trim().isEmpty) return null;
+    if (isGstin(value)) return null;
+    return 'Enter a 15-character GSTIN';
+  }
+
+  static String? shopEstablishmentError(String value) {
+    if (value.trim().isEmpty) return null;
+    if (isShopEstablishment(value)) return null;
+    return 'Enter a valid shop establishment number';
+  }
+
+  static String? fssaiError(String value) {
+    if (value.trim().isEmpty) return null;
+    if (isFssai(value)) return null;
+    return 'Enter a 14-digit FSSAI number';
+  }
+
+  static bool isFssai(String value) =>
+      RegExp(r'^\d{14}$').hasMatch(value.trim());
+
+  static bool isShopEstablishment(String value) =>
+      value.trim().length >= 3;
+
+  static bool canContinueDocuments({
+    required String? categoryId,
+    required String pan,
+    required String gstin,
+    required String shopEstablishment,
+    required String fssai,
+  }) {
+    if (!canContinueCategory(categoryId) || !isPan(pan)) return false;
+    if (isSelfTalent(categoryId)) return true;
+    if (!isGstin(gstin) || !isShopEstablishment(shopEstablishment)) {
+      return false;
+    }
+    if (requiresFssai(categoryId) && !isFssai(fssai)) return false;
+    return true;
+  }
+
+  static const maxStoreImageBytes = 5 * 1024 * 1024;
+
+  static bool canContinueStoreImage(String? storeImagePath) =>
+      storeImagePath != null && storeImagePath.trim().isNotEmpty;
+
+  static int enteredDocumentCount({
+    required String? categoryId,
+    required String pan,
+    required String gstin,
+    required String shopEstablishment,
+    required String fssai,
+  }) {
+    var count = 0;
+    if (pan.trim().isNotEmpty) count++;
+    if (requiresBusinessNumbers(categoryId)) {
+      if (gstin.trim().isNotEmpty) count++;
+      if (shopEstablishment.trim().isNotEmpty) count++;
+    }
+    if (requiresFssai(categoryId) && fssai.trim().isNotEmpty) count++;
+    return count;
+  }
+
   static bool _isPincode(String value) =>
       RegExp(r'^\d{6}$').hasMatch(value.trim());
 }

@@ -30,6 +30,7 @@ class OrderListCard extends StatelessWidget {
         children: [
           HomeCatalogImage(
             imageAsset: order.imageAsset,
+            imageUrl: order.imageUrl,
             size: 64,
           ),
           const SizedBox(width: 12),
@@ -42,7 +43,7 @@ class OrderListCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        order.category,
+                        order.category.isEmpty ? 'Order' : order.category,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -50,7 +51,10 @@ class OrderListCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    _StatusChip(status: order.status),
+                    _StatusChip(
+                      label: order.displayStatus,
+                      status: order.status,
+                    ),
                     const SizedBox(width: 2),
                     const Padding(
                       padding: EdgeInsets.only(top: 2),
@@ -109,9 +113,13 @@ class OrderListCard extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
+  const _StatusChip({
+    required this.status,
+    required this.label,
+  });
 
   final OrderStatus status;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +130,7 @@ class _StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        status.label,
+        label,
         style: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w600,

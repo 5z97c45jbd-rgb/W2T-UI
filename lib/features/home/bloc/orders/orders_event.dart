@@ -8,6 +8,10 @@ sealed class OrdersEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class OrdersRequested extends OrdersEvent {
+  const OrdersRequested();
+}
+
 class OrdersSideChanged extends OrdersEvent {
   const OrdersSideChanged(this.side);
 

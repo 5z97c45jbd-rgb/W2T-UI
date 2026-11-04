@@ -166,7 +166,10 @@ class _ReelPageState extends State<_ReelPage>
       child: Stack(
         fit: StackFit.expand,
         children: [
-          HomeFillImage(fallbackAsset: video.imageAsset),
+          HomeFillImage(
+            fallbackAsset: video.imageAsset,
+            imageUrl: video.imageUrl,
+          ),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(

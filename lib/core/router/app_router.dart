@@ -20,6 +20,9 @@ import 'package:w2t_mobile/features/auth/ui/splash_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/welcome_screen.dart';
 import 'package:w2t_mobile/features/kyc/ui/kyc_business_details_screen.dart';
 import 'package:w2t_mobile/features/kyc/ui/kyc_category_screen.dart';
+import 'package:w2t_mobile/features/kyc/ui/kyc_documents_screen.dart';
+import 'package:w2t_mobile/features/kyc/ui/kyc_review_screen.dart';
+import 'package:w2t_mobile/features/kyc/ui/kyc_store_image_screen.dart';
 import 'package:w2t_mobile/features/kyc/ui/kyc_store_location_screen.dart';
 import 'package:w2t_mobile/features/kyc/ui/merchant_landing_screen.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_scope.dart';
@@ -40,6 +43,9 @@ abstract final class AppRoutes {
   static const String kycCategory = '/kyc/category';
   static const String kycBusiness = '/kyc/business';
   static const String kycLocation = '/kyc/location';
+  static const String kycDocuments = '/kyc/documents';
+  static const String kycStoreImage = '/kyc/store-image';
+  static const String kycReview = '/kyc/review';
 
   static String merchants(MerchantCategory category) =>
       '/merchants/${category.apiValue}';
@@ -183,6 +189,27 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
             name: 'kycLocation',
             pageBuilder: (context, state) => const MaterialPage(
               child: KycStoreLocationScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.kycDocuments,
+            name: 'kycDocuments',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: KycDocumentsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.kycStoreImage,
+            name: 'kycStoreImage',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: KycStoreImageScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.kycReview,
+            name: 'kycReview',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: KycReviewScreen(),
             ),
           ),
         ],

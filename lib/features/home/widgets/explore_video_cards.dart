@@ -24,7 +24,10 @@ class ExploreFeaturedVideoCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          HomeFillImage(fallbackAsset: video.imageAsset),
+          HomeFillImage(
+            fallbackAsset: video.imageAsset,
+            imageUrl: video.imageUrl,
+          ),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -45,11 +48,12 @@ class ExploreFeaturedVideoCard extends StatelessWidget {
               left: 12,
               child: _TrendingBadge(),
             ),
-          Positioned(
-            top: 12,
-            right: 12,
-            child: _DurationChip(duration: video.duration),
-          ),
+          if (video.duration.isNotEmpty)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: _DurationChip(duration: video.duration),
+            ),
           Center(child: _PlayButton(size: 54, onTap: onPlay)),
           Positioned(
             left: 12,
@@ -133,7 +137,8 @@ class ExploreFeaturedVideoCard extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    _VideoCostChip(costLabel: video.costLabel),
+                    if (video.costLabel.isNotEmpty)
+                      _VideoCostChip(costLabel: video.costLabel),
                     if (onOpenOrder != null) ...[
                       const SizedBox(width: 6),
                       _OrderArrowButton(onTap: onOpenOrder!),
@@ -168,7 +173,10 @@ class ExploreSideVideoCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          HomeFillImage(fallbackAsset: video.imageAsset),
+          HomeFillImage(
+            fallbackAsset: video.imageAsset,
+            imageUrl: video.imageUrl,
+          ),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -184,11 +192,12 @@ class ExploreSideVideoCard extends StatelessWidget {
             child: _HeartButton(),
           ),
           Center(child: _PlayButton(size: 32, onTap: onPlay)),
-          Positioned(
-            right: 8,
-            bottom: 36,
-            child: _DurationChip(duration: video.duration),
-          ),
+          if (video.duration.isNotEmpty)
+            Positioned(
+              right: 8,
+              bottom: 36,
+              child: _DurationChip(duration: video.duration),
+            ),
           Positioned(
             left: 8,
             right: 8,
@@ -220,14 +229,15 @@ class ExploreSideVideoCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(
-                      video.costLabel,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFFFD56A),
+                    if (video.costLabel.isNotEmpty)
+                      Text(
+                        video.costLabel,
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFFFD56A),
+                        ),
                       ),
-                    ),
                     if (onOpenOrder != null) ...[
                       const SizedBox(width: 4),
                       _OrderArrowButton(onTap: onOpenOrder!, compact: true),
@@ -271,25 +281,30 @@ class ExplorePopularVideoCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  HomeFillImage(fallbackAsset: video.imageAsset),
+                  HomeFillImage(
+                    fallbackAsset: video.imageAsset,
+                    imageUrl: video.imageUrl,
+                  ),
                   Center(child: _PlayButton(size: 34, onTap: onPlay)),
                   const Positioned(
                     top: 8,
                     right: 8,
                     child: _HeartButton(),
                   ),
-                  Positioned(
-                    right: 8,
-                    bottom: 8,
-                    child: _DurationChip(duration: video.duration),
-                  ),
+                  if (video.duration.isNotEmpty)
+                    Positioned(
+                      right: 8,
+                      bottom: 8,
+                      child: _DurationChip(duration: video.duration),
+                    ),
                   Positioned(
                     left: 8,
                     bottom: 8,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _VideoCostChip(costLabel: video.costLabel),
+                        if (video.costLabel.isNotEmpty)
+                          _VideoCostChip(costLabel: video.costLabel),
                         if (onOpenOrder != null) ...[
                           const SizedBox(width: 6),
                           _OrderArrowButton(onTap: onOpenOrder!),

@@ -89,14 +89,36 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   },
                 ),
               ),
-              SliverToBoxAdapter(
-                child: _CountAndSort(
-                  count: orders.length,
-                  sort: state.sort,
-                  onSort: () => _showSortSheet(context, state.sort),
+              if (state.status == OrdersStatus.success)
+                SliverToBoxAdapter(
+                  child: _CountAndSort(
+                    count: orders.length,
+                    sort: state.sort,
+                    onSort: () => _showSortSheet(context, state.sort),
+                  ),
                 ),
-              ),
-              if (orders.isEmpty)
+              if (state.status == OrdersStatus.loading)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(strokeWidth: 2.4),
+                    ),
+                  ),
+                )
+              else if (state.status == OrdersStatus.failure)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _OrdersError(
+                    message: state.errorMessage,
+                    onRetry: () => context
+                        .read<OrdersBloc>()
+                        .add(const OrdersRequested()),
+                  ),
+                )
+              else if (orders.isEmpty)
                 const SliverFillRemaining(
                   hasScrollBody: false,
                   child: _EmptyOrders(),
@@ -226,6 +248,50 @@ class _CountAndSort extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _OrdersError extends StatelessWidget {
+  const _OrdersError({
+    required this.message,
+    required this.onRetry,
+  });
+
+  final String? message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              message ?? 'Could not load orders',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: onRetry,
+              child: Text(
+                'Tap to retry',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

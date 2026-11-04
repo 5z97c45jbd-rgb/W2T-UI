@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
-import 'package:w2t_mobile/core/ui/app_snack_bar.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_cubit.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_state.dart';
 import 'package:w2t_mobile/features/kyc/data/kyc_device_location.dart';
@@ -103,13 +102,7 @@ class _KycStoreLocationScreenState extends State<KycStoreLocationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<KycRegistrationCubit, KycRegistrationState>(
-      listenWhen: (previous, current) =>
-          !previous.submitted && current.submitted,
-      listener: (context, state) {
-        AppSnackBar.show(context, 'Submitted for verification');
-        context.go(AppRoutes.home);
-      },
+    return BlocBuilder<KycRegistrationCubit, KycRegistrationState>(
       builder: (context, state) {
         final cubit = context.read<KycRegistrationCubit>();
         return KycPageScaffold(
@@ -118,7 +111,9 @@ class _KycStoreLocationScreenState extends State<KycStoreLocationScreen> {
           showNextArrow: true,
           nextEnabled: state.canContinueLocation,
           onBack: () => context.pop(),
-          onNext: state.canContinueLocation ? cubit.submit : null,
+          onNext: state.canContinueLocation
+              ? () => context.push(AppRoutes.kycDocuments)
+              : null,
           body: ListView(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
             children: [

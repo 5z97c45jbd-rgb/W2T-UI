@@ -1,8 +1,27 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
+import 'package:w2t_mobile/core/network/auth_token_holder.dart';
+import 'package:w2t_mobile/core/network/dio_client.dart';
 import 'package:w2t_mobile/features/home/bloc/orders/orders_bloc.dart';
 import 'package:w2t_mobile/features/home/bloc/orders/orders_event.dart';
+import 'package:w2t_mobile/features/home/bloc/orders/orders_state.dart';
 import 'package:w2t_mobile/features/home/data/models/order_item.dart';
+import 'package:w2t_mobile/features/home/data/orders_api.dart';
+
+class _FakeOrdersApi extends OrdersApi {
+  _FakeOrdersApi({this.orders = const [], this.error})
+      : super(DioClient(AuthTokenHolder()));
+
+  final List<OrderItem> orders;
+  final Object? error;
+
+  @override
+  Future<List<OrderItem>> fetchOrders() async {
+    final thrown = error;
+    if (thrown != null) throw thrown;
+    return orders;
+  }
+}
 
 void main() {
   final orders = [
@@ -41,8 +60,14 @@ void main() {
     ),
   ];
 
-  test('defaults to sold food orders, latest first', () {
-    final bloc = OrdersBloc(orders: orders);
+  Future<OrdersBloc> loadedBloc() async {
+    final bloc = OrdersBloc(api: _FakeOrdersApi(orders: orders));
+    await bloc.stream.firstWhere((state) => state.status == OrdersStatus.success);
+    return bloc;
+  }
+
+  test('defaults to sold food orders, latest first', () async {
+    final bloc = await loadedBloc();
     addTearDown(bloc.close);
     expect(bloc.state.side, OrderSide.sold);
     expect(bloc.state.category, 'Food');
@@ -50,7 +75,7 @@ void main() {
   });
 
   test('filters by individuals and purchased fashion', () async {
-    final bloc = OrdersBloc(orders: orders);
+    final bloc = await loadedBloc();
     addTearDown(bloc.close);
 
     bloc.add(const OrdersCategoryChanged('Individuals'));

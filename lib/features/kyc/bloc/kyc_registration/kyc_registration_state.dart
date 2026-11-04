@@ -23,6 +23,12 @@ class KycRegistrationState extends Equatable {
     this.latitude = KycValidators.defaultLatitude,
     this.longitude = KycValidators.defaultLongitude,
     this.usedCurrentLocation = false,
+    this.pan = '',
+    this.gstin = '',
+    this.shopEstablishment = '',
+    this.fssai = '',
+    this.storeImagePath,
+    this.termsAccepted = false,
     this.submitted = false,
   });
 
@@ -41,6 +47,12 @@ class KycRegistrationState extends Equatable {
   final double latitude;
   final double longitude;
   final bool usedCurrentLocation;
+  final String pan;
+  final String gstin;
+  final String shopEstablishment;
+  final String fssai;
+  final String? storeImagePath;
+  final bool termsAccepted;
   final bool submitted;
 
   KycCategory? get category => KycCategory.byId(categoryId);
@@ -48,7 +60,34 @@ class KycRegistrationState extends Equatable {
   String get storeTypeLabel =>
       storeType == KycStoreType.offline ? 'Offline Store' : 'Online Only';
 
-  String get formattedPhone => phone.isEmpty ? '' : '+91 $phone';
+  String get formattedPhone {
+    if (phone.isEmpty) return '';
+    if (phone.length == 10) {
+      return '+91 ${phone.substring(0, 5)} ${phone.substring(5)}';
+    }
+    return '+91 $phone';
+  }
+
+  String get reviewLocationLine {
+    final locality =
+        [city.trim(), state.trim()].where((part) => part.isNotEmpty).join(', ');
+    if (pincode.trim().isEmpty) return locality;
+    if (locality.isEmpty) return pincode.trim();
+    return '$locality - ${pincode.trim()}';
+  }
+
+  int get enteredDocumentCount => KycValidators.enteredDocumentCount(
+        categoryId: categoryId,
+        pan: pan,
+        gstin: gstin,
+        shopEstablishment: shopEstablishment,
+        fssai: fssai,
+      );
+
+  String get documentsSummary {
+    final count = enteredDocumentCount;
+    return '$count ${count == 1 ? 'document' : 'documents'} added';
+  }
 
   String get formattedAddress {
     final parts = [
@@ -78,8 +117,36 @@ class KycRegistrationState extends Equatable {
         state: state,
       );
 
+  bool get isSelfTalent => KycValidators.isSelfTalent(categoryId);
+
+  int get registrationFee => KycValidators.registrationFee(categoryId);
+
+  String get registrationFeeLabel =>
+      KycValidators.registrationFeeLabel(categoryId);
+
+  bool get requiresBusinessNumbers =>
+      KycValidators.requiresBusinessNumbers(categoryId);
+
+  bool get requiresFssai => KycValidators.requiresFssai(categoryId);
+
+  bool get canContinueDocuments => KycValidators.canContinueDocuments(
+        categoryId: categoryId,
+        pan: pan,
+        gstin: gstin,
+        shopEstablishment: shopEstablishment,
+        fssai: fssai,
+      );
+
+  bool get canContinueStoreImage =>
+      KycValidators.canContinueStoreImage(storeImagePath);
+
   bool get canSubmit =>
-      canContinueCategory && canContinueBusinessDetails && canContinueLocation;
+      canContinueCategory &&
+      canContinueBusinessDetails &&
+      canContinueLocation &&
+      canContinueDocuments &&
+      canContinueStoreImage &&
+      termsAccepted;
 
   KycRegistrationState copyWith({
     String? categoryId,
@@ -97,6 +164,12 @@ class KycRegistrationState extends Equatable {
     double? latitude,
     double? longitude,
     bool? usedCurrentLocation,
+    String? pan,
+    String? gstin,
+    String? shopEstablishment,
+    String? fssai,
+    String? storeImagePath,
+    bool? termsAccepted,
     bool? submitted,
   }) {
     return KycRegistrationState(
@@ -115,6 +188,12 @@ class KycRegistrationState extends Equatable {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       usedCurrentLocation: usedCurrentLocation ?? this.usedCurrentLocation,
+      pan: pan ?? this.pan,
+      gstin: gstin ?? this.gstin,
+      shopEstablishment: shopEstablishment ?? this.shopEstablishment,
+      fssai: fssai ?? this.fssai,
+      storeImagePath: storeImagePath ?? this.storeImagePath,
+      termsAccepted: termsAccepted ?? this.termsAccepted,
       submitted: submitted ?? this.submitted,
     );
   }
@@ -136,6 +215,12 @@ class KycRegistrationState extends Equatable {
         latitude,
         longitude,
         usedCurrentLocation,
+        pan,
+        gstin,
+        shopEstablishment,
+        fssai,
+        storeImagePath,
+        termsAccepted,
         submitted,
       ];
 }
