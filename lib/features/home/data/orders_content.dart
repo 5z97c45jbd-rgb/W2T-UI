@@ -1,36 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/features/home/data/models/order_item.dart';
 
 abstract final class OrdersContent {
-  static const categories = <OrderCategoryFilter>[
-    OrderCategoryFilter(
-      label: 'Food',
-      emoji: '🍔',
-      background: Color(0xFFFFE8D6),
-    ),
-    OrderCategoryFilter(
-      label: 'Grocery',
-      emoji: '🧺',
-      background: Color(0xFFE4F6EA),
-    ),
-    OrderCategoryFilter(
-      label: 'Individuals',
-      emoji: '🧑‍💼',
-      background: Color(0xFFE8EEF6),
-    ),
-    OrderCategoryFilter(
-      label: 'Electronics',
-      emoji: '💻',
-      background: Color(0xFFE8EEF6),
-    ),
-    OrderCategoryFilter(
-      label: 'Fashion',
-      emoji: '👜',
-      background: Color(0xFFFCE4EA),
-    ),
-  ];
-
   static final orders = <OrderItem>[
     OrderItem(
       id: '#W2T1004582',

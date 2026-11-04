@@ -18,7 +18,7 @@ class _FakeOrdersApi extends OrdersApi {
 }
 
 void main() {
-  testWidgets('Orders screen matches sold/purchased layout with Individuals',
+  testWidgets('Orders screen matches sold/purchased layout without categories',
       (tester) async {
     tester.view.physicalSize = const Size(390, 1200);
     tester.view.devicePixelRatio = 1;
@@ -40,14 +40,10 @@ void main() {
     expect(find.text('Manage all your orders in one place'), findsOneWidget);
     expect(find.text('Sold'), findsOneWidget);
     expect(find.text('Purchased'), findsOneWidget);
-    expect(find.text('Food'), findsWidgets);
-    expect(find.text('Grocery'), findsWidgets);
-    expect(find.text('Individuals'), findsWidgets);
-    expect(find.text('Electronics'), findsWidgets);
-    expect(find.text('Fashion'), findsWidgets);
     expect(find.text('All'), findsNothing);
     expect(find.text('More'), findsNothing);
     expect(find.text('Pharmacy'), findsNothing);
+    expect(find.text('Fashion'), findsNothing);
     expect(find.text('Ravi Kumar'), findsOneWidget);
     expect(find.text('#W2T1004582'), findsOneWidget);
 

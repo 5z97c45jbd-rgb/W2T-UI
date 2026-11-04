@@ -16,23 +16,6 @@ enum OrderStatus {
   paymentFailed,
 }
 
-class OrderCategoryFilter extends Equatable {
-  const OrderCategoryFilter({
-    required this.label,
-    required this.background,
-    this.emoji,
-    this.icon,
-  });
-
-  final String label;
-  final Color background;
-  final String? emoji;
-  final IconData? icon;
-
-  @override
-  List<Object?> get props => [label, background, emoji, icon];
-}
-
 class OrderItem extends Equatable {
   const OrderItem({
     required this.id,

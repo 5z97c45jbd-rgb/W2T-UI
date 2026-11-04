@@ -66,27 +66,20 @@ void main() {
     return bloc;
   }
 
-  test('defaults to sold food orders, latest first', () async {
+  test('defaults to sold orders, latest first', () async {
     final bloc = await loadedBloc();
     addTearDown(bloc.close);
     expect(bloc.state.side, OrderSide.sold);
-    expect(bloc.state.category, 'Food');
-    expect(bloc.state.visibleOrders.map((order) => order.id), ['#W2T1']);
+    expect(bloc.state.visibleOrders.map((order) => order.id), ['#W2T1', '#W2T2']);
   });
 
-  test('filters by individuals and purchased fashion', () async {
+  test('filters purchased orders', () async {
     final bloc = await loadedBloc();
     addTearDown(bloc.close);
 
-    bloc.add(const OrdersCategoryChanged('Individuals'));
-    await bloc.stream.first;
-    expect(bloc.state.visibleOrders.single.partyName, 'Amit Reddy');
-
     bloc.add(const OrdersSideChanged(OrderSide.purchased));
     await bloc.stream.first;
-    bloc.add(const OrdersCategoryChanged('Fashion'));
-    await bloc.stream.first;
 
-    expect(bloc.state.visibleOrders.single.category, 'Fashion');
+    expect(bloc.state.visibleOrders.single.partyName, 'StyleHub Fashion');
   });
 }

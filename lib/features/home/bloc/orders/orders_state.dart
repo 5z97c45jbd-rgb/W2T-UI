@@ -8,7 +8,6 @@ class OrdersState extends Equatable {
     this.status = OrdersStatus.loading,
     this.orders = const [],
     this.side = OrderSide.sold,
-    this.category = 'Food',
     this.sort = OrderSort.latestFirst,
     this.query = '',
     this.errorMessage,
@@ -17,7 +16,6 @@ class OrdersState extends Equatable {
   final OrdersStatus status;
   final List<OrderItem> orders;
   final OrderSide side;
-  final String category;
   final OrderSort sort;
   final String query;
   final String? errorMessage;
@@ -30,7 +28,6 @@ class OrdersState extends Equatable {
     final needle = query.trim().toLowerCase();
     final filtered = orders.where((order) {
       if (order.side != side) return false;
-      if (!_matchesCategory(order)) return false;
       if (needle.isEmpty) return true;
       return order.partyName.toLowerCase().contains(needle) ||
           order.id.toLowerCase().contains(needle) ||
@@ -45,16 +42,10 @@ class OrdersState extends Equatable {
     return filtered;
   }
 
-  bool _matchesCategory(OrderItem order) {
-    if (order.category.isEmpty) return true;
-    return order.category.toLowerCase() == category.toLowerCase();
-  }
-
   OrdersState copyWith({
     OrdersStatus? status,
     List<OrderItem>? orders,
     OrderSide? side,
-    String? category,
     OrderSort? sort,
     String? query,
     String? errorMessage,
@@ -63,7 +54,6 @@ class OrdersState extends Equatable {
       status: status ?? this.status,
       orders: orders ?? this.orders,
       side: side ?? this.side,
-      category: category ?? this.category,
       sort: sort ?? this.sort,
       query: query ?? this.query,
       errorMessage: errorMessage,
@@ -72,5 +62,5 @@ class OrdersState extends Equatable {
 
   @override
   List<Object?> get props =>
-      [status, orders, side, category, sort, query, errorMessage];
+      [status, orders, side, sort, query, errorMessage];
 }

@@ -21,15 +21,6 @@ class OrdersSideChanged extends OrdersEvent {
   List<Object?> get props => [side];
 }
 
-class OrdersCategoryChanged extends OrdersEvent {
-  const OrdersCategoryChanged(this.category);
-
-  final String category;
-
-  @override
-  List<Object?> get props => [category];
-}
-
 class OrdersSortChanged extends OrdersEvent {
   const OrdersSortChanged(this.sort);
 

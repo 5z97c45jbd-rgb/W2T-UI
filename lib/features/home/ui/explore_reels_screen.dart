@@ -317,8 +317,10 @@ class _ReelPageState extends State<_ReelPage>
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    _CostChip(costLabel: video.costLabel),
-                    const SizedBox(width: 8),
+                    if (video.costLabel.isNotEmpty) ...[
+                      _CostChip(costLabel: video.costLabel),
+                      const SizedBox(width: 8),
+                    ],
                     _OrderArrowButton(onTap: widget.onOpenOrder),
                   ],
                 ),

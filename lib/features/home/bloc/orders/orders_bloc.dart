@@ -12,9 +12,6 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     on<OrdersSideChanged>(
       (event, emit) => emit(state.copyWith(side: event.side)),
     );
-    on<OrdersCategoryChanged>(
-      (event, emit) => emit(state.copyWith(category: event.category)),
-    );
     on<OrdersSortChanged>(
       (event, emit) => emit(state.copyWith(sort: event.sort)),
     );

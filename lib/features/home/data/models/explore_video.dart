@@ -83,7 +83,6 @@ class ExploreVideo extends Equatable {
 
     final tags = _tags(json['tags']);
     final likes = _int(json['likes']) ?? 0;
-    final quantity = _int(json['quantity']);
     return ExploreVideo(
       id: id,
       title: name ?? 'Item',
@@ -93,7 +92,7 @@ class ExploreVideo extends Equatable {
       videoUrl: _nonEmpty(json['videoUrl']),
       duration: '',
       likesLabel: _likesLabel(likes),
-      costLabel: quantity == null ? '' : '$quantity pcs',
+      costLabel: _amountLabel(json['amount'], json['currency']),
       category: category,
       hashtags: [
         for (final tag in tags) tag.startsWith('#') ? tag : '#$tag',
@@ -117,6 +116,26 @@ class ExploreVideo extends Equatable {
         if (item != null && item.toString().trim().isNotEmpty)
           item.toString().trim(),
     ];
+  }
+
+  static String _amountLabel(Object? amount, Object? currency) {
+    if (amount == null) return '';
+    final value = amount is num
+        ? amount.toDouble()
+        : double.tryParse(amount.toString().trim());
+    if (value == null) return '';
+    final code = (currency?.toString() ?? 'INR').trim().toUpperCase();
+    final symbol = switch (code) {
+      'INR' || 'RS' || 'RUPEE' || 'RUPEES' || '' => '₹',
+      'USD' => '\$',
+      'EUR' => '€',
+      'AED' => 'AED ',
+      _ => '$code ',
+    };
+    if (value == value.roundToDouble()) {
+      return '$symbol${value.toInt()}';
+    }
+    return '$symbol${value.toStringAsFixed(2)}';
   }
 
   static String _likesLabel(int likes) {

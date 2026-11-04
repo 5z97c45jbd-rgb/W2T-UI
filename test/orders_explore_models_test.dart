@@ -43,13 +43,14 @@ void main() {
         'likes': 23,
         'itemUrl': null,
         'videoUrl': null,
+        'amount': 500,
       },
       category: 'Food',
     )!;
 
     expect(video.title, 'Street noodles');
     expect(video.likesLabel, '23');
-    expect(video.costLabel, '2 pcs');
+    expect(video.costLabel, '₹500');
     expect(video.trending, isTrue);
     expect(video.hasTopic('Trending'), isTrue);
   });

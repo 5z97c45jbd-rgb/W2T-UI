@@ -10,7 +10,6 @@ import 'package:w2t_mobile/features/home/data/models/order_item.dart';
 import 'package:w2t_mobile/features/home/widgets/home_bottom_nav_bar.dart';
 import 'package:w2t_mobile/features/home/widgets/home_layout.dart';
 import 'package:w2t_mobile/features/home/widgets/order_list_card.dart';
-import 'package:w2t_mobile/features/home/widgets/orders_category_strip.dart';
 import 'package:w2t_mobile/features/home/widgets/orders_header.dart';
 import 'package:w2t_mobile/features/home/widgets/orders_side_toggle.dart';
 
@@ -76,16 +75,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   side: state.side,
                   onChanged: (side) {
                     context.read<OrdersBloc>().add(OrdersSideChanged(side));
-                  },
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: OrdersCategoryStrip(
-                  selected: state.category,
-                  onSelected: (category) {
-                    context
-                        .read<OrdersBloc>()
-                        .add(OrdersCategoryChanged(category));
                   },
                 ),
               ),
