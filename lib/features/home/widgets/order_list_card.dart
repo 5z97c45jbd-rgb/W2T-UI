@@ -69,23 +69,27 @@ class OrderListCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   order.id,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textMuted,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  order.partyName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.titleNavy,
+                if (order.partyName.trim().isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    order.partyName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.titleNavy,
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 2),
                 Text(
                   '${order.itemCountLabel}  •  ${order.amountLabel}',

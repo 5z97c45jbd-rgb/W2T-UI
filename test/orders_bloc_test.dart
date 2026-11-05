@@ -39,7 +39,7 @@ void main() {
     OrderItem(
       id: '#W2T2',
       side: OrderSide.sold,
-      category: 'Individuals',
+      category: 'Electronics',
       partyName: 'Amit Reddy',
       itemCount: 3,
       amountLabel: '₹560',

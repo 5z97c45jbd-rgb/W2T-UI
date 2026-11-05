@@ -28,6 +28,20 @@ void main() {
     );
   });
 
+  test('reads headline text without treating image URLs as copy', () {
+    expect(
+      CitiesApi.headlineFrom({
+        'imageUrl': 'https://cdn.example.com/nested.jpg',
+        'headline': 'Local Favorites Delivered to You',
+      }),
+      'Local Favorites Delivered to You',
+    );
+    expect(
+      CitiesApi.headlineFrom('https://cdn.example.com/warangal.jpg'),
+      isNull,
+    );
+  });
+
   test('city images use hardcoded Warangal city', () {
     expect(PlaceLocation.cityImagesCity, 'Warangal');
     expect(PlaceLocation.current.city, 'Warangal');

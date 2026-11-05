@@ -7,7 +7,6 @@ import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/core/ui/app_snack_bar.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_cubit.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_state.dart';
-import 'package:w2t_mobile/features/kyc/data/kyc_validators.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_page_scaffold.dart';
 
 /// KYC step 4: confirm details and pay to submit.
@@ -70,7 +69,7 @@ class KycReviewScreen extends StatelessWidget {
                 onTap: () => context.go(AppRoutes.kycDocuments),
               ),
               const SizedBox(height: 12),
-              _RegistrationFeeCard(state: state),
+              _RegistrationFeeCard(amount: state.registrationFeeLabel),
               const SizedBox(height: 16),
               _TermsRow(
                 accepted: state.termsAccepted,
@@ -237,90 +236,6 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-class _RegistrationFeeCard extends StatelessWidget {
-  const _RegistrationFeeCard({required this.state});
-
-  final KycRegistrationState state;
-
-  String get _planName {
-    if (KycValidators.isFood(state.categoryId) ||
-        KycValidators.isGrocery(state.categoryId)) {
-      return 'Food & Grocery';
-    }
-    if (state.isSelfTalent) return 'Self Talent';
-    return state.category?.label ?? 'Merchant';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFEFF9FC),
-            Color(0xFFE4F4FA),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFCDE8F0)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.payments_outlined,
-              color: AppColors.primary,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Registration fee',
-                  style: GoogleFonts.inter(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _planName,
-                  style: GoogleFonts.inter(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.titleNavy,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            state.registrationFeeLabel,
-            style: GoogleFonts.inter(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _NavRow extends StatelessWidget {
   const _NavRow({
     required this.icon,
@@ -392,6 +307,47 @@ class _NavRow extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _RegistrationFeeCard extends StatelessWidget {
+  const _RegistrationFeeCard({required this.amount});
+
+  final String amount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.kycFieldBorder),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Registration Fee',
+              style: GoogleFonts.inter(
+                fontSize: 14.5,
+                fontWeight: FontWeight.w700,
+                color: AppColors.titleNavy,
+              ),
+            ),
+          ),
+          Text(
+            amount,
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: AppColors.primary,
+            ),
+          ),
+        ],
       ),
     );
   }

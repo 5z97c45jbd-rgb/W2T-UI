@@ -34,7 +34,6 @@ void main() {
     expect(find.text('Continue'), findsNothing);
     expect(find.text('Food'), findsOneWidget);
     expect(find.text('Grocery'), findsOneWidget);
-    expect(find.text('Individuals'), findsOneWidget);
     expect(find.text('Electronics'), findsOneWidget);
     expect(find.text('Pet Care'), findsOneWidget);
     expect(find.text('Self Talent'), findsOneWidget);
@@ -81,6 +80,23 @@ void main() {
     expect(find.textContaining('Shop Establishment Number'), findsOneWidget);
     expect(find.textContaining('FSSAI Number'), findsNothing);
 
+    cubit.updateBusinessType('Child Care');
+    await tester.pumpWidget(_wrap(const KycDocumentsScreen(), cubit));
+    expect(find.textContaining('PAN Card'), findsOneWidget);
+    expect(find.textContaining('GSTIN Number'), findsOneWidget);
+    expect(find.textContaining('Shop Establishment Number'), findsOneWidget);
+    expect(find.textContaining('FSSAI Number'), findsNothing);
+    expect(find.text('Child Care'), findsOneWidget);
+    expect(find.text('₹999'), findsOneWidget);
+
+    cubit.updateBusinessType('Self Talent');
+    await tester.pumpWidget(_wrap(const KycDocumentsScreen(), cubit));
+    expect(find.textContaining('PAN Card'), findsOneWidget);
+    expect(find.textContaining('GSTIN Number'), findsNothing);
+    expect(find.textContaining('FSSAI Number'), findsNothing);
+    expect(find.text('₹299'), findsOneWidget);
+
+    cubit.selectCategory(KycCategory.idFor('Grocery'));
     await tester.pumpWidget(_wrap(const KycStoreImageScreen(), cubit));
     expect(find.text('Shop/Store Image'), findsOneWidget);
     expect(find.text('Upload a clear photo of your store'), findsOneWidget);
@@ -112,9 +128,9 @@ void main() {
     expect(find.text('Owner Details'), findsNothing);
     expect(find.text('KYC Documents'), findsOneWidget);
     expect(find.text('3 documents added'), findsOneWidget);
-    expect(find.text('Food & Grocery'), findsOneWidget);
-    expect(find.text('₹399'), findsOneWidget);
-    expect(find.text('Pay and Submit'), findsOneWidget);
+    expect(find.text('Food, groceries'), findsNothing);
+    expect(find.text('KYC documents (3 + 1) × ₹50'), findsNothing);
+    expect(find.text('Pay ₹1199 and Submit'), findsOneWidget);
     expect(
       find.textContaining('I hereby confirm that the information provided'),
       findsOneWidget,
@@ -127,7 +143,6 @@ void main() {
       [
         'Food',
         'Grocery',
-        'Individuals',
         'Electronics',
         'Pet Care',
         'Self Talent',

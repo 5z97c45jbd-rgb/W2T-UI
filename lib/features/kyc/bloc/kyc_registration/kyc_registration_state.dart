@@ -119,10 +119,25 @@ class KycRegistrationState extends Equatable {
 
   bool get isSelfTalent => KycValidators.isSelfTalent(categoryId);
 
-  int get registrationFee => KycValidators.registrationFee(categoryId);
+  int get categoryRegistrationFee =>
+      KycValidators.categoryRegistrationFee(categoryId);
 
-  String get registrationFeeLabel =>
-      KycValidators.registrationFeeLabel(categoryId);
+  int get billedDocumentCount =>
+      KycValidators.billedDocumentCount(enteredDocumentCount);
+
+  int get documentFee => KycValidators.documentFee(enteredDocumentCount);
+
+  int get registrationFee => KycValidators.registrationFee(
+        categoryId,
+        submittedDocumentCount: enteredDocumentCount,
+      );
+
+  String get categoryRegistrationFeeLabel =>
+      KycValidators.rupees(categoryRegistrationFee);
+
+  String get documentFeeLabel => KycValidators.rupees(documentFee);
+
+  String get registrationFeeLabel => KycValidators.rupees(registrationFee);
 
   bool get requiresBusinessNumbers =>
       KycValidators.requiresBusinessNumbers(categoryId);

@@ -48,4 +48,10 @@ class KycCategory {
     }
     return null;
   }
+
+  static KycCategory? byLabel(String? label) {
+    if (label == null) return null;
+    final expected = idFor(label);
+    return byId(expected);
+  }
 }

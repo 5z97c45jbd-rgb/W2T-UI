@@ -57,7 +57,7 @@ class HomeHeader extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Search for food, grocery, individuals, more...',
+                    'Search for food, grocery, more...',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(

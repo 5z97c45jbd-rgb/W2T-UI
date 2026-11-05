@@ -56,15 +56,6 @@ class HomeScreen extends StatelessWidget {
                 cardWidth: cardWidth,
                 carouselHeight: carouselHeight,
               ),
-              ..._merchantSection(
-                context: context,
-                category: MerchantCategory.individuals,
-                merchants: state.merchants.individuals,
-                status: state.status,
-                errorMessage: state.errorMessage,
-                cardWidth: cardWidth,
-                carouselHeight: carouselHeight,
-              ),
               SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
             ],
           );

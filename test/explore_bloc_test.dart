@@ -43,13 +43,13 @@ void main() {
     expect(api.lastCategory, 'Food');
     expect(bloc.state.visibleVideos.single.title, 'Food item');
 
-    bloc.add(const ExploreCategoryChanged('Individuals'));
+    bloc.add(const ExploreCategoryChanged('Electronics'));
     await bloc.stream.firstWhere(
       (state) =>
           state.status == ExploreStatus.success &&
-          state.category == 'Individuals',
+          state.category == 'Electronics',
     );
-    expect(api.lastCategory, 'Individuals');
-    expect(bloc.state.visibleVideos.single.title, 'Individuals item');
+    expect(api.lastCategory, 'Electronics');
+    expect(bloc.state.visibleVideos.single.title, 'Electronics item');
   });
 }

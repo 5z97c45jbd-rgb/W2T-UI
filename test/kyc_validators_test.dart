@@ -88,12 +88,37 @@ void main() {
     );
   });
 
-  test('registration fee is 399 food/grocery, 299 self talent, 499 others', () {
-    expect(KycValidators.registrationFee(KycCategory.food.id), 399);
-    expect(KycValidators.registrationFee(KycCategory.grocery.id), 399);
-    expect(KycValidators.registrationFee(KycCategory.selfTalent.id), 299);
-    expect(KycValidators.registrationFee(KycCategory.idFor('Electronics')), 499);
-    expect(KycValidators.registrationFeeLabel(KycCategory.food.id), '₹399');
+  test('registration fee is 999 food/grocery, 299 self talent, plus docs', () {
+    expect(KycValidators.categoryRegistrationFee(KycCategory.food.id), 999);
+    expect(KycValidators.categoryRegistrationFee(KycCategory.grocery.id), 999);
+    expect(KycValidators.categoryRegistrationFee(KycCategory.selfTalent.id), 299);
+    expect(
+      KycValidators.categoryRegistrationFee(KycCategory.idFor('Electronics')),
+      999,
+    );
+    expect(KycValidators.documentFee(0), 50);
+    expect(KycValidators.documentFee(3), 200);
+    expect(
+      KycValidators.registrationFee(
+        KycCategory.food.id,
+        submittedDocumentCount: 3,
+      ),
+      1199,
+    );
+    expect(
+      KycValidators.registrationFee(
+        KycCategory.selfTalent.id,
+        submittedDocumentCount: 1,
+      ),
+      399,
+    );
+    expect(
+      KycValidators.registrationFeeLabel(
+        KycCategory.food.id,
+        submittedDocumentCount: 0,
+      ),
+      '₹1049',
+    );
   });
 
   test('store image continue requires a path', () {

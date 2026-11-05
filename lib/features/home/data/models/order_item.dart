@@ -105,7 +105,7 @@ class OrderItem extends Equatable {
 
     final statusValue = _nonEmpty(json['orderStatus']);
     return OrderItem(
-      id: _displayId(id),
+      id: id,
       side: side,
       category: _nonEmpty(json['category']) ?? '',
       partyName: _partyName(json, side),
@@ -127,21 +127,46 @@ class OrderItem extends Equatable {
         .toList(growable: false);
   }
 
-  static String _displayId(String id) {
-    if (id.startsWith('#')) return id;
-    final compact = id.replaceAll('-', '');
-    if (compact.length <= 8) return '#$compact';
-    return '#${compact.substring(0, 8).toUpperCase()}';
+  static String _partyName(Map json, OrderSide side) {
+    final fromFullName = _firstFullName(json);
+    if (fromFullName != null) return fromFullName;
+
+    for (final value in [
+      json['name'],
+      if (side == OrderSide.purchased) json['merchantName'],
+      if (side == OrderSide.sold) json['customerName'],
+    ]) {
+      final text = _nonEmpty(value);
+      if (text != null && !_looksLikeId(text)) return text;
+    }
+    return '';
   }
 
-  static String _partyName(Map json, OrderSide side) {
-    final purchasedBy = _nonEmpty(json['purchasedBy']);
-    if (purchasedBy != null && !_looksLikeId(purchasedBy)) {
-      return purchasedBy;
+  static String? _firstFullName(Map json) {
+    final own = _fullNameIn(json);
+    if (own != null) return own;
+    for (final value in json.values) {
+      final nested = _asMap(value);
+      if (nested == null) continue;
+      final name = _fullNameIn(nested);
+      if (name != null) return name;
     }
-    final orderBy = _nonEmpty(json['orderBy']);
-    if (orderBy != null && !_looksLikeId(orderBy)) return orderBy;
-    return side == OrderSide.purchased ? 'Merchant' : 'Customer';
+    return null;
+  }
+
+  static String? _fullNameIn(Map json) {
+    for (final entry in json.entries) {
+      final key = entry.key.toString().toLowerCase().replaceAll(RegExp(r'[_-]'), '');
+      if (key != 'fullname') continue;
+      final text = _nonEmpty(entry.value);
+      if (text != null && !_looksLikeId(text)) return text;
+    }
+    return null;
+  }
+
+  static Map<Object?, Object?>? _asMap(Object? value) {
+    if (value is! Map) return null;
+    return Map<Object?, Object?>.from(value);
   }
 
   static bool _looksLikeId(String value) {

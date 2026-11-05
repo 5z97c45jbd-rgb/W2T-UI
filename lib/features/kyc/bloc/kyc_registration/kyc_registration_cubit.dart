@@ -21,8 +21,15 @@ class KycRegistrationCubit extends Cubit<KycRegistrationState> {
   void updateBusinessName(String value) =>
       emit(state.copyWith(businessName: value));
 
-  void updateBusinessType(String value) =>
-      emit(state.copyWith(businessType: value));
+  void updateBusinessType(String value) {
+    final category = KycCategory.byLabel(value);
+    emit(
+      state.copyWith(
+        businessType: value,
+        categoryId: category?.id ?? state.categoryId,
+      ),
+    );
+  }
 
   void updateStoreType(KycStoreType value) =>
       emit(state.copyWith(storeType: value));

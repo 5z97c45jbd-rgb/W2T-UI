@@ -28,7 +28,7 @@ abstract final class OrdersContent {
     OrderItem(
       id: '#W2T1004580',
       side: OrderSide.sold,
-      category: 'Individuals',
+      category: 'Electronics',
       partyName: 'Amit Reddy',
       itemCount: 3,
       amountLabel: '₹560',
@@ -83,7 +83,7 @@ abstract final class OrdersContent {
     OrderItem(
       id: '#W2T2003908',
       side: OrderSide.purchased,
-      category: 'Individuals',
+      category: 'Electronics',
       partyName: 'Amit Reddy',
       itemCount: 2,
       amountLabel: '₹420',

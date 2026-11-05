@@ -92,15 +92,41 @@ abstract final class KycValidators {
   static bool isGrocery(String? categoryId) =>
       categoryId == KycCategory.groceryId;
 
-  /// Food & Grocery ₹399, Self Talent ₹299, every other category ₹499.
-  static int registrationFee(String? categoryId) {
+  static const documentFeeEach = 50;
+
+  /// Food & Grocery ₹999, Self Talent ₹299, every other category ₹999.
+  static int categoryRegistrationFee(String? categoryId) {
     if (isSelfTalent(categoryId)) return 299;
-    if (isFood(categoryId) || isGrocery(categoryId)) return 399;
-    return 499;
+    return 999;
   }
 
-  static String registrationFeeLabel(String? categoryId) =>
-      '₹${registrationFee(categoryId)}';
+  /// Each submitted KYC document is billed as count + 1.
+  static int billedDocumentCount(int submittedDocumentCount) =>
+      submittedDocumentCount + 1;
+
+  static int documentFee(int submittedDocumentCount) =>
+      documentFeeEach * billedDocumentCount(submittedDocumentCount);
+
+  static int registrationFee(
+    String? categoryId, {
+    int submittedDocumentCount = 0,
+  }) {
+    return categoryRegistrationFee(categoryId) +
+        documentFee(submittedDocumentCount);
+  }
+
+  static String rupees(int amount) => '₹$amount';
+
+  static String registrationFeeLabel(
+    String? categoryId, {
+    int submittedDocumentCount = 0,
+  }) =>
+      rupees(
+        registrationFee(
+          categoryId,
+          submittedDocumentCount: submittedDocumentCount,
+        ),
+      );
 
   static bool requiresBusinessNumbers(String? categoryId) =>
       canContinueCategory(categoryId) && !isSelfTalent(categoryId);

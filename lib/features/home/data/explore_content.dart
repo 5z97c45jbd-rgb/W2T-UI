@@ -105,7 +105,7 @@ abstract final class ExploreContent {
       duration: '3:05',
       likesLabel: '890',
       costLabel: '₹420',
-      category: 'Individuals',
+      category: 'Self Talent',
       trending: true,
     ),
     ExploreVideo(
@@ -115,7 +115,7 @@ abstract final class ExploreContent {
       duration: '2:22',
       likesLabel: '540',
       costLabel: '₹299',
-      category: 'Individuals',
+      category: 'Self Talent',
     ),
     ExploreVideo(
       title: 'Unboxing Latest Smartphone',

@@ -17,8 +17,8 @@ void main() {
     };
 
     final sold = OrderItem.fromJson(json, OrderSide.sold)!;
-    expect(sold.id, '#6DD393CC');
-    expect(sold.partyName, 'Customer');
+    expect(sold.id, '6dd393cc-0bd2-4163-af66-fcd312864a24');
+    expect(sold.partyName, isEmpty);
     expect(sold.amountLabel, '₹300');
     expect(sold.status, OrderStatus.paymentFailed);
     expect(sold.displayStatus, 'Payment Failed');
@@ -26,7 +26,28 @@ void main() {
 
     final purchased = OrderItem.fromJson(json, OrderSide.purchased)!;
     expect(purchased.side, OrderSide.purchased);
-    expect(purchased.partyName, 'Merchant');
+    expect(purchased.partyName, isEmpty);
+
+    final named = OrderItem.fromJson(
+      {
+        ...json,
+        'fullName': 'Ravi Kumar',
+      },
+      OrderSide.sold,
+    )!;
+    expect(named.partyName, 'Ravi Kumar');
+
+    final nestedName = OrderItem.fromJson(
+      {
+        ...json,
+        'orderBy': {
+          'userId': 'e1d1eae0-454d-4e1f-9920-ff25522c966f',
+          'fullName': 'Priya Sharma',
+        },
+      },
+      OrderSide.purchased,
+    )!;
+    expect(nestedName.partyName, 'Priya Sharma');
   });
 
   test('parses explore items and maps category path values', () {

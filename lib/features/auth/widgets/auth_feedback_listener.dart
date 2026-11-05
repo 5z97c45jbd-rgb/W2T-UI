@@ -9,6 +9,8 @@ import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_state.dart';
 import 'package:w2t_mobile/features/auth/bloc/signup/signup_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/signup/signup_state.dart';
+import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
+import 'package:w2t_mobile/features/home/widgets/home_bottom_nav_bar.dart';
 
 class AuthFeedbackListener extends StatelessWidget {
   const AuthFeedbackListener({super.key, required this.child});
@@ -63,10 +65,18 @@ class AuthFeedbackListener extends StatelessWidget {
         ),
         BlocListener<SessionBloc, SessionState>(
           listenWhen: (previous, current) =>
+              !previous.isSignedIn && current.isSignedIn,
+          listener: (context, state) {
+            context.read<HomeTabCubit>().select(HomeTab.home);
+          },
+        ),
+        BlocListener<SessionBloc, SessionState>(
+          listenWhen: (previous, current) =>
               previous.isSignedIn &&
               !current.isSignedIn &&
               !current.didExpire,
           listener: (context, state) {
+            context.read<HomeTabCubit>().select(HomeTab.home);
             AppSnackBar.show(context, 'Logged out successfully');
           },
         ),

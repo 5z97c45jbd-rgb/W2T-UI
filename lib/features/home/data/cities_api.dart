@@ -5,6 +5,7 @@ import 'package:w2t_mobile/core/network/api_config.dart';
 import 'package:w2t_mobile/core/network/api_exception.dart';
 import 'package:w2t_mobile/core/network/api_response.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
+import 'package:w2t_mobile/features/home/data/models/city_banner.dart';
 import 'package:w2t_mobile/features/home/data/models/place_location.dart';
 
 class CitiesApi {
@@ -15,6 +16,14 @@ class CitiesApi {
   Dio get _dio => _client.dio;
 
   Future<String> fetchCityImage({
+    PlaceLocation location = PlaceLocation.current,
+    int count = 1,
+  }) async {
+    final banner = await fetchCityBanner(location: location, count: count);
+    return banner.imageUrl;
+  }
+
+  Future<CityBanner> fetchCityBanner({
     PlaceLocation location = PlaceLocation.current,
     int count = 1,
   }) {
@@ -30,11 +39,15 @@ class CitiesApi {
           'count': count,
         },
       );
-      final url = imageUrlFrom(ApiResponse.parse(response.data).data);
+      final data = ApiResponse.parse(response.data).data;
+      final url = imageUrlFrom(data);
       if (url == null) {
         throw ApiException('City image was not returned.');
       }
-      return _absoluteUrl(url);
+      return CityBanner(
+        imageUrl: _absoluteUrl(url),
+        headline: headlineFrom(data),
+      );
     });
   }
 
@@ -80,6 +93,65 @@ class CitiesApi {
     }
 
     return null;
+  }
+
+  static String? headlineFrom(dynamic data) {
+    if (data == null) return null;
+
+    if (data is String) {
+      final trimmed = data.trim();
+      if (trimmed.isEmpty || _looksLikeUrl(trimmed)) return null;
+      if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+        try {
+          return headlineFrom(jsonDecode(trimmed));
+        } on FormatException {
+          return trimmed;
+        }
+      }
+      return trimmed;
+    }
+
+    if (data is List) {
+      for (final item in data) {
+        final headline = headlineFrom(item);
+        if (headline != null) return headline;
+      }
+      return null;
+    }
+
+    if (data is Map) {
+      const keys = [
+        'headline',
+        'title',
+        'bannerText',
+        'overlayText',
+        'tagline',
+        'caption',
+        'heading',
+        'text',
+      ];
+      for (final key in keys) {
+        final headline = headlineFrom(data[key]);
+        if (headline != null && !_looksLikeUrl(headline)) return headline;
+      }
+      for (final key in ['data', 'image', 'banner', 'city']) {
+        final headline = headlineFrom(data[key]);
+        if (headline != null) return headline;
+      }
+    }
+
+    return null;
+  }
+
+  static bool _looksLikeUrl(String value) {
+    final lower = value.toLowerCase();
+    return lower.startsWith('http://') ||
+        lower.startsWith('https://') ||
+        lower.startsWith('/') ||
+        lower.contains('.jpg') ||
+        lower.contains('.jpeg') ||
+        lower.contains('.png') ||
+        lower.contains('.webp');
   }
 
   String _absoluteUrl(String value) {

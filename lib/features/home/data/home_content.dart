@@ -17,11 +17,6 @@ abstract final class HomeContent {
       background: Color(0xFFE4F6EA),
     ),
     CategoryItem(
-      label: 'Individuals',
-      emoji: '🧑‍💼',
-      background: Color(0xFFE8EEF6),
-    ),
-    CategoryItem(
       label: 'Electronics',
       emoji: '💻',
       background: Color(0xFFE8EEF6),

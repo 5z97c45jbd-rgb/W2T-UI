@@ -21,10 +21,11 @@ class CityImageBloc extends Bloc<CityImageEvent, CityImageState> {
       emit(const CityImageState());
     }
     try {
-      final imageUrl = await _api.fetchCityImage(location: event.location);
+      final banner = await _api.fetchCityBanner(location: event.location);
       emit(CityImageState(
         status: CityImageStatus.success,
-        imageUrl: imageUrl,
+        imageUrl: banner.imageUrl,
+        headline: banner.headline,
       ));
     } catch (_) {
       emit(const CityImageState(status: CityImageStatus.failure));

@@ -10,6 +10,7 @@ void main() {
 
     cubit.updateBusinessType('Grocery');
     expect(cubit.state.businessType, 'Grocery');
+    expect(cubit.state.categoryId, KycCategory.grocery.id);
     cubit.close();
   });
 
@@ -67,6 +68,31 @@ void main() {
     cubit.updateTermsAccepted(true);
     cubit.submit();
     expect(cubit.state.submitted, isTrue);
+    cubit.close();
+  });
+
+  test('business type change updates category, documents and fee', () {
+    final cubit = KycRegistrationCubit();
+    cubit.selectCategory(KycCategory.idFor('Pet Care'));
+    expect(cubit.state.categoryRegistrationFee, 999);
+    expect(cubit.state.requiresBusinessNumbers, isTrue);
+    expect(cubit.state.requiresFssai, isFalse);
+
+    cubit.updateBusinessType('Child Care');
+    expect(cubit.state.categoryId, KycCategory.idFor('Child Care'));
+    expect(cubit.state.categoryRegistrationFee, 999);
+    expect(cubit.state.requiresBusinessNumbers, isTrue);
+    expect(cubit.state.requiresFssai, isFalse);
+
+    cubit.updateBusinessType('Self Talent');
+    expect(cubit.state.categoryId, KycCategory.selfTalentId);
+    expect(cubit.state.categoryRegistrationFee, 299);
+    expect(cubit.state.requiresBusinessNumbers, isFalse);
+    expect(cubit.state.requiresFssai, isFalse);
+
+    cubit.updateBusinessType('Food');
+    expect(cubit.state.categoryId, KycCategory.foodId);
+    expect(cubit.state.requiresFssai, isTrue);
     cubit.close();
   });
 }
