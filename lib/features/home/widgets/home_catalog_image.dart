@@ -53,26 +53,41 @@ class HomeFillImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl == null || imageUrl!.isEmpty) {
+    final url = _usableUrl(imageUrl);
+    if (url == null) {
       return _AssetImage(asset: fallbackAsset);
     }
 
-    return Image.network(
-      imageUrl!,
-      fit: BoxFit.cover,
-      filterQuality: FilterQuality.high,
-      errorBuilder: (_, __, ___) => _AssetImage(asset: fallbackAsset),
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return const Center(
-          child: SizedBox(
-            width: 22,
-            height: 22,
-            child: CircularProgressIndicator(strokeWidth: 2.2),
-          ),
-        );
-      },
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _AssetImage(asset: fallbackAsset),
+        Image.network(
+          url,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          loadingBuilder: (context, child, progress) {
+            if (progress == null) return child;
+            return const SizedBox.shrink();
+          },
+        ),
+      ],
     );
+  }
+
+  static String? _usableUrl(String? value) {
+    final url = value?.trim() ?? '';
+    if (url.isEmpty) return null;
+    final lower = url.toLowerCase();
+    if (lower == 'null' ||
+        lower == 'undefined' ||
+        lower == 'string' ||
+        lower == 'none' ||
+        lower == 'n/a') {
+      return null;
+    }
+    return url;
   }
 }
 

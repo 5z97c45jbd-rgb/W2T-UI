@@ -27,6 +27,7 @@ class ExploreApi {
           video.copyWith(
             imageUrl: _absoluteUrl(video.imageUrl),
             videoUrl: _absoluteUrl(video.videoUrl),
+            imageAsset: video.imageAsset,
           ),
       ];
     });

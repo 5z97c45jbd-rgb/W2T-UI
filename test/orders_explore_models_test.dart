@@ -74,5 +74,7 @@ void main() {
     expect(video.costLabel, '₹500');
     expect(video.trending, isTrue);
     expect(video.hasTopic('Trending'), isTrue);
+    expect(video.imageUrl, isNull);
+    expect(video.imageAsset, isNotEmpty);
   });
 }

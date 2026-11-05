@@ -37,7 +37,7 @@ class HomeHeroBanner extends StatelessWidget {
                     const _HeroImage(),
                     Positioned(
                       left: 14,
-                      top: 6,
+                      top: 22,
                       width: bannerWidth * 0.64,
                       child: _HeroHeadline(bannerWidth: bannerWidth),
                     ),

@@ -87,9 +87,9 @@ class ExploreVideo extends Equatable {
       id: id,
       title: name ?? 'Item',
       creator: _nonEmpty(json['itemType']) ?? 'W2T',
-      imageAsset: AppAssets.paradiseBiryani,
-      imageUrl: _nonEmpty(json['itemUrl']),
-      videoUrl: _nonEmpty(json['videoUrl']),
+      imageAsset: fallbackAsset(category),
+      imageUrl: _mediaUrl(json['itemUrl'] ?? json['imageUrl'] ?? json['itemPic']),
+      videoUrl: _mediaUrl(json['videoUrl']),
       duration: '',
       likesLabel: _likesLabel(likes),
       costLabel: _amountLabel(json['amount'], json['currency']),
@@ -103,10 +103,48 @@ class ExploreVideo extends Equatable {
 
   static List<ExploreVideo> listFrom(dynamic json, {required String category}) {
     if (json is! List) return const [];
-    return json
-        .map((item) => fromJson(item, category: category))
-        .whereType<ExploreVideo>()
-        .toList(growable: false);
+    final items = <ExploreVideo>[];
+    for (var i = 0; i < json.length; i++) {
+      final item = fromJson(json[i], category: category);
+      if (item == null) continue;
+      items.add(item.copyWith(imageAsset: fallbackAsset(category, i)));
+    }
+    return items;
+  }
+
+  static String fallbackAsset(String category, [int index = 0]) {
+    final assets = switch (category.trim().toLowerCase()) {
+      'grocery' || 'groceries' => const [
+          AppAssets.freshVegetables,
+          AppAssets.freshFruits,
+          AppAssets.freshMilk,
+          AppAssets.bread,
+        ],
+      'electronics' => const [
+          AppAssets.urbanBites,
+          AppAssets.thermometer,
+        ],
+      'self talent' => const [
+          AppAssets.categorySelfTalent,
+          AppAssets.skincarePersonalCare,
+          AppAssets.vitaminSupplements,
+        ],
+      'child care' => const [
+          AppAssets.categoryChildCare,
+        ],
+      'pet care' => const [
+          AppAssets.skincarePersonalCare,
+          AppAssets.freshFruits,
+        ],
+      _ => const [
+          AppAssets.paradiseBiryani,
+          AppAssets.foodCourt,
+          AppAssets.greenBowl,
+          AppAssets.spiceVilla,
+          AppAssets.noodleHub,
+        ],
+    };
+    return assets[index % assets.length];
   }
 
   static List<String> _tags(Object? value) {
@@ -160,6 +198,20 @@ class ExploreVideo extends Equatable {
     if (value == null) return null;
     final text = value.toString().trim();
     return text.isEmpty ? null : text;
+  }
+
+  static String? _mediaUrl(Object? value) {
+    final text = _nonEmpty(value);
+    if (text == null) return null;
+    final lower = text.toLowerCase();
+    if (lower == 'null' ||
+        lower == 'undefined' ||
+        lower == 'string' ||
+        lower == 'none' ||
+        lower == 'n/a') {
+      return null;
+    }
+    return text;
   }
 
   @override

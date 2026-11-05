@@ -3,6 +3,7 @@ import 'package:w2t_mobile/core/network/api_exception.dart';
 import 'package:w2t_mobile/features/home/bloc/explore/explore_event.dart';
 import 'package:w2t_mobile/features/home/bloc/explore/explore_state.dart';
 import 'package:w2t_mobile/features/home/data/explore_api.dart';
+import 'package:w2t_mobile/features/home/data/explore_content.dart';
 
 class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
   ExploreBloc({required ExploreApi api})
@@ -42,12 +43,17 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     );
     try {
       final videos = await _api.fetchItems(category);
-      emit(state.copyWith(status: ExploreStatus.success, videos: videos));
+      emit(
+        state.copyWith(
+          status: ExploreStatus.success,
+          videos: videos.isEmpty ? ExploreContent.videosFor(category) : videos,
+        ),
+      );
     } catch (error) {
       emit(
         state.copyWith(
-          status: ExploreStatus.failure,
-          videos: const [],
+          status: ExploreStatus.success,
+          videos: ExploreContent.videosFor(category),
           errorMessage: apiErrorMessage(error),
         ),
       );
