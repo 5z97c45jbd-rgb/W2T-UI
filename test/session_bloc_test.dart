@@ -57,10 +57,14 @@ class _FakeAuthApi extends AuthApi {
   }) async {
     lastUpdate = {
       'userId': userId,
+      'fullName': fullName,
+      'phoneNumber': phoneNumber,
       'dateOfBirth': dateOfBirth,
       'color': color,
     };
     profile = (profile ?? UserProfile(userId: userId)).copyWith(
+      fullName: fullName,
+      phoneNumber: phoneNumber,
       dateOfBirth: dateOfBirth,
       color: color,
     );
@@ -194,6 +198,49 @@ void main() {
     expect(api.lastUpdate?['dateOfBirth'], dob);
     expect(state.profile?.color, 'Blue');
     expect(state.needsPersonalization, isFalse);
+    await bloc.close();
+  });
+
+  test('profile update saves name, phone and location locally', () async {
+    final api = _FakeAuthApi(
+      profile: const UserProfile(
+        userId: 'user-1',
+        fullName: 'Ada',
+        color: 'Blue',
+        dateOfBirth: null,
+      ),
+    );
+    api.profile = UserProfile(
+      userId: 'user-1',
+      fullName: 'Ada',
+      color: 'Blue',
+      dateOfBirth: DateTime.utc(1994, 1, 25),
+    );
+    final bloc = SessionBloc(
+      api: api,
+      store: _MemoryStore(_session),
+      tokenHolder: AuthTokenHolder(),
+      storedSession: _session,
+    );
+    await bloc.stream.firstWhere((value) => value.isSignedIn);
+
+    bloc.add(const SessionProfileUpdated(
+      fullName: 'Akhilesh V',
+      phoneNumber: '9876543210',
+      color: 'Yellow',
+      location: 'Hanamkonda, Warangal',
+      gender: 'Male',
+    ));
+    final state = await bloc.stream.firstWhere(
+      (value) => value.profile?.fullName == 'Akhilesh V' && !value.isUpdatingProfile,
+    );
+
+    expect(api.lastUpdate?['fullName'], 'Akhilesh V');
+    expect(api.lastUpdate?['phoneNumber'], '9876543210');
+    expect(api.lastUpdate?['color'], 'Yellow');
+    expect(state.profile?.color, 'Yellow');
+    expect(state.profile?.location, 'Hanamkonda, Warangal');
+    expect(state.profile?.gender, 'Male');
     await bloc.close();
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/features/home/data/favourite_colors.dart';
+import 'package:w2t_mobile/features/home/widgets/favourite_color_picker.dart';
 
 class PersonalizeProfileDialog extends StatefulWidget {
   const PersonalizeProfileDialog({
@@ -121,28 +122,10 @@ class _PersonalizeProfileDialogState extends State<PersonalizeProfileDialog> {
                   const SizedBox(height: 22),
                   const _FieldLabel(text: 'Favourite Color'),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 10,
-                    children: [
-                      for (final color in FavouriteColor.options)
-                        _ColorDot(
-                          color: color,
-                          selected: color.name == _color.name,
-                          onTap: widget.isSaving
-                              ? null
-                              : () => setState(() => _color = color),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    _color.name,
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF111827),
-                    ),
+                  FavouriteColorPicker(
+                    selected: _color,
+                    enabled: !widget.isSaving,
+                    onSelected: (color) => setState(() => _color = color),
                   ),
                   if (widget.errorMessage != null) ...[
                     const SizedBox(height: 12),
@@ -355,59 +338,6 @@ class _DateField extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ColorDot extends StatelessWidget {
-  const _ColorDot({
-    required this.color,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final FavouriteColor color;
-  final bool selected;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final isLight = color.name == 'White';
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: color.value,
-          border: Border.all(
-            color: selected
-                ? const Color(0xFF2563EB)
-                : isLight
-                    ? const Color(0xFFE5E7EB)
-                    : Colors.transparent,
-            width: selected ? 3 : 1,
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF3B82F6).withValues(alpha: 0.28),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: selected
-            ? Icon(
-                Icons.check_rounded,
-                size: 18,
-                color: isLight ? const Color(0xFF2563EB) : Colors.white,
-              )
-            : null,
       ),
     );
   }

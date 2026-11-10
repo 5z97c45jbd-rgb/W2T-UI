@@ -2,15 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
-import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
+import 'package:w2t_mobile/features/home/bloc/orders/orders_bloc.dart';
+import 'package:w2t_mobile/features/home/bloc/orders/orders_state.dart';
+import 'package:w2t_mobile/features/home/data/track_orders_content.dart';
 import 'package:w2t_mobile/features/home/ui/ai_register_screen.dart';
+import 'package:w2t_mobile/features/home/ui/track_orders_screen.dart';
 import 'package:w2t_mobile/features/home/widgets/ai_app_bar.dart';
 import 'package:w2t_mobile/features/home/widgets/ai_mascot.dart';
-import 'package:w2t_mobile/features/home/widgets/home_bottom_nav_bar.dart';
 import 'package:w2t_mobile/features/home/widgets/home_layout.dart';
 
 class AiScreen extends StatelessWidget {
   const AiScreen({super.key});
+
+  void _openTrackOrders(BuildContext context) {
+    OrdersState? state;
+    try {
+      state = context.read<OrdersBloc>().state;
+    } catch (_) {}
+    final orders = state != null && state.status == OrdersStatus.success
+        ? TrackOrdersContent.fromOrders(state.orders)
+        : TrackOrdersContent.samples;
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TrackOrdersScreen(orders: orders),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +95,7 @@ class AiScreen extends StatelessWidget {
                           iconColor: const Color(0xFF1AA3C4),
                           iconBackground: const Color(0xFFE7F7FB),
                           title: 'Track my order',
-                          onTap: () =>
-                              context.read<HomeTabCubit>().select(HomeTab.order),
+                          onTap: () => _openTrackOrders(context),
                         ),
                       ),
                       const SizedBox(width: 12),

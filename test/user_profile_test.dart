@@ -39,4 +39,20 @@ void main() {
     expect(profile.color, 'Blue');
     expect(profile.needsPersonalization, isFalse);
   });
+
+  test('ignores user id when it is sent as the full name', () {
+    final profile = UserProfile.fromData(
+      const {
+        'userId': 'user-1',
+        'fullName': 'user-1',
+        'name': 'user-1',
+        'email': 'ada@example.com',
+      },
+      fallbackUserId: 'user-1',
+    );
+
+    expect(profile.fullName, isNull);
+    expect(profile.visibleFullName, isNull);
+    expect(profile.displayName, 'ada@example.com');
+  });
 }

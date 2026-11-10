@@ -115,7 +115,9 @@ class OrderItem extends Equatable {
       status: OrderStatusX.fromApi(statusValue),
       statusLabel: statusValue == null ? null : _humanize(statusValue),
       imageAsset: _fallbackAsset(_nonEmpty(json['category'])),
-      imageUrl: _nonEmpty(json['orderPic']),
+      imageUrl: usableImageUrl(
+        json['orderPic'] ?? json['imageUrl'] ?? json['itemPic'],
+      ),
     );
   }
 
@@ -211,6 +213,24 @@ class OrderItem extends Equatable {
     if (value == null) return null;
     final text = value.toString().trim();
     return text.isEmpty ? null : text;
+  }
+
+  static String? usableImageUrl(Object? value) {
+    final text = _nonEmpty(value);
+    if (text == null) return null;
+    final lower = text.toLowerCase();
+    if (lower == 'null' ||
+        lower == 'undefined' ||
+        lower == 'string' ||
+        lower == 'none' ||
+        lower == 'n/a' ||
+        lower == '-' ||
+        lower == 'null.png' ||
+        lower.endsWith('/null') ||
+        lower.endsWith('/undefined')) {
+      return null;
+    }
+    return text;
   }
 
   static String _humanize(String raw) {

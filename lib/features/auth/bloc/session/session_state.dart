@@ -13,6 +13,7 @@ class SessionState extends Equatable {
     this.didExpire = false,
     this.isUpdatingProfile = false,
     this.profileUpdateError,
+    this.avatarPath,
   });
 
   final SessionStatus status;
@@ -22,6 +23,7 @@ class SessionState extends Equatable {
   final bool didExpire;
   final bool isUpdatingProfile;
   final String? profileUpdateError;
+  final String? avatarPath;
 
   bool get needsPersonalization =>
       isSignedIn && (profile?.needsPersonalization ?? true);
@@ -39,9 +41,11 @@ class SessionState extends Equatable {
     bool? didExpire,
     bool? isUpdatingProfile,
     String? profileUpdateError,
+    String? avatarPath,
     bool clearSession = false,
     bool clearProfile = false,
     bool clearProfileUpdateError = false,
+    bool clearAvatarPath = false,
   }) {
     return SessionState(
       status: status ?? this.status,
@@ -53,6 +57,7 @@ class SessionState extends Equatable {
       profileUpdateError: clearProfileUpdateError
           ? null
           : profileUpdateError ?? this.profileUpdateError,
+      avatarPath: clearAvatarPath ? null : avatarPath ?? this.avatarPath,
     );
   }
 
@@ -65,5 +70,6 @@ class SessionState extends Equatable {
         didExpire,
         isUpdatingProfile,
         profileUpdateError,
+        avatarPath,
       ];
 }

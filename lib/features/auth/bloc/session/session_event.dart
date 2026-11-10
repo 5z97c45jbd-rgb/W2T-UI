@@ -41,3 +41,43 @@ class SessionPersonalizationSubmitted extends SessionEvent {
   @override
   List<Object?> get props => [dateOfBirth, color];
 }
+
+class SessionProfileUpdated extends SessionEvent {
+  const SessionProfileUpdated({
+    required this.fullName,
+    required this.phoneNumber,
+    this.dateOfBirth,
+    this.color,
+    this.location,
+    this.gender,
+    this.avatarPath,
+  });
+
+  final String fullName;
+  final String phoneNumber;
+  final DateTime? dateOfBirth;
+  final String? color;
+  final String? location;
+  final String? gender;
+  final String? avatarPath;
+
+  @override
+  List<Object?> get props => [
+        fullName,
+        phoneNumber,
+        dateOfBirth,
+        color,
+        location,
+        gender,
+        avatarPath,
+      ];
+}
+
+class SessionAvatarChanged extends SessionEvent {
+  const SessionAvatarChanged(this.path);
+
+  final String? path;
+
+  @override
+  List<Object?> get props => [path];
+}

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
+import 'package:w2t_mobile/core/router/safe_nav.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_gradient_button.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_header.dart';
 
@@ -43,7 +44,7 @@ class MerchantLandingScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       KycHeader(
-                        onBack: () => context.pop(),
+                        onBack: () => goBackOr(context, AppRoutes.home),
                       ),
                       const SizedBox(height: 4),
                       Text(

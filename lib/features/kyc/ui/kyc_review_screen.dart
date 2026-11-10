@@ -28,7 +28,7 @@ class KycReviewScreen extends StatelessWidget {
           step: KycWizardStep.review,
           nextLabel: 'Pay and Submit',
           nextEnabled: state.canSubmit,
-          onBack: () => context.pop(),
+          onBack: () => context.go(AppRoutes.kycStoreImage),
           onNext: state.canSubmit ? cubit.submit : null,
           body: ListView(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),

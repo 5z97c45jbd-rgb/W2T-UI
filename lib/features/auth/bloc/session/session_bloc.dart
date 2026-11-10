@@ -27,6 +27,8 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     on<SessionUnauthorized>(_onUnauthorized);
     on<SessionLogoutRequested>(_onLogout);
     on<SessionPersonalizationSubmitted>(_onPersonalizationSubmitted);
+    on<SessionProfileUpdated>(_onProfileUpdated);
+    on<SessionAvatarChanged>(_onAvatarChanged);
     add(const SessionStarted());
   }
 
@@ -133,6 +135,71 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     }
   }
 
+  Future<void> _onProfileUpdated(
+    SessionProfileUpdated event,
+    Emitter<SessionState> emit,
+  ) async {
+    final session = state.session;
+    if (session == null || !state.isSignedIn) return;
+    emit(state.copyWith(
+      isUpdatingProfile: true,
+      clearProfileUpdateError: true,
+      avatarPath: event.avatarPath ?? state.avatarPath,
+    ));
+    try {
+      await _api.updateProfile(
+        userId: session.userId,
+        fullName: event.fullName,
+        phoneNumber: event.phoneNumber,
+        dateOfBirth: event.dateOfBirth,
+        color: event.color,
+      );
+      try {
+        final profile = await _api.getProfile(userId: session.userId);
+        emit(state.copyWith(
+          profile: profile.copyWith(
+            location: event.location ?? profile.location,
+            gender: event.gender ?? profile.gender,
+            fullName: event.fullName,
+            phoneNumber: event.phoneNumber,
+            dateOfBirth: event.dateOfBirth ?? profile.dateOfBirth,
+            color: event.color ?? profile.color,
+          ),
+          isUpdatingProfile: false,
+          clearProfileUpdateError: true,
+          avatarPath: event.avatarPath ?? state.avatarPath,
+        ));
+      } catch (_) {
+        emit(state.copyWith(
+          profile:
+              (state.profile ?? UserProfile(userId: session.userId)).copyWith(
+            fullName: event.fullName,
+            phoneNumber: event.phoneNumber,
+            dateOfBirth: event.dateOfBirth,
+            color: event.color,
+            location: event.location,
+            gender: event.gender,
+          ),
+          isUpdatingProfile: false,
+          clearProfileUpdateError: true,
+          avatarPath: event.avatarPath ?? state.avatarPath,
+        ));
+      }
+    } catch (error) {
+      emit(state.copyWith(
+        isUpdatingProfile: false,
+        profileUpdateError: apiErrorMessage(error),
+      ));
+    }
+  }
+
+  void _onAvatarChanged(
+    SessionAvatarChanged event,
+    Emitter<SessionState> emit,
+  ) {
+    emit(state.copyWith(avatarPath: event.path, clearAvatarPath: event.path == null));
+  }
+
   Future<void> _hydrate(
     AuthSession session,
     Emitter<SessionState> emit, {
@@ -145,6 +212,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
         status: SessionStatus.authenticated,
         session: session,
         profile: profile,
+        avatarPath: state.avatarPath,
       ));
     } on ApiException catch (error) {
       if (error.isUnauthorized) {

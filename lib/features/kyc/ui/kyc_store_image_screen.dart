@@ -28,7 +28,7 @@ class KycStoreImageScreen extends StatelessWidget {
           nextLabel: 'Next',
           showNextArrow: true,
           nextEnabled: state.canContinueStoreImage,
-          onBack: () => context.pop(),
+          onBack: () => context.go(AppRoutes.kycDocuments),
           onNext: state.canContinueStoreImage
               ? () => context.push(AppRoutes.kycReview)
               : null,

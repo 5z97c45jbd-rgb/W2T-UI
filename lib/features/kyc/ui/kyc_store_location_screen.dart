@@ -110,7 +110,7 @@ class _KycStoreLocationScreenState extends State<KycStoreLocationScreen> {
           nextLabel: 'Continue',
           showNextArrow: true,
           nextEnabled: state.canContinueLocation,
-          onBack: () => context.pop(),
+          onBack: () => context.go(AppRoutes.kycBusiness),
           onNext: state.canContinueLocation
               ? () => context.push(AppRoutes.kycDocuments)
               : null,

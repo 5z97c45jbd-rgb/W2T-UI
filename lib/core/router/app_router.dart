@@ -14,7 +14,9 @@ import 'package:w2t_mobile/features/home/data/models/merchant.dart';
 import 'package:w2t_mobile/features/home/data/models/explore_reels_extra.dart';
 import 'package:w2t_mobile/features/home/ui/explore_reels_screen.dart';
 import 'package:w2t_mobile/features/home/ui/featured_restaurants_screen.dart';
+import 'package:w2t_mobile/features/home/ui/edit_profile_screen.dart';
 import 'package:w2t_mobile/features/home/ui/home_shell.dart';
+import 'package:w2t_mobile/features/home/ui/select_vehicle_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/signup_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/splash_screen.dart';
 import 'package:w2t_mobile/features/auth/ui/welcome_screen.dart';
@@ -46,6 +48,8 @@ abstract final class AppRoutes {
   static const String kycDocuments = '/kyc/documents';
   static const String kycStoreImage = '/kyc/store-image';
   static const String kycReview = '/kyc/review';
+  static const String editProfile = '/profile/edit';
+  static const String selectVehicle = '/profile/select-vehicle';
 
   static String merchants(MerchantCategory category) =>
       '/merchants/${category.apiValue}';
@@ -81,7 +85,8 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
           location == AppRoutes.featuredRestaurants ||
           location == AppRoutes.exploreReels ||
           location.startsWith('/merchants/') ||
-          location.startsWith('/kyc')) {
+          location.startsWith('/kyc') ||
+          location.startsWith('/profile')) {
         return session.didExpire ? AppRoutes.login : AppRoutes.welcome;
       }
       return null;
@@ -141,6 +146,20 @@ GoRouter createAppRouter(SessionBloc sessionBloc) {
         name: 'home',
         pageBuilder: (context, state) => const MaterialPage(
           child: HomeShell(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        name: 'editProfile',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: EditProfileScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.selectVehicle,
+        name: 'selectVehicle',
+        pageBuilder: (context, state) => const MaterialPage(
+          child: SelectVehicleScreen(),
         ),
       ),
       GoRoute(

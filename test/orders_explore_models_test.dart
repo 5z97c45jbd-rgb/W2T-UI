@@ -48,6 +48,27 @@ void main() {
       OrderSide.purchased,
     )!;
     expect(nestedName.partyName, 'Priya Sharma');
+    expect(sold.imageUrl, isNull);
+    expect(sold.imageAsset, isNotEmpty);
+
+    final missingPic = OrderItem.fromJson(
+      {
+        ...json,
+        'orderPic': 'null',
+      },
+      OrderSide.sold,
+    )!;
+    expect(missingPic.imageUrl, isNull);
+    expect(missingPic.imageAsset, isNotEmpty);
+
+    final remotePic = OrderItem.fromJson(
+      {
+        ...json,
+        'orderPic': 'https://cdn.example.com/order.jpg',
+      },
+      OrderSide.sold,
+    )!;
+    expect(remotePic.imageUrl, 'https://cdn.example.com/order.jpg');
   });
 
   test('parses explore items and maps category path values', () {

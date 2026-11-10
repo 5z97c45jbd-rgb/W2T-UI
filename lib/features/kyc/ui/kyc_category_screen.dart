@@ -21,7 +21,7 @@ class KycCategoryScreen extends StatelessWidget {
           nextLabel: 'Next',
           nextEnabled: state.canContinueCategory,
           showHeaderBack: true,
-          onHeaderBack: () => context.pop(),
+          onHeaderBack: () => context.go(AppRoutes.kyc),
           onNext: state.canContinueCategory
               ? () => context.push(AppRoutes.kycBusiness)
               : null,

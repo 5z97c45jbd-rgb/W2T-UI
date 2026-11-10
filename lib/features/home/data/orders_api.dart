@@ -33,15 +33,20 @@ class OrdersApi {
   }
 
   String? _absoluteUrl(String? value) {
-    if (value == null || value.isEmpty) return null;
-    final uri = Uri.parse(value);
-    if (uri.hasScheme) return value;
-    if (value.startsWith('/')) {
-      return '${ApiConfig.baseUrl}${ApiConfig.order}$value';
+    final source = OrderItem.usableImageUrl(value);
+    if (source == null) return null;
+    final uri = Uri.tryParse(source);
+    if (uri == null) return null;
+    if (uri.hasScheme) {
+      if (uri.scheme != 'http' && uri.scheme != 'https') return null;
+      return source;
+    }
+    if (source.startsWith('/')) {
+      return '${ApiConfig.baseUrl}${ApiConfig.order}$source';
     }
     return Uri.parse(
       '${ApiConfig.baseUrl}${ApiConfig.order}/',
-    ).resolve(value).toString();
+    ).resolve(source).toString();
   }
 
   Future<T> _guard<T>(Future<T> Function() run) async {

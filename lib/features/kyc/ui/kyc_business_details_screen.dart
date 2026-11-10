@@ -80,7 +80,7 @@ class _KycBusinessDetailsScreenState extends State<KycBusinessDetailsScreen> {
           step: KycWizardStep.business,
           nextLabel: 'Continue',
           nextEnabled: state.canContinueBusinessDetails,
-          onBack: () => context.pop(),
+          onBack: () => context.go(AppRoutes.kycCategory),
           onNext: state.canContinueBusinessDetails
               ? () => context.push(AppRoutes.kycLocation)
               : null,

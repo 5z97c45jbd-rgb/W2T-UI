@@ -53,7 +53,7 @@ class _KycDocumentsScreenState extends State<KycDocumentsScreen> {
           nextLabel: 'Continue',
           showNextArrow: true,
           nextEnabled: state.canContinueDocuments,
-          onBack: () => context.pop(),
+          onBack: () => context.go(AppRoutes.kycLocation),
           onNext: state.canContinueDocuments
               ? () => context.push(AppRoutes.kycStoreImage)
               : null,

@@ -7,6 +7,8 @@ abstract final class AppAssets {
   static const String bot = 'assets/bot.png';
   static const String w2tShop = 'assets/w2t_shop.png';
   static const String kycStoreMap = 'assets/kyc_store_map.jpg';
+  static const String trackOrderStrip = 'assets/track_order_strip.png';
+  static const String trackOrderMap = 'assets/track_order_map.jpg';
 
   static const String homeHero = 'assets/place.png';
   static const String bottomNavAi = 'assets/icon/WT2AI.svg';
