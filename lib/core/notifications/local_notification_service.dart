@@ -23,7 +23,7 @@ class LocalNotificationService {
   bool _ready = false;
 
   Future<void> ensureInitialized() async {
-    if (_ready) return;
+    if (_ready || kIsWeb) return;
     const settings = InitializationSettings(
       android: AndroidInitializationSettings('@drawable/ic_stat_notification'),
       iOS: DarwinInitializationSettings(

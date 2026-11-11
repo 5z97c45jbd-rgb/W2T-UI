@@ -1,11 +1,11 @@
 {
-    "name": "w2t_mobile",
-    "short_name": "w2t_mobile",
+    "name": "W2T",
+    "short_name": "W2T",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "W2T",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

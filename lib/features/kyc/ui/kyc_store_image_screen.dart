@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
+import 'package:w2t_mobile/core/ui/picked_image.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_cubit.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_state.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_image_picker.dart';
@@ -79,8 +78,8 @@ class _StoreImagePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final file = path == null ? null : File(path!);
-    final hasImage = file != null && file.existsSync();
+    final image = pickedImageProvider(path);
+    final hasImage = image != null;
 
     return Column(
       children: [
@@ -103,7 +102,7 @@ class _StoreImagePicker extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     if (hasImage)
-                      Image.file(file, fit: BoxFit.cover)
+                      Image(image: image!, fit: BoxFit.cover)
                     else
                       const ColoredBox(color: Color(0xFFF3FAFC)),
                     Positioned(

@@ -47,8 +47,10 @@ class PushNotificationService {
   static Future<void> ensureInitialized() async {
     if (_ready || Firebase.apps.isEmpty) return;
     try {
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-      await LocalNotificationService.instance.ensureInitialized();
+      if (!kIsWeb) {
+        FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+        await LocalNotificationService.instance.ensureInitialized();
+      }
       final messaging = FirebaseMessaging.instance;
       await messaging.requestPermission(
         alert: true,
@@ -63,7 +65,9 @@ class PushNotificationService {
 
       FirebaseMessaging.onMessage.listen((message) {
         printPushPayload('FCM onMessage (app foreground)', message);
-        LocalNotificationService.instance.showRemoteMessage(message);
+        if (!kIsWeb) {
+          LocalNotificationService.instance.showRemoteMessage(message);
+        }
       });
 
       FirebaseMessaging.onMessageOpenedApp.listen((message) {

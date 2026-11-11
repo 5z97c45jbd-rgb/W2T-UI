@@ -50,6 +50,7 @@ dependencies:
   latlong2: ^0.10.1
   geolocator: ^14.1.2
   geocoding: ^5.0.1
+  cross_file: ^0.3.4
 
 dev_dependencies:
   flutter_test:

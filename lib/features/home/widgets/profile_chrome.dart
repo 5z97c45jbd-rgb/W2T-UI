@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
+import 'package:w2t_mobile/core/ui/picked_image.dart';
 import 'package:w2t_mobile/features/auth/widgets/w2t_logo.dart';
 
 abstract final class ProfilePalette {
@@ -150,8 +149,8 @@ class ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final file = path == null ? null : File(path!);
-    final hasFile = file != null && file.existsSync();
+    final image = pickedImageProvider(path);
+    final hasFile = image != null;
 
     return SizedBox(
       width: size + 8,
@@ -176,7 +175,7 @@ class ProfileAvatar extends StatelessWidget {
                   ],
                   image: hasFile
                       ? DecorationImage(
-                          image: FileImage(file),
+                          image: image!,
                           fit: BoxFit.cover,
                         )
                       : null,
