@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/core/ui/app_snack_bar.dart';
+import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_cubit.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_state.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_page_scaffold.dart';
@@ -17,19 +18,31 @@ class KycReviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<KycRegistrationCubit, KycRegistrationState>(
       listenWhen: (previous, current) =>
-          !previous.submitted && current.submitted,
+          (!previous.submitted && current.submitted) ||
+          previous.submitError != current.submitError,
       listener: (context, state) {
-        AppSnackBar.show(context, 'Submitted for verification');
-        context.go(AppRoutes.home);
+        if (state.submitError != null && state.submitError!.isNotEmpty) {
+          AppSnackBar.show(context, state.submitError!);
+          return;
+        }
+        if (state.submitted) {
+          AppSnackBar.show(context, 'Submitted for verification');
+          context.go(AppRoutes.home);
+        }
       },
       builder: (context, state) {
         final cubit = context.read<KycRegistrationCubit>();
+        final canSubmit = state.canSubmit && !state.isSubmitting;
         return KycPageScaffold(
           step: KycWizardStep.review,
-          nextLabel: 'Pay and Submit',
-          nextEnabled: state.canSubmit,
+          nextLabel: state.isSubmitting ? 'Submitting...' : 'Pay and Submit',
+          nextEnabled: canSubmit,
           onBack: () => context.go(AppRoutes.kycStoreImage),
-          onNext: state.canSubmit ? cubit.submit : null,
+          onNext: canSubmit
+              ? () => cubit.submit(
+                    userId: context.read<SessionBloc>().state.session?.userId,
+                  )
+              : null,
           body: ListView(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
             children: [

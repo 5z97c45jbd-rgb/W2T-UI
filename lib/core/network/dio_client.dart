@@ -25,6 +25,10 @@ class DioClient {
           }
           options.headers['X-Latitude'] = '25.2048';
           options.headers['X-Longitude'] = '55.2708';
+          if (options.data is FormData) {
+            options.headers.remove(Headers.contentTypeHeader);
+            options.headers.remove(Headers.contentLengthHeader);
+          }
 
           handler.next(options);
         },

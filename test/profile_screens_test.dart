@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:w2t_mobile/core/network/auth_token_holder.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
@@ -32,6 +33,7 @@ class _FakeAuthApi extends AuthApi {
   _FakeAuthApi(this.profile) : super(DioClient(AuthTokenHolder()));
 
   UserProfile profile;
+  Map<String, dynamic>? lastUpdate;
 
   @override
   Future<UserProfile> getProfile({required String userId}) async => profile;
@@ -43,7 +45,21 @@ class _FakeAuthApi extends AuthApi {
     String? phoneNumber,
     DateTime? dateOfBirth,
     String? color,
-  }) async {}
+  }) async {
+    lastUpdate = {
+      'userId': userId,
+      'fullName': fullName,
+      'phoneNumber': phoneNumber,
+      'dateOfBirth': dateOfBirth,
+      'color': color,
+    };
+    profile = profile.copyWith(
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      dateOfBirth: dateOfBirth,
+      color: color,
+    );
+  }
 
   @override
   Future<void> logout() async {}
@@ -51,26 +67,35 @@ class _FakeAuthApi extends AuthApi {
 
 const _session = AuthSession(userId: 'user-1', accessToken: 'token-1');
 
-Future<SessionBloc> _signedInBloc() async {
-  final bloc = SessionBloc(
-    api: _FakeAuthApi(
-      UserProfile(
-        userId: 'user-1',
-        fullName: 'Akhilesh V',
-        email: 'akhilesh@example.com',
-        phoneNumber: '9876543210',
-        dateOfBirth: DateTime(1994, 1, 25),
-        color: 'Blue',
-        location: 'Hanamkonda, Warangal',
-        gender: 'Male',
-      ),
+({SessionBloc bloc, _FakeAuthApi api}) _signedIn() {
+  final api = _FakeAuthApi(
+    UserProfile(
+      userId: 'user-1',
+      fullName: 'Akhilesh V',
+      email: 'akhilesh@example.com',
+      phoneNumber: '9876543210',
+      dateOfBirth: DateTime(1994, 1, 25),
+      color: 'Blue',
+      location: 'Hanamkonda, Warangal',
+      gender: 'Male',
     ),
-    store: _MemoryStore(_session),
-    tokenHolder: AuthTokenHolder(),
-    storedSession: _session,
   );
-  await bloc.stream.firstWhere((value) => value.status != SessionStatus.restoring);
-  return bloc;
+  return (
+    bloc: SessionBloc(
+      api: api,
+      store: _MemoryStore(_session),
+      tokenHolder: AuthTokenHolder(),
+      storedSession: _session,
+    ),
+    api: api,
+  );
+}
+
+Future<SessionBloc> _signedInBloc() async {
+  final signedIn = _signedIn();
+  await signedIn.bloc.stream
+      .firstWhere((value) => value.status != SessionStatus.restoring);
+  return signedIn.bloc;
 }
 
 void main() {
@@ -125,7 +150,7 @@ void main() {
     expect(find.text('Edit Profile'), findsOneWidget);
     expect(find.text('Update your information'), findsOneWidget);
     expect(find.byTooltip('Back'), findsOneWidget);
-    expect(find.text('Save'), findsNothing);
+    expect(find.text('Save'), findsOneWidget);
     expect(find.textContaining('Full Name'), findsWidgets);
     expect(find.textContaining('Phone Number'), findsOneWidget);
     expect(find.textContaining('Email Address'), findsOneWidget);
@@ -134,6 +159,44 @@ void main() {
     expect(find.textContaining('Gender'), findsOneWidget);
     expect(find.textContaining('Favourite Color'), findsOneWidget);
     expect(find.text('Blue'), findsOneWidget);
+  });
+
+  testWidgets('edit profile save posts the profile update', (tester) async {
+    tester.view.physicalSize = const Size(390, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final signedIn = _signedIn();
+    addTearDown(signedIn.bloc.close);
+    await signedIn.bloc.stream
+        .firstWhere((value) => value.status != SessionStatus.restoring);
+
+    await tester.pumpWidget(
+      BlocProvider.value(
+        value: signedIn.bloc,
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            routes: [
+              GoRoute(
+                path: '/',
+                builder: (_, __) => const EditProfileScreen(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).first, 'Akhilesh Reddy');
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(signedIn.api.lastUpdate?['fullName'], 'Akhilesh Reddy');
+    expect(signedIn.api.lastUpdate?['phoneNumber'], '9876543210');
+    expect(signedIn.api.lastUpdate?['color'], 'Blue');
   });
 
   testWidgets('select vehicle screen shows saved vehicles and add form',

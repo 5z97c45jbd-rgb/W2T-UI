@@ -45,8 +45,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
     _dob = profile?.dateOfBirth;
     _gender = ProfileFormat.gender(profile?.gender);
-    _color = FavouriteColor.matching(profile?.color) ??
-        FavouriteColor.options.first;
+    _color =
+        FavouriteColor.matching(profile?.color) ?? FavouriteColor.options.first;
     _avatarPath = state.avatarPath;
   }
 

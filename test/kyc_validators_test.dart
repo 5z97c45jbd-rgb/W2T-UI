@@ -121,9 +121,9 @@ void main() {
     );
   });
 
-  test('store image continue requires a path', () {
-    expect(KycValidators.canContinueStoreImage(null), isFalse);
-    expect(KycValidators.canContinueStoreImage(''), isFalse);
+  test('store image continue is optional', () {
+    expect(KycValidators.canContinueStoreImage(null), isTrue);
+    expect(KycValidators.canContinueStoreImage(''), isTrue);
     expect(KycValidators.canContinueStoreImage('/tmp/store.jpg'), isTrue);
   });
 }

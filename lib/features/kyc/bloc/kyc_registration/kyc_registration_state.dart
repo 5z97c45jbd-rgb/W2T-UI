@@ -28,8 +28,13 @@ class KycRegistrationState extends Equatable {
     this.shopEstablishment = '',
     this.fssai = '',
     this.storeImagePath,
+    this.aadhaarImagePath,
     this.termsAccepted = false,
     this.submitted = false,
+    this.isSubmitting = false,
+    this.submitError,
+    this.merchantId,
+    this.kycCaseId,
   });
 
   final String? categoryId;
@@ -52,8 +57,13 @@ class KycRegistrationState extends Equatable {
   final String shopEstablishment;
   final String fssai;
   final String? storeImagePath;
+  final String? aadhaarImagePath;
   final bool termsAccepted;
   final bool submitted;
+  final bool isSubmitting;
+  final String? submitError;
+  final String? merchantId;
+  final String? kycCaseId;
 
   KycCategory? get category => KycCategory.byId(categoryId);
 
@@ -184,8 +194,14 @@ class KycRegistrationState extends Equatable {
     String? shopEstablishment,
     String? fssai,
     String? storeImagePath,
+    String? aadhaarImagePath,
     bool? termsAccepted,
     bool? submitted,
+    bool? isSubmitting,
+    String? submitError,
+    bool clearSubmitError = false,
+    String? merchantId,
+    String? kycCaseId,
   }) {
     return KycRegistrationState(
       categoryId: categoryId ?? this.categoryId,
@@ -208,8 +224,13 @@ class KycRegistrationState extends Equatable {
       shopEstablishment: shopEstablishment ?? this.shopEstablishment,
       fssai: fssai ?? this.fssai,
       storeImagePath: storeImagePath ?? this.storeImagePath,
+      aadhaarImagePath: aadhaarImagePath ?? this.aadhaarImagePath,
       termsAccepted: termsAccepted ?? this.termsAccepted,
       submitted: submitted ?? this.submitted,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      submitError: clearSubmitError ? null : submitError ?? this.submitError,
+      merchantId: merchantId ?? this.merchantId,
+      kycCaseId: kycCaseId ?? this.kycCaseId,
     );
   }
 
@@ -235,7 +256,12 @@ class KycRegistrationState extends Equatable {
         shopEstablishment,
         fssai,
         storeImagePath,
+        aadhaarImagePath,
         termsAccepted,
         submitted,
+        isSubmitting,
+        submitError,
+        merchantId,
+        kycCaseId,
       ];
 }

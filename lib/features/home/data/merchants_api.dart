@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:w2t_mobile/core/network/api_config.dart';
 import 'package:w2t_mobile/core/network/api_exception.dart';
 import 'package:w2t_mobile/core/network/api_response.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
+import 'package:w2t_mobile/core/network/upload_file.dart';
 import 'package:w2t_mobile/features/home/data/models/merchant.dart';
 
 class MerchantsApi {
@@ -37,6 +40,49 @@ class MerchantsApi {
         Merchant.listFrom(ApiResponse.parse(response.data).data),
       );
     });
+  }
+
+  Future<Merchant> createMerchant(
+    Map<String, dynamic> body, {
+    String? imagePath,
+  }) {
+    return _guard(() async {
+      final formData = FormData();
+      formData.files.add(
+        MapEntry(
+          'merchant',
+          MultipartFile.fromString(
+            jsonEncode(body),
+            contentType: DioMediaType('application', 'json'),
+          ),
+        ),
+      );
+      final trimmedImagePath = imagePath?.trim();
+      if (trimmedImagePath != null && trimmedImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry('file', await multipartFileFromPath(trimmedImagePath)),
+        );
+      }
+      final response = await _dio.post<dynamic>(
+        '${ApiConfig.order}/api/merchants',
+        data: formData,
+      );
+      final merchant = Merchant.fromJson(_payload(response.data));
+      if (merchant == null) {
+        throw ApiException('Merchant was not returned.');
+      }
+      return merchant;
+    });
+  }
+
+  dynamic _payload(dynamic body) {
+    if (body is! Map) {
+      throw ApiException('Unexpected response from the server.');
+    }
+    if (body.containsKey('success') || body.containsKey('error')) {
+      return ApiResponse.parse(body).data;
+    }
+    return body;
   }
 
   List<Merchant> _withAbsoluteUrls(List<Merchant> merchants) {

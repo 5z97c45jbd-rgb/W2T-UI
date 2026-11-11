@@ -187,8 +187,7 @@ abstract final class KycValidators {
 
   static const maxStoreImageBytes = 5 * 1024 * 1024;
 
-  static bool canContinueStoreImage(String? storeImagePath) =>
-      storeImagePath != null && storeImagePath.trim().isNotEmpty;
+  static bool canContinueStoreImage(String? storeImagePath) => true;
 
   static int enteredDocumentCount({
     required String? categoryId,

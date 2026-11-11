@@ -1,18 +1,24 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_cubit.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_state.dart';
 import 'package:w2t_mobile/features/kyc/data/kyc_validators.dart';
+import 'package:w2t_mobile/features/kyc/widgets/kyc_image_picker.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_page_scaffold.dart';
 
-/// KYC step 3: document numbers only — no file upload actions.
+/// KYC step 3: document numbers plus optional Aadhaar photo upload.
 class KycDocumentsScreen extends StatefulWidget {
-  const KycDocumentsScreen({super.key});
+  const KycDocumentsScreen({super.key, this.picker});
+
+  final ImagePicker? picker;
 
   @override
   State<KycDocumentsScreen> createState() => _KycDocumentsScreenState();
@@ -152,12 +158,141 @@ class _KycDocumentsScreenState extends State<KycDocumentsScreen> {
                   onChanged: cubit.updateFssai,
                 ),
               ],
+              const SizedBox(height: 12),
+              _AadhaarUploadCard(
+                path: state.aadhaarImagePath,
+                onTap: () => _pickAadhaar(context),
+              ),
               const SizedBox(height: 16),
               const _SecureInfoBanner(),
             ],
           ),
         );
       },
+    );
+  }
+
+  Future<void> _pickAadhaar(BuildContext context) async {
+    final path = await pickKycImage(context, picker: widget.picker);
+    if (path == null || !context.mounted) return;
+    context.read<KycRegistrationCubit>().updateAadhaarImagePath(path);
+  }
+}
+
+class _AadhaarUploadCard extends StatelessWidget {
+  const _AadhaarUploadCard({required this.path, required this.onTap});
+
+  final String? path;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final file = path == null ? null : File(path!);
+    final hasImage = file != null && file.existsSync();
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.kycFieldBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: AppColors.kycSoftBlue,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.credit_card_outlined,
+                  color: AppColors.primary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Aadhaar Card',
+                      style: GoogleFonts.inter(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.titleNavy,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Optional. Add a clear photo of your Aadhaar',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(12),
+              child: Ink(
+                height: 132,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FBFD),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.kycFieldBorder),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: hasImage
+                      ? Image.file(file, fit: BoxFit.cover)
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.add_a_photo_outlined,
+                              color: AppColors.primary,
+                              size: 26,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Add Aadhaar photo',
+                              style: GoogleFonts.inter(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.titleNavy,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'PNG or JPG (Max 5 MB)',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

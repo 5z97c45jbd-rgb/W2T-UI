@@ -1,12 +1,24 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:w2t_mobile/core/network/api_exception.dart';
+import 'package:w2t_mobile/features/home/data/catalog_categories.dart';
+import 'package:w2t_mobile/features/home/data/merchants_api.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_state.dart';
+import 'package:w2t_mobile/features/kyc/data/kyc_api.dart';
 import 'package:w2t_mobile/features/kyc/data/kyc_device_location.dart';
 import 'package:w2t_mobile/features/kyc/data/kyc_validators.dart';
 import 'package:w2t_mobile/features/kyc/data/models/kyc_category.dart';
 
 class KycRegistrationCubit extends Cubit<KycRegistrationState> {
-  KycRegistrationCubit({KycRegistrationState? initialState})
-      : super(initialState ?? const KycRegistrationState());
+  KycRegistrationCubit({
+    KycRegistrationState? initialState,
+    MerchantsApi? merchantsApi,
+    KycApi? kycApi,
+  })  : _merchantsApi = merchantsApi,
+        _kycApi = kycApi,
+        super(initialState ?? const KycRegistrationState());
+
+  final MerchantsApi? _merchantsApi;
+  final KycApi? _kycApi;
 
   void selectCategory(String categoryId) {
     final category = KycCategory.byId(categoryId);
@@ -84,6 +96,9 @@ class KycRegistrationCubit extends Cubit<KycRegistrationState> {
   void updateStoreImagePath(String? path) =>
       emit(state.copyWith(storeImagePath: path));
 
+  void updateAadhaarImagePath(String? path) =>
+      emit(state.copyWith(aadhaarImagePath: path));
+
   void updateTermsAccepted(bool value) =>
       emit(state.copyWith(termsAccepted: value));
 
@@ -100,8 +115,108 @@ class KycRegistrationCubit extends Cubit<KycRegistrationState> {
     );
   }
 
-  void submit() {
-    if (!state.canSubmit) return;
-    emit(state.copyWith(submitted: true));
+  Future<void> submit({String? userId}) async {
+    if (!state.canSubmit || state.isSubmitting) return;
+
+    final merchantsApi = _merchantsApi;
+    final kycApi = _kycApi;
+    if (merchantsApi == null || kycApi == null) {
+      emit(state.copyWith(submitted: true));
+      return;
+    }
+
+    final trimmedUserId = userId?.trim() ?? '';
+    if (trimmedUserId.isEmpty) {
+      emit(
+        state.copyWith(
+          submitError: 'Please sign in again to submit KYC.',
+        ),
+      );
+      return;
+    }
+
+    emit(state.copyWith(isSubmitting: true, clearSubmitError: true));
+    try {
+      final merchant = await merchantsApi.createMerchant(
+        _merchantBody(trimmedUserId),
+        imagePath: state.storeImagePath,
+      );
+      final kycCase = await kycApi.createCase(
+        businessId: merchant.id,
+        businessCategory: _businessCategory,
+      );
+      await kycApi.submitDocuments(
+        caseId: kycCase.id,
+        businessName: state.businessName.trim(),
+        documentMap: _documentMap,
+        filePath: state.aadhaarImagePath,
+      );
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          submitted: true,
+          merchantId: merchant.id,
+          kycCaseId: kycCase.id,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          submitError: apiErrorMessage(error),
+        ),
+      );
+    }
+  }
+
+  Map<String, dynamic> _merchantBody(String userId) {
+    return {
+      'name': state.businessName.trim(),
+      'kycApproved': false,
+      'registrationFee': state.registrationFee,
+      'addressesDTOS': [
+        {
+          'pincode': int.tryParse(state.pincode.trim()) ?? 0,
+          'street': state.addressLine1.trim(),
+          'address_type': 'STORE',
+          'flat_no': state.addressLine2.trim(),
+          'city': state.city.trim(),
+          'user_id': userId,
+          'state': state.state.trim(),
+          'location': {
+            'longitude': state.longitude,
+            'latitude': state.latitude,
+          },
+        },
+      ],
+      'ratings': 1,
+      'phoneNumber': _phoneNumber,
+      'isEnabled': true,
+      'storeType': state.storeType == KycStoreType.offline ? 'OFFLINE' : 'ONLINE',
+      'email': state.email.trim(),
+      'description': state.description.trim(),
+      'category': _businessCategory,
+    };
+  }
+
+  String get _businessCategory {
+    final label = state.category?.label ?? state.businessType;
+    return CatalogCategories.apiValue(label);
+  }
+
+  String get _phoneNumber {
+    final phone = state.phone.trim();
+    if (phone.length == 10) return '+91$phone';
+    return phone;
+  }
+
+  Map<String, String> get _documentMap {
+    return {
+      if (state.pan.trim().isNotEmpty) 'PAN': state.pan.trim(),
+      if (state.gstin.trim().isNotEmpty) 'GSTIN': state.gstin.trim(),
+      if (state.shopEstablishment.trim().isNotEmpty)
+        'SHOP_ESTABLISHMENT': state.shopEstablishment.trim(),
+      if (state.fssai.trim().isNotEmpty) 'FSSAI': state.fssai.trim(),
+    };
   }
 }
