@@ -46,7 +46,7 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>W2T uses your location to fill your store address on the map.</string>
+	<string>W2T uses your location to show your city on Home and fill your store address.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>W2T needs camera access to upload your PAN card and store photo.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

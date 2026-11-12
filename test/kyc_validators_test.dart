@@ -121,6 +121,15 @@ void main() {
     );
   });
 
+  test('aadhaar upload only accepts pdf paths', () {
+    expect(KycValidators.isPdfPath(null), isFalse);
+    expect(KycValidators.isPdfPath(''), isFalse);
+    expect(KycValidators.isPdfPath('/tmp/aadhaar.jpg'), isFalse);
+    expect(KycValidators.isPdfPath('/tmp/aadhaar.png'), isFalse);
+    expect(KycValidators.isPdfPath('/tmp/aadhaar.pdf'), isTrue);
+    expect(KycValidators.isPdfPath('/tmp/AADHAAR.PDF'), isTrue);
+  });
+
   test('store image continue is optional', () {
     expect(KycValidators.canContinueStoreImage(null), isTrue);
     expect(KycValidators.canContinueStoreImage(''), isTrue);

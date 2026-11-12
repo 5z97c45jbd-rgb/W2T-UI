@@ -30,14 +30,7 @@ class CitiesApi {
     return _guard(() async {
       final response = await _dio.get<dynamic>(
         '${ApiConfig.order}/api/cities/images',
-        queryParameters: {
-          'city': PlaceLocation.cityImagesCity,
-          if (location.country != null && location.country!.isNotEmpty)
-            'country': location.country,
-          'latitude': location.latitude,
-          'longitude': location.longitude,
-          'count': count,
-        },
+        queryParameters: queryFor(location, count: count),
       );
       final data = ApiResponse.parse(response.data).data;
       final url = imageUrlFrom(data);
@@ -49,6 +42,20 @@ class CitiesApi {
         headline: headlineFrom(data),
       );
     });
+  }
+
+  static Map<String, dynamic> queryFor(
+    PlaceLocation location, {
+    int count = 1,
+  }) {
+    return {
+      'city': location.district,
+      if (location.country != null && location.country!.isNotEmpty)
+        'country': location.country,
+      'latitude': location.latitude,
+      'longitude': location.longitude,
+      'count': count,
+    };
   }
 
   static String? imageUrlFrom(dynamic data) {

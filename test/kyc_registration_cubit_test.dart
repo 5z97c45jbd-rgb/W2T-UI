@@ -33,6 +33,7 @@ class _FakeMerchantsApi extends MerchantsApi {
 class _FakeKycApi extends KycApi {
   _FakeKycApi() : super(DioClient(AuthTokenHolder()));
 
+  String? lastBusinessId;
   String? lastFilePath;
   Map<String, String>? lastDocumentMap;
 
@@ -41,6 +42,7 @@ class _FakeKycApi extends KycApi {
     required String businessId,
     required String businessCategory,
   }) async {
+    lastBusinessId = businessId;
     return const KycCase(id: 'case-1');
   }
 
@@ -172,19 +174,35 @@ void main() {
     );
     _fillRequiredFields(cubit);
     cubit.updateStoreImagePath('/tmp/store.jpg');
-    cubit.updateAadhaarImagePath('/tmp/aadhaar.jpg');
+    cubit.updateAadhaarImagePath('/tmp/aadhaar.pdf');
 
     await cubit.submit(userId: 'user-1');
 
     expect(cubit.state.submitted, isTrue);
+    expect(cubit.state.merchantId, 'merchant-1');
+    expect(kycApi.lastBusinessId, 'merchant-1');
     expect(merchantsApi.lastImagePath, '/tmp/store.jpg');
-    expect(kycApi.lastFilePath, '/tmp/aadhaar.jpg');
+    expect(kycApi.lastFilePath, '/tmp/aadhaar.pdf');
     expect(kycApi.lastDocumentMap, {
       'PAN': 'ABCDE1234F',
       'GSTIN': '36ABCDE1234F1Z5',
       'SHOP_ESTABLISHMENT': 'TL/HNK/123',
       'FSSAI': '11223344556677',
     });
+    cubit.close();
+  });
+
+  test('store and Aadhaar images can be removed', () {
+    final cubit = KycRegistrationCubit();
+    cubit.updateStoreImagePath('/tmp/store.jpg');
+    cubit.updateAadhaarImagePath('/tmp/aadhaar.pdf');
+    expect(cubit.state.storeImagePath, '/tmp/store.jpg');
+    expect(cubit.state.aadhaarImagePath, '/tmp/aadhaar.pdf');
+
+    cubit.updateStoreImagePath(null);
+    cubit.updateAadhaarImagePath(null);
+    expect(cubit.state.storeImagePath, isNull);
+    expect(cubit.state.aadhaarImagePath, isNull);
     cubit.close();
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/core/ui/app_snack_bar.dart';
 import 'package:w2t_mobile/features/kyc/data/kyc_validators.dart';
 
@@ -44,4 +45,33 @@ Future<String?> pickKycImage(BuildContext context, {ImagePicker? picker}) async 
     return null;
   }
   return image.path;
+}
+
+class KycRemoveImageButton extends StatelessWidget {
+  const KycRemoveImageButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.white,
+      shape: const CircleBorder(),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.24),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: const SizedBox(
+          width: 34,
+          height: 34,
+          child: Icon(
+            Icons.close_rounded,
+            size: 20,
+            color: Color(0xFFE53935),
+          ),
+        ),
+      ),
+    );
+  }
 }

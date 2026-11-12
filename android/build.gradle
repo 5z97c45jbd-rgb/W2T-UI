@@ -10,6 +10,15 @@ subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 
+// android_file_picker 2.1.5 (via file_picker 13.3.3) reads the `flutter`
+// extension during its own configuration. Flutter only creates that
+// extension while configuring :app, so evaluate :app first.
+subprojects { subproject ->
+    if (subproject.name == "android_file_picker") {
+        subproject.evaluationDependsOn(":app")
+    }
+}
+
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

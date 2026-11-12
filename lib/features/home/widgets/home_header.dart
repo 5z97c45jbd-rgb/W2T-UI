@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/features/auth/widgets/w2t_logo.dart';
+import 'package:w2t_mobile/features/home/bloc/current_location/current_location_cubit.dart';
+import 'package:w2t_mobile/features/home/bloc/current_location/current_location_state.dart';
 import 'package:w2t_mobile/features/home/widgets/home_layout.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -157,42 +160,47 @@ class _LocationChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.orderNow,
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.location_on_rounded,
-              size: 14,
-              color: AppColors.white,
+    return BlocBuilder<CurrentLocationCubit, CurrentLocationState>(
+      builder: (context, state) {
+        final label = state.isLoading ? 'Locating...' : state.displayLabel;
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.orderNow,
+              borderRadius: BorderRadius.circular(22),
             ),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                'Warangal',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.location_on_rounded,
+                  size: 14,
                   color: AppColors.white,
                 ),
-              ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 16,
+                  color: AppColors.white,
+                ),
+              ],
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 16,
-              color: AppColors.white,
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

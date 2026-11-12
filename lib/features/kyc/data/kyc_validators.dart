@@ -187,6 +187,12 @@ abstract final class KycValidators {
 
   static const maxStoreImageBytes = 5 * 1024 * 1024;
 
+  static bool isPdfPath(String? path) {
+    final trimmed = path?.trim() ?? '';
+    if (trimmed.isEmpty) return false;
+    return trimmed.toLowerCase().endsWith('.pdf');
+  }
+
   static bool canContinueStoreImage(String? storeImagePath) => true;
 
   static int enteredDocumentCount({

@@ -48,6 +48,10 @@ void main() {
     expect(find.text('Grocery'), findsWidgets);
     expect(
       HomeContent.categories.first.label,
+      'Self Talent',
+    );
+    expect(
+      HomeContent.categories[1].label,
       'Food',
     );
     expect(find.text('Food'), findsWidgets);

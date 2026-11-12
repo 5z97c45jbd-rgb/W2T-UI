@@ -10,7 +10,6 @@ abstract final class AppAssets {
   static const String trackOrderStrip = 'assets/track_order_strip.png';
   static const String trackOrderMap = 'assets/track_order_map.jpg';
 
-  static const String homeHero = 'assets/place.png';
   static const String bottomNavAi = 'assets/icon/WT2AI.svg';
   static const String categorySelfTalent = 'assets/icon/category_self_talent.png';
   static const String categoryChildCare = 'assets/icon/category_child_care.png';

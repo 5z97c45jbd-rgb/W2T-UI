@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/features/home/bloc/city_image/city_image_bloc.dart';
 import 'package:w2t_mobile/features/home/bloc/city_image/city_image_state.dart';
@@ -12,6 +11,44 @@ class HomeHeroBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<CityImageBloc, CityImageState>(
+      builder: (context, state) {
+        if (!state.hasImage) {
+          return const SizedBox.shrink();
+        }
+
+        return _HeroBannerBody(imageUrl: state.imageUrl!);
+      },
+    );
+  }
+}
+
+class _HeroBannerBody extends StatefulWidget {
+  const _HeroBannerBody({required this.imageUrl});
+
+  final String imageUrl;
+
+  @override
+  State<_HeroBannerBody> createState() => _HeroBannerBodyState();
+}
+
+class _HeroBannerBodyState extends State<_HeroBannerBody> {
+  var _imageFailed = false;
+
+  @override
+  void didUpdateWidget(covariant _HeroBannerBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _imageFailed = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_imageFailed) {
+      return const SizedBox.shrink();
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         HomeLayout.horizontalPadding,
@@ -34,7 +71,14 @@ class HomeHeroBanner extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    const _HeroImage(),
+                    _HeroImage(
+                      imageUrl: widget.imageUrl,
+                      onError: () {
+                        if (!_imageFailed) {
+                          setState(() => _imageFailed = true);
+                        }
+                      },
+                    ),
                     Positioned(
                       left: 14,
                       top: 22,
@@ -98,43 +142,34 @@ class HomeHeroBanner extends StatelessWidget {
 }
 
 class _HeroImage extends StatelessWidget {
-  const _HeroImage();
+  const _HeroImage({
+    required this.imageUrl,
+    required this.onError,
+  });
+
+  final String imageUrl;
+  final VoidCallback onError;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CityImageBloc, CityImageState>(
-      builder: (context, state) {
-        if (state.status == CityImageStatus.loading) {
-          return const Center(
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2.4),
-            ),
-          );
-        }
-
-        if (state.hasImage) {
-          return Image.network(
-            state.imageUrl!,
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
-            filterQuality: FilterQuality.high,
-            errorBuilder: (_, __, ___) => const _FallbackHeroImage(),
-            loadingBuilder: (context, child, progress) {
-              if (progress == null) return child;
-              return const Center(
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2.4),
-                ),
-              );
-            },
-          );
-        }
-
-        return const _FallbackHeroImage();
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      alignment: Alignment.center,
+      filterQuality: FilterQuality.high,
+      errorBuilder: (_, __, ___) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => onError());
+        return const SizedBox.shrink();
+      },
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return const Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2.4),
+          ),
+        );
       },
     );
   }
@@ -257,18 +292,4 @@ class _SwooshPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _FallbackHeroImage extends StatelessWidget {
-  const _FallbackHeroImage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      AppAssets.homeHero,
-      fit: BoxFit.cover,
-      alignment: Alignment.center,
-      filterQuality: FilterQuality.high,
-    );
-  }
 }

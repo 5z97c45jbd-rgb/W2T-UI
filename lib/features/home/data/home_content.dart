@@ -7,6 +7,11 @@ import 'package:w2t_mobile/features/home/data/models/restaurant_item.dart';
 abstract final class HomeContent {
   static const categories = <CategoryItem>[
     CategoryItem(
+      label: 'Self Talent',
+      imageAsset: AppAssets.categorySelfTalent,
+      background: Color(0xFFEDE8F8),
+    ),
+    CategoryItem(
       label: 'Food',
       emoji: '🍔',
       background: Color(0xFFFFE8D6),
@@ -25,11 +30,6 @@ abstract final class HomeContent {
       label: 'Pet Care',
       emoji: '🐾',
       background: Color(0xFFFCE4EA),
-    ),
-    CategoryItem(
-      label: 'Self Talent',
-      imageAsset: AppAssets.categorySelfTalent,
-      background: Color(0xFFEDE8F8),
     ),
     CategoryItem(
       label: 'Child Care',

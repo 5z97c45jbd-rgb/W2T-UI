@@ -145,7 +145,7 @@ class Merchant extends Equatable {
 
   static Merchant? fromJson(dynamic json) {
     if (json is! Map) return null;
-    final id = _nonEmpty(json['id']);
+    final id = _businessId(json);
     final name = _nonEmpty(json['name']);
     if (id == null || name == null) return null;
 
@@ -159,6 +159,36 @@ class Merchant extends Equatable {
       enabled: json['enabled'] != false,
       kycApproved: json['kycApproved'] != false,
     );
+  }
+
+  /// Create-merchant with an image returns media metadata, not a merchant body.
+  /// `merchantId` is the business id used by KYC.
+  static Merchant? fromCreatePayload(
+    dynamic json, {
+    required String name,
+    String? category,
+  }) {
+    final parsed = fromJson(json);
+    if (parsed != null) return parsed;
+    if (json is! Map) return null;
+    final id = _businessId(json);
+    if (id == null) return null;
+    return Merchant(
+      id: id,
+      name: name,
+      category: MerchantCategory.fromApi(category),
+      ratings: _rating(json['ratings']),
+      userId: _nonEmpty(json['userId']),
+      imageUrl: _nonEmpty(json['url']) ??
+          _nonEmpty(json['imageUrl']) ??
+          _nonEmpty(json['uploadUrl']),
+      enabled: json['enabled'] != false,
+      kycApproved: json['kycApproved'] == true,
+    );
+  }
+
+  static String? _businessId(Map json) {
+    return _nonEmpty(json['merchantId']) ?? _nonEmpty(json['id']);
   }
 
   static List<Merchant> listFrom(dynamic json) {

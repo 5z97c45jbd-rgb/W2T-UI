@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:w2t_mobile/features/home/data/home_content.dart';
+import 'package:w2t_mobile/features/home/data/explore_content.dart';
 import 'package:w2t_mobile/features/home/data/models/explore_video.dart';
 
 enum ExploreStatus { loading, success, failure }
@@ -11,7 +11,7 @@ class ExploreState extends Equatable {
     this.topic = 'Trending',
     this.videos = const [],
     this.errorMessage,
-  }) : category = category ?? HomeContent.categories.first.label;
+  }) : category = category ?? ExploreContent.defaultCategory();
 
   final ExploreStatus status;
   final String category;

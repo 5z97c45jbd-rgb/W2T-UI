@@ -3,21 +3,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
+import 'package:w2t_mobile/core/ui/app_snack_bar.dart';
+import 'package:w2t_mobile/core/network/upload_file.dart';
 import 'package:w2t_mobile/core/router/app_router.dart';
-import 'package:w2t_mobile/core/ui/picked_image.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_cubit.dart';
 import 'package:w2t_mobile/features/kyc/bloc/kyc_registration/kyc_registration_state.dart';
 import 'package:w2t_mobile/features/kyc/data/kyc_validators.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_image_picker.dart';
 import 'package:w2t_mobile/features/kyc/widgets/kyc_page_scaffold.dart';
+import 'package:w2t_mobile/features/kyc/widgets/kyc_pdf_picker.dart';
 
-/// KYC step 3: document numbers plus optional Aadhaar photo upload.
+/// KYC step 3: document numbers plus optional Aadhaar PDF upload.
 class KycDocumentsScreen extends StatefulWidget {
-  const KycDocumentsScreen({super.key, this.picker});
+  const KycDocumentsScreen({super.key, this.pdfPicker});
 
-  final ImagePicker? picker;
+  final Future<String?> Function()? pdfPicker;
 
   @override
   State<KycDocumentsScreen> createState() => _KycDocumentsScreenState();
@@ -161,6 +162,11 @@ class _KycDocumentsScreenState extends State<KycDocumentsScreen> {
               _AadhaarUploadCard(
                 path: state.aadhaarImagePath,
                 onTap: () => _pickAadhaar(context),
+                onRemove: state.aadhaarImagePath == null
+                    ? null
+                    : () => context
+                        .read<KycRegistrationCubit>()
+                        .updateAadhaarImagePath(null),
               ),
               const SizedBox(height: 16),
               const _SecureInfoBanner(),
@@ -172,22 +178,33 @@ class _KycDocumentsScreenState extends State<KycDocumentsScreen> {
   }
 
   Future<void> _pickAadhaar(BuildContext context) async {
-    final path = await pickKycImage(context, picker: widget.picker);
+    final path = widget.pdfPicker != null
+        ? await widget.pdfPicker!()
+        : await pickKycPdf(context);
     if (path == null || !context.mounted) return;
+    if (!KycValidators.isPdfPath(path)) {
+      AppSnackBar.show(context, 'Aadhaar must be a PDF file');
+      return;
+    }
     context.read<KycRegistrationCubit>().updateAadhaarImagePath(path);
   }
 }
 
 class _AadhaarUploadCard extends StatelessWidget {
-  const _AadhaarUploadCard({required this.path, required this.onTap});
+  const _AadhaarUploadCard({
+    required this.path,
+    required this.onTap,
+    this.onRemove,
+  });
 
   final String? path;
   final VoidCallback onTap;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
-    final image = pickedImageProvider(path);
-    final hasImage = image != null;
+    final hasFile = path != null && path!.trim().isNotEmpty;
+    final fileName = hasFile ? fileNameOf(path!) : '';
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
@@ -229,7 +246,7 @@ class _AadhaarUploadCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Optional. Add a clear photo of your Aadhaar',
+                      'Optional. Upload your Aadhaar as a PDF',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: AppColors.textSecondary,
@@ -257,19 +274,47 @@ class _AadhaarUploadCard extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(11),
-                  child: hasImage
-                      ? Image(image: image!, fit: BoxFit.cover)
-                      : Column(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (hasFile)
+                        Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Icon(
-                              Icons.add_a_photo_outlined,
+                              Icons.picture_as_pdf_outlined,
+                              color: AppColors.primary,
+                              size: 32,
+                            ),
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                fileName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.inter(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.titleNavy,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.upload_file_outlined,
                               color: AppColors.primary,
                               size: 26,
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Add Aadhaar photo',
+                              'Add Aadhaar PDF',
                               style: GoogleFonts.inter(
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w600,
@@ -278,7 +323,7 @@ class _AadhaarUploadCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'PNG or JPG (Max 5 MB)',
+                              'PDF only (Max 5 MB)',
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: AppColors.textSecondary,
@@ -286,6 +331,14 @@ class _AadhaarUploadCard extends StatelessWidget {
                             ),
                           ],
                         ),
+                      if (onRemove != null)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: KycRemoveImageButton(onPressed: onRemove!),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

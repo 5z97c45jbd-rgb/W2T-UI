@@ -199,5 +199,5 @@ abstract final class ExploreContent {
     return videos.where((video) => video.category == category).toList();
   }
 
-  static String defaultCategory() => HomeContent.categories.first.label;
+  static String defaultCategory() => 'Food';
 }

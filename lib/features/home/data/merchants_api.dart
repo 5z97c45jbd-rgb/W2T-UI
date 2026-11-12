@@ -67,7 +67,11 @@ class MerchantsApi {
         '${ApiConfig.order}/api/merchants',
         data: formData,
       );
-      final merchant = Merchant.fromJson(_payload(response.data));
+      final merchant = Merchant.fromCreatePayload(
+        _payload(response.data),
+        name: '${body['name'] ?? ''}'.trim(),
+        category: body['category']?.toString(),
+      );
       if (merchant == null) {
         throw ApiException('Merchant was not returned.');
       }

@@ -10,6 +10,7 @@ import 'package:w2t_mobile/features/kyc/ui/kyc_documents_screen.dart';
 import 'package:w2t_mobile/features/kyc/ui/kyc_review_screen.dart';
 import 'package:w2t_mobile/features/kyc/ui/kyc_store_image_screen.dart';
 import 'package:w2t_mobile/features/kyc/ui/kyc_store_location_screen.dart';
+import 'package:w2t_mobile/features/kyc/widgets/kyc_image_picker.dart';
 
 Widget _wrap(Widget child, KycRegistrationCubit cubit) {
   return BlocProvider.value(
@@ -66,7 +67,12 @@ void main() {
     expect(find.textContaining('FSSAI Number'), findsOneWidget);
     expect(find.text('Upload'), findsNothing);
     expect(find.textContaining('Aadhaar Card'), findsOneWidget);
-    expect(find.text('Add Aadhaar photo'), findsOneWidget);
+    expect(find.text('Add Aadhaar PDF'), findsOneWidget);
+    expect(find.text('PDF only (Max 5 MB)'), findsOneWidget);
+    expect(find.byType(KycRemoveImageButton), findsNothing);
+    cubit.updateAadhaarImagePath('/tmp/aadhaar.pdf');
+    await tester.pump();
+    expect(find.byType(KycRemoveImageButton), findsOneWidget);
 
     cubit.selectCategory(KycCategory.selfTalent.id);
     await tester.pumpWidget(_wrap(const KycDocumentsScreen(), cubit));
@@ -106,6 +112,10 @@ void main() {
     expect(find.text('Visible shop name / signboard'), findsOneWidget);
     expect(find.text('Clear and well lit'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
+    expect(find.byType(KycRemoveImageButton), findsNothing);
+    cubit.updateStoreImagePath('/tmp/store.jpg');
+    await tester.pump();
+    expect(find.byType(KycRemoveImageButton), findsOneWidget);
 
     cubit.updateBusinessName('FreshMart Groceries');
     cubit.updateBusinessType('Grocery Store');
@@ -142,11 +152,11 @@ void main() {
     expect(
       KycValidators.businessTypes,
       [
+        'Self Talent',
         'Food',
         'Grocery',
         'Electronics',
         'Pet Care',
-        'Self Talent',
         'Child Care',
       ],
     );

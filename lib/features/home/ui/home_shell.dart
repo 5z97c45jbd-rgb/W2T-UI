@@ -7,11 +7,15 @@ import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_event.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_state.dart';
 import 'package:w2t_mobile/features/home/bloc/city_image/city_image_bloc.dart';
+import 'package:w2t_mobile/features/home/bloc/city_image/city_image_event.dart';
+import 'package:w2t_mobile/features/home/bloc/current_location/current_location_cubit.dart';
+import 'package:w2t_mobile/features/home/bloc/current_location/current_location_state.dart';
 import 'package:w2t_mobile/features/home/bloc/explore/explore_bloc.dart';
 import 'package:w2t_mobile/features/home/bloc/home_merchants/home_merchants_bloc.dart';
 import 'package:w2t_mobile/features/home/bloc/home_tab/home_tab_cubit.dart';
 import 'package:w2t_mobile/features/home/bloc/orders/orders_bloc.dart';
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
+import 'package:w2t_mobile/features/home/data/current_location_service.dart';
 import 'package:w2t_mobile/features/home/data/explore_api.dart';
 import 'package:w2t_mobile/features/home/data/merchants_api.dart';
 import 'package:w2t_mobile/features/home/data/orders_api.dart';
@@ -92,7 +96,23 @@ class _HomeShellState extends State<HomeShell> {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => CityImageBloc(api: context.read<CitiesApi>()),
+            create: (_) => CurrentLocationCubit(
+              service: CurrentLocationService(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) {
+              final bloc = CityImageBloc(
+                api: context.read<CitiesApi>(),
+                autoRequest: false,
+              );
+              final location = context.read<CurrentLocationCubit>().state;
+              final place = location.location;
+              if (!location.isLoading && place != null) {
+                bloc.add(CityImageRequested(location: place));
+              }
+              return bloc;
+            },
           ),
           BlocProvider(
             create: (context) =>
@@ -107,28 +127,40 @@ class _HomeShellState extends State<HomeShell> {
                 ExploreBloc(api: context.read<ExploreApi>()),
           ),
         ],
-        child: BlocBuilder<HomeTabCubit, HomeTab>(
-          builder: (context, currentTab) {
-            return Scaffold(
-              extendBody: true,
-              backgroundColor: AppColors.homeBackground,
-              body: IndexedStack(
-                index: currentTab.index,
-                children: const [
-                  HomeScreen(),
-                  OrdersScreen(),
-                  AiScreen(),
-                  ExploreScreen(),
-                  ProfileScreen(),
-                ],
-              ),
-              bottomNavigationBar: HomeBottomNavBar(
-                currentTab: currentTab,
-                onTabSelected: (tab) =>
-                    context.read<HomeTabCubit>().select(tab),
-              ),
-            );
+        child: BlocListener<CurrentLocationCubit, CurrentLocationState>(
+          listenWhen: (previous, current) =>
+              previous.status == CurrentLocationStatus.loading &&
+              current.status != CurrentLocationStatus.loading,
+          listener: (context, state) {
+            final place = state.location;
+            if (place == null) return;
+            context.read<CityImageBloc>().add(
+                  CityImageRequested(location: place),
+                );
           },
+          child: BlocBuilder<HomeTabCubit, HomeTab>(
+            builder: (context, currentTab) {
+              return Scaffold(
+                extendBody: true,
+                backgroundColor: AppColors.homeBackground,
+                body: IndexedStack(
+                  index: currentTab.index,
+                  children: const [
+                    HomeScreen(),
+                    OrdersScreen(),
+                    AiScreen(),
+                    ExploreScreen(),
+                    ProfileScreen(),
+                  ],
+                ),
+                bottomNavigationBar: HomeBottomNavBar(
+                  currentTab: currentTab,
+                  onTabSelected: (tab) =>
+                      context.read<HomeTabCubit>().select(tab),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

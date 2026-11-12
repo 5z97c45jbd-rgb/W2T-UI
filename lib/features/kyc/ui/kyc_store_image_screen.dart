@@ -53,6 +53,11 @@ class KycStoreImageScreen extends StatelessWidget {
               _StoreImagePicker(
                 path: state.storeImagePath,
                 onTap: () => _pickImage(context),
+                onRemove: state.storeImagePath == null
+                    ? null
+                    : () => context
+                        .read<KycRegistrationCubit>()
+                        .updateStoreImagePath(null),
               ),
               const SizedBox(height: 16),
               const _PhotoTipsCard(),
@@ -71,10 +76,15 @@ class KycStoreImageScreen extends StatelessWidget {
 }
 
 class _StoreImagePicker extends StatelessWidget {
-  const _StoreImagePicker({required this.path, required this.onTap});
+  const _StoreImagePicker({
+    required this.path,
+    required this.onTap,
+    this.onRemove,
+  });
 
   final String? path;
   final VoidCallback onTap;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +142,12 @@ class _StoreImagePicker extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (onRemove != null)
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: KycRemoveImageButton(onPressed: onRemove!),
+                      ),
                   ],
                 ),
               ),

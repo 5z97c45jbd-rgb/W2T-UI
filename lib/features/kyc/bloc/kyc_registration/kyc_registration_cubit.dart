@@ -93,11 +93,17 @@ class KycRegistrationCubit extends Cubit<KycRegistrationState> {
 
   void updateFssai(String value) => emit(state.copyWith(fssai: value));
 
-  void updateStoreImagePath(String? path) =>
-      emit(state.copyWith(storeImagePath: path));
+  void updateStoreImagePath(String? path) => emit(
+        path == null
+            ? state.copyWith(clearStoreImagePath: true)
+            : state.copyWith(storeImagePath: path),
+      );
 
-  void updateAadhaarImagePath(String? path) =>
-      emit(state.copyWith(aadhaarImagePath: path));
+  void updateAadhaarImagePath(String? path) => emit(
+        path == null
+            ? state.copyWith(clearAadhaarImagePath: true)
+            : state.copyWith(aadhaarImagePath: path),
+      );
 
   void updateTermsAccepted(bool value) =>
       emit(state.copyWith(termsAccepted: value));
@@ -149,7 +155,9 @@ class KycRegistrationCubit extends Cubit<KycRegistrationState> {
         caseId: kycCase.id,
         businessName: state.businessName.trim(),
         documentMap: _documentMap,
-        filePath: state.aadhaarImagePath,
+        filePath: KycValidators.isPdfPath(state.aadhaarImagePath)
+            ? state.aadhaarImagePath
+            : null,
       );
       emit(
         state.copyWith(

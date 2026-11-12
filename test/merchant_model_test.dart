@@ -48,6 +48,25 @@ void main() {
     expect(merchants.single.imageUrl, 'https://example.com/restaurant.jpg');
   });
 
+  test('create-with-image payload uses merchantId as the business id', () {
+    final merchant = Merchant.fromCreatePayload(
+      {
+        'merchantId': '408a0537-002b-432c-acf3-468aa02de344',
+        'id': '8f5013c8-d1f2-4efc-ae60-8c5464da6673',
+        'mediaId': '5da33014-f686-4786-8b28-3256f664e430',
+        'uploadUrl':
+            'product_category/MARKET_PLACE/products/408a0537-002b-432c-acf3-468aa02de344/5da33014-f686-4786-8b28-3256f664e430',
+        'expiresInSeconds': 600,
+      },
+      name: 'FreshMart',
+      category: 'FOOD',
+    );
+
+    expect(merchant, isNotNull);
+    expect(merchant!.id, '408a0537-002b-432c-acf3-468aa02de344');
+    expect(merchant.name, 'FreshMart');
+  });
+
   test('maps API category values for see-all routes', () {
     expect(MerchantCategory.food.apiValue, 'FOOD');
     expect(MerchantCategory.groceries.apiValue, 'GROCERIES');

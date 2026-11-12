@@ -194,7 +194,9 @@ class KycRegistrationState extends Equatable {
     String? shopEstablishment,
     String? fssai,
     String? storeImagePath,
+    bool clearStoreImagePath = false,
     String? aadhaarImagePath,
+    bool clearAadhaarImagePath = false,
     bool? termsAccepted,
     bool? submitted,
     bool? isSubmitting,
@@ -223,8 +225,11 @@ class KycRegistrationState extends Equatable {
       gstin: gstin ?? this.gstin,
       shopEstablishment: shopEstablishment ?? this.shopEstablishment,
       fssai: fssai ?? this.fssai,
-      storeImagePath: storeImagePath ?? this.storeImagePath,
-      aadhaarImagePath: aadhaarImagePath ?? this.aadhaarImagePath,
+      storeImagePath:
+          clearStoreImagePath ? null : storeImagePath ?? this.storeImagePath,
+      aadhaarImagePath: clearAadhaarImagePath
+          ? null
+          : aadhaarImagePath ?? this.aadhaarImagePath,
       termsAccepted: termsAccepted ?? this.termsAccepted,
       submitted: submitted ?? this.submitted,
       isSubmitting: isSubmitting ?? this.isSubmitting,

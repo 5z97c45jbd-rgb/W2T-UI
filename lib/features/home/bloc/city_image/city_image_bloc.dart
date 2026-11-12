@@ -4,11 +4,13 @@ import 'package:w2t_mobile/features/home/bloc/city_image/city_image_state.dart';
 import 'package:w2t_mobile/features/home/data/cities_api.dart';
 
 class CityImageBloc extends Bloc<CityImageEvent, CityImageState> {
-  CityImageBloc({required CitiesApi api})
-      : _api = api,
+  CityImageBloc({
+    required CitiesApi api,
+    bool autoRequest = true,
+  })  : _api = api,
         super(const CityImageState()) {
     on<CityImageRequested>(_onRequested);
-    add(const CityImageRequested());
+    if (autoRequest) add(const CityImageRequested());
   }
 
   final CitiesApi _api;

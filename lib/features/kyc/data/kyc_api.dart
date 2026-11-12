@@ -45,10 +45,19 @@ class KycApi {
   }) {
     return _guard(() async {
       final formData = FormData();
+      formData.fields.add(
+        MapEntry('documents', jsonEncode({'documentMap': documentMap})),
+      );
       final trimmedFilePath = filePath?.trim();
       if (trimmedFilePath != null && trimmedFilePath.isNotEmpty) {
         formData.files.add(
-          MapEntry('file', await multipartFileFromPath(trimmedFilePath)),
+          MapEntry(
+            'file',
+            await multipartFileFromPath(
+              trimmedFilePath,
+              contentType: DioMediaType('application', 'pdf'),
+            ),
+          ),
         );
       }
       final response = await _dio.post<dynamic>(
@@ -56,9 +65,11 @@ class KycApi {
         queryParameters: {
           'businessName': businessName,
           'productCategory': productCategory,
-          'documents': jsonEncode({'documentMap': documentMap}),
         },
         data: formData,
+        options: Options(
+          contentType: Headers.multipartFormDataContentType,
+        ),
       );
       final data = response.data;
       if (data == null || (data is String && data.trim().isEmpty)) {

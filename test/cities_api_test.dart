@@ -42,8 +42,24 @@ void main() {
     );
   });
 
-  test('city images use hardcoded Warangal city', () {
-    expect(PlaceLocation.cityImagesCity, 'Warangal');
-    expect(PlaceLocation.current.city, 'Warangal');
+  test('city images send the district as the city query param', () {
+    const location = PlaceLocation(
+      district: 'Hanumakonda',
+      city: 'Hanamkonda',
+      state: 'Telangana',
+      country: 'India',
+      latitude: 18.0072,
+      longitude: 79.55896,
+    );
+    expect(
+      CitiesApi.queryFor(location),
+      {
+        'city': 'Hanumakonda',
+        'country': 'India',
+        'latitude': 18.0072,
+        'longitude': 79.55896,
+        'count': 1,
+      },
+    );
   });
 }
