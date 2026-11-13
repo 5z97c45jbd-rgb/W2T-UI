@@ -131,7 +131,7 @@ class TrackedOrder extends Equatable {
   }
 
   static TrackedOrder fromOrderItem(OrderItem order) {
-    final sample = _warangalSample(order.id, order.placedAt, order.status);
+    final sample = _bangaloreSample(order.id, order.placedAt, order.status);
     final items = [
       TrackedLineItem(
         name: order.partyName.isEmpty ? 'Order item' : order.partyName,
@@ -271,21 +271,21 @@ class TrackedOrder extends Equatable {
     ];
   }
 
-  static TrackedOrder _warangalSample(
+  static TrackedOrder _bangaloreSample(
     String id,
     DateTime placedAt,
     OrderStatus status,
   ) {
-    const restaurant = LatLng(18.0148, 79.5486);
-    const rider = LatLng(18.0012, 79.5684);
-    const home = LatLng(17.9846, 79.5948);
+    // Real Bengaluru points: MG Road → Indiranagar along Old Madras Rd / 100 Feet Rd.
+    const restaurant = LatLng(12.9756, 77.6067); // MG Road Metro
+    const rider = LatLng(12.9778, 77.6302); // Ulsoor / towards Indiranagar
+    const home = LatLng(12.9783, 77.6408); // Indiranagar 100 Feet Road
     const route = <LatLng>[
       restaurant,
-      LatLng(18.0112, 79.5524),
-      LatLng(18.0068, 79.5578),
-      LatLng(18.0012, 79.5684),
-      LatLng(17.9964, 79.5762),
-      LatLng(17.9908, 79.5846),
+      LatLng(12.9764, 77.6148), // Trinity
+      LatLng(12.9772, 77.6225), // Ulsoor
+      rider,
+      LatLng(12.9781, 77.6358),
       home,
     ];
     return TrackedOrder(
@@ -297,9 +297,9 @@ class TrackedOrder extends Equatable {
       status: status,
       statusLabel: _badgeLabel(status),
       placedAt: placedAt,
-      etaMinutes: status == OrderStatus.outForDelivery ? 8 : 18,
-      distanceKm: 2.1,
-      destinationLabel: 'Hanamkonda, Warangal',
+      etaMinutes: status == OrderStatus.outForDelivery ? 12 : 22,
+      distanceKm: 3.8,
+      destinationLabel: 'Indiranagar, Bengaluru',
       paymentLabel: 'Razorpay',
       totalLabel: '₹0',
       items: const [],
