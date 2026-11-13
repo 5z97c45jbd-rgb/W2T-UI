@@ -6,6 +6,7 @@ import 'package:w2t_mobile/features/auth/bloc/session/session_bloc.dart';
 import 'package:w2t_mobile/features/auth/bloc/session/session_event.dart';
 import 'package:w2t_mobile/features/auth/data/auth_api.dart';
 import 'package:w2t_mobile/features/auth/data/auth_validators.dart';
+import 'package:w2t_mobile/features/auth/data/device_token_service.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc({
@@ -42,10 +43,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(const LoginState(status: LoginStatus.loading));
     try {
       final identifier = event.identifier.trim();
+      final deviceToken = await DeviceTokenService.current();
       final session = await _api.login(
         email: event.usePhone ? null : identifier,
         phoneNumber: event.usePhone ? '+91$identifier' : null,
         password: event.password,
+        deviceToken: deviceToken,
       );
       final established = _sessionBloc.stream.firstWhere(
         (state) => state.isSignedIn || state.didExpire,

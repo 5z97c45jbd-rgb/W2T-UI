@@ -57,10 +57,12 @@ class AuthApi {
     String? email,
     String? phoneNumber,
     required String password,
+    required String deviceToken,
   }) {
     return _guard(() async {
       final response = await _dio.post<dynamic>(
         '${ApiConfig.auth}/api/auth/login',
+        queryParameters: {'deviceToken': deviceToken},
         data: {
           'password': password,
           if (email != null) 'email': email,

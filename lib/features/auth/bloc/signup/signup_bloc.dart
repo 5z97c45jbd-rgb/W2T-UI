@@ -100,6 +100,7 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
         email: contact.email,
         phoneNumber: contact.phoneNumber,
         password: event.password,
+        deviceToken: await DeviceTokenService.current(),
       );
       final established = _sessionBloc.stream.firstWhere(
         (state) => state.isSignedIn || state.didExpire,
