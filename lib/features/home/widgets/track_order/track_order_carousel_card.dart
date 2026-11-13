@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:w2t_mobile/core/constants/app_assets.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/features/home/data/models/order_item.dart';
 import 'package:w2t_mobile/features/home/data/models/tracked_order.dart';
 import 'package:w2t_mobile/features/home/widgets/home_catalog_image.dart';
 import 'package:w2t_mobile/features/home/widgets/track_order/track_order_chrome.dart';
+import 'package:w2t_mobile/features/home/widgets/track_order/track_route_map.dart';
 
 class TrackOrderCarouselCard extends StatelessWidget {
   const TrackOrderCarouselCard({
@@ -47,14 +47,7 @@ class TrackOrderCarouselCard extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(
-                        live
-                            ? AppAssets.trackOrderStrip
-                            : AppAssets.trackOrderMap,
-                        fit: BoxFit.cover,
-                        alignment: Alignment.center,
-                        filterQuality: FilterQuality.high,
-                      ),
+                      TrackRouteMap(order: order, compact: true),
                       const DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

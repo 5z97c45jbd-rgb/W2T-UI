@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:w2t_mobile/core/constants/app_assets.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/features/home/data/models/tracked_order.dart';
 import 'package:w2t_mobile/features/home/widgets/track_order/track_order_chrome.dart';
 
-class TrackRouteMap extends StatelessWidget {
+class TrackRouteMap extends StatefulWidget {
   const TrackRouteMap({
     super.key,
     required this.order,
@@ -17,24 +19,143 @@ class TrackRouteMap extends StatelessWidget {
   final bool showLocate;
 
   @override
+  State<TrackRouteMap> createState() => _TrackRouteMapState();
+}
+
+class _TrackRouteMapState extends State<TrackRouteMap> {
+  late final MapController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = MapController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  TrackedOrder get _order => widget.order;
+
+  List<LatLng> get _fitPoints {
+    if (_order.route.length >= 2) return _order.route;
+    return [
+      _order.restaurantPoint,
+      _order.riderPoint,
+      _order.destinationPoint,
+    ];
+  }
+
+  CameraFit get _cameraFit {
+    final padding = widget.compact
+        ? const EdgeInsets.all(28)
+        : const EdgeInsets.fromLTRB(36, 56, 36, 28);
+    return CameraFit.coordinates(
+      coordinates: _fitPoints,
+      padding: padding,
+      maxZoom: widget.compact ? 13.8 : 14.6,
+    );
+  }
+
+  void _fitRoute() {
+    _controller.fitCamera(_cameraFit);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final image = Image.asset(
-      compact ? AppAssets.trackOrderStrip : AppAssets.trackOrderMap,
-      fit: compact ? BoxFit.fitWidth : BoxFit.cover,
-      alignment: compact ? Alignment.center : const Alignment(0, -0.12),
-      filterQuality: FilterQuality.high,
-      isAntiAlias: true,
-      gaplessPlayback: true,
-      width: double.infinity,
-      height: double.infinity,
+    final compact = widget.compact;
+    final map = FlutterMap(
+      mapController: _controller,
+      options: MapOptions(
+        initialCameraFit: _cameraFit,
+        minZoom: 11,
+        maxZoom: 18,
+        backgroundColor: const Color(0xFFE8EEF2),
+        interactionOptions: InteractionOptions(
+          flags: compact
+              ? InteractiveFlag.none
+              : InteractiveFlag.all & ~InteractiveFlag.rotate,
+        ),
+        keepAlive: true,
+      ),
+      children: [
+        if (!_isWidgetTest)
+          TileLayer(
+            urlTemplate:
+                'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+            subdomains: const ['a', 'b', 'c', 'd'],
+            userAgentPackageName: 'com.example.w2t_mobile',
+            tileDisplay: const TileDisplay.instantaneous(),
+          ),
+        PolylineLayer(
+          polylines: [
+            Polyline(
+              points: _fitPoints,
+              strokeWidth: compact ? 4 : 5,
+              color: TrackOrderStyle.routeBlue,
+              borderStrokeWidth: 2,
+              borderColor: Colors.white,
+            ),
+          ],
+        ),
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: _order.restaurantPoint,
+              width: compact ? 30 : 38,
+              height: compact ? 30 : 38,
+              alignment: Alignment.bottomCenter,
+              child: _PinMarker(
+                color: TrackOrderStyle.restaurantOrange,
+                icon: Icons.restaurant_rounded,
+                size: compact ? 30 : 38,
+              ),
+            ),
+            Marker(
+              point: _order.destinationPoint,
+              width: compact ? 30 : 38,
+              height: compact ? 30 : 38,
+              alignment: Alignment.bottomCenter,
+              child: _PinMarker(
+                color: TrackOrderStyle.homeBlue,
+                icon: Icons.home_rounded,
+                size: compact ? 30 : 38,
+              ),
+            ),
+            Marker(
+              point: _order.riderPoint,
+              width: compact ? 44 : 148,
+              height: compact ? 44 : 86,
+              alignment: Alignment.bottomCenter,
+              child: _RiderMarker(
+                compact: compact,
+                etaLabel: compact || !_order.isLive ? null : _order.etaLabel,
+              ),
+            ),
+          ],
+        ),
+        if (!compact)
+          const Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                '© CARTO / OSM',
+                style: TextStyle(fontSize: 10, color: Color(0xFF6B7780)),
+              ),
+            ),
+          ),
+      ],
     );
 
     return Stack(
-      key: ValueKey(order.id),
+      key: ValueKey(_order.id),
       fit: StackFit.expand,
       children: [
-        image,
-        if (showLocate)
+        IgnorePointer(ignoring: compact, child: map),
+        if (widget.showLocate)
           Positioned(
             top: 12,
             right: 12,
@@ -45,7 +166,7 @@ class TrackRouteMap extends StatelessWidget {
               shadowColor: Colors.black26,
               child: InkWell(
                 customBorder: const CircleBorder(),
-                onTap: () {},
+                onTap: _fitRoute,
                 child: const SizedBox(
                   width: 40,
                   height: 40,
@@ -58,6 +179,110 @@ class TrackRouteMap extends StatelessWidget {
               ),
             ),
           ),
+      ],
+    );
+  }
+}
+
+bool get _isWidgetTest {
+  final name = WidgetsBinding.instance.runtimeType.toString();
+  return name.contains('TestWidgetsFlutter');
+}
+
+class _PinMarker extends StatelessWidget {
+  const _PinMarker({
+    required this.color,
+    required this.icon,
+    required this.size,
+  });
+
+  final Color color;
+  final IconData icon;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: Colors.white, size: size * 0.48),
+    );
+  }
+}
+
+class _RiderMarker extends StatelessWidget {
+  const _RiderMarker({required this.compact, this.etaLabel});
+
+  final bool compact;
+  final String? etaLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final avatar = Container(
+      width: compact ? 36 : 42,
+      height: compact ? 36 : 42,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Icon(
+        Icons.delivery_dining_rounded,
+        color: TrackOrderStyle.homeBlue,
+        size: compact ? 20 : 24,
+      ),
+    );
+
+    if (etaLabel == null) return avatar;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: TrackOrderStyle.homeBlue,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Text(
+            'Arriving in\n$etaLabel',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              height: 1.15,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        avatar,
       ],
     );
   }
