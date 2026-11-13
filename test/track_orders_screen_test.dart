@@ -5,6 +5,7 @@ import 'package:w2t_mobile/features/home/ui/ai_screen.dart';
 import 'package:w2t_mobile/features/home/ui/live_order_tracking_screen.dart';
 import 'package:w2t_mobile/features/home/ui/order_details_screen.dart';
 import 'package:w2t_mobile/features/home/ui/track_orders_screen.dart';
+import 'package:w2t_mobile/features/home/widgets/track_order/track_route_map.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -47,15 +48,7 @@ void main() {
 
     expect(find.byType(LiveOrderTrackingScreen), findsOneWidget);
     expect(find.text('Live Order Tracking'), findsOneWidget);
-    expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is Image &&
-            widget.image is AssetImage &&
-            (widget.image as AssetImage).assetName.contains('track_order_map'),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byType(TrackRouteMap), findsWidgets);
     expect(find.text('Your order is on the way!'), findsOneWidget);
     expect(find.byIcon(Icons.phone_outlined), findsWidgets);
     expect(find.byIcon(Icons.chat_bubble_outline), findsNothing);

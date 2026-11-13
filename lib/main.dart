@@ -28,8 +28,12 @@ import 'package:w2t_mobile/features/home/data/orders_api.dart';
 import 'package:w2t_mobile/features/kyc/data/kyc_api.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  unawaited(GoogleMapsBootstrap.ensureInitialized());
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  // The Maps Pigeon channel is not attached during this startup turn.
+  // Calling it here fails on hot restart with channel-error.
+  binding.addPostFrameCallback((_) {
+    unawaited(GoogleMapsBootstrap.ensureInitialized());
+  });
   await DeviceTokenService.ensureInitialized();
   await PushNotificationService.ensureInitialized();
   final session = await SessionStore().read();
