@@ -1,6 +1,10 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:latlong2/latlong.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
 import 'package:w2t_mobile/features/home/data/models/tracked_order.dart';
@@ -23,17 +27,19 @@ class TrackRouteMap extends StatefulWidget {
 }
 
 class _TrackRouteMapState extends State<TrackRouteMap> {
-  late final MapController _controller;
+  gmaps.GoogleMapController? _googleController;
+  late final MapController _fallbackController;
 
   @override
   void initState() {
     super.initState();
-    _controller = MapController();
+    _fallbackController = MapController();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _googleController?.dispose();
+    _fallbackController.dispose();
     super.dispose();
   }
 
@@ -48,7 +54,28 @@ class _TrackRouteMapState extends State<TrackRouteMap> {
     ];
   }
 
-  CameraFit get _cameraFit {
+  gmaps.LatLng _toGoogle(LatLng point) =>
+      gmaps.LatLng(point.latitude, point.longitude);
+
+  gmaps.LatLngBounds _googleBounds() {
+    final points = _fitPoints;
+    var minLat = points.first.latitude;
+    var maxLat = points.first.latitude;
+    var minLng = points.first.longitude;
+    var maxLng = points.first.longitude;
+    for (final point in points) {
+      minLat = math.min(minLat, point.latitude);
+      maxLat = math.max(maxLat, point.latitude);
+      minLng = math.min(minLng, point.longitude);
+      maxLng = math.max(maxLng, point.longitude);
+    }
+    return gmaps.LatLngBounds(
+      southwest: gmaps.LatLng(minLat, minLng),
+      northeast: gmaps.LatLng(maxLat, maxLng),
+    );
+  }
+
+  CameraFit get _fallbackFit {
     final padding = widget.compact
         ? const EdgeInsets.all(28)
         : const EdgeInsets.fromLTRB(36, 56, 36, 28);
@@ -59,17 +86,102 @@ class _TrackRouteMapState extends State<TrackRouteMap> {
     );
   }
 
-  void _fitRoute() {
-    _controller.fitCamera(_cameraFit);
+  Future<void> _fitRoute() async {
+    final google = _googleController;
+    if (google != null) {
+      await google.animateCamera(
+        gmaps.CameraUpdate.newLatLngBounds(
+          _googleBounds(),
+          widget.compact ? 32 : 56,
+        ),
+      );
+      return;
+    }
+    _fallbackController.fitCamera(_fallbackFit);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Set<gmaps.Marker> get _googleMarkers {
+    final liveEta = !widget.compact && _order.isLive;
+    return {
+      gmaps.Marker(
+        markerId: const gmaps.MarkerId('restaurant'),
+        position: _toGoogle(_order.restaurantPoint),
+        icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+          gmaps.BitmapDescriptor.hueOrange,
+        ),
+        infoWindow: gmaps.InfoWindow(title: _order.merchantName),
+      ),
+      gmaps.Marker(
+        markerId: const gmaps.MarkerId('home'),
+        position: _toGoogle(_order.destinationPoint),
+        icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+          gmaps.BitmapDescriptor.hueAzure,
+        ),
+        infoWindow: gmaps.InfoWindow(
+          title: 'Your location',
+          snippet: _order.destinationLabel,
+        ),
+      ),
+      gmaps.Marker(
+        markerId: const gmaps.MarkerId('rider'),
+        position: _toGoogle(_order.riderPoint),
+        icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+          gmaps.BitmapDescriptor.hueBlue,
+        ),
+        infoWindow: gmaps.InfoWindow(
+          title: liveEta
+              ? 'Arriving in ${_order.etaLabel}'
+              : _order.partner.name,
+        ),
+      ),
+    };
+  }
+
+  Set<gmaps.Polyline> get _googlePolylines {
+    return {
+      gmaps.Polyline(
+        polylineId: const gmaps.PolylineId('route'),
+        points: _fitPoints.map(_toGoogle).toList(growable: false),
+        color: TrackOrderStyle.routeBlue,
+        width: widget.compact ? 4 : 5,
+      ),
+    };
+  }
+
+  Widget _googleMap() {
     final compact = widget.compact;
-    final map = FlutterMap(
-      mapController: _controller,
+    return gmaps.GoogleMap(
+      initialCameraPosition: gmaps.CameraPosition(
+        target: _toGoogle(_order.riderPoint),
+        zoom: compact ? 13.2 : 13.6,
+      ),
+      markers: _googleMarkers,
+      polylines: _googlePolylines,
+      myLocationButtonEnabled: false,
+      myLocationEnabled: false,
+      compassEnabled: false,
+      mapToolbarEnabled: false,
+      zoomControlsEnabled: !compact,
+      liteModeEnabled: compact,
+      scrollGesturesEnabled: !compact,
+      zoomGesturesEnabled: !compact,
+      rotateGesturesEnabled: false,
+      tiltGesturesEnabled: false,
+      onMapCreated: (controller) {
+        _googleController = controller;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _fitRoute();
+        });
+      },
+    );
+  }
+
+  Widget _fallbackMap() {
+    final compact = widget.compact;
+    return FlutterMap(
+      mapController: _fallbackController,
       options: MapOptions(
-        initialCameraFit: _cameraFit,
+        initialCameraFit: _fallbackFit,
         minZoom: 11,
         maxZoom: 18,
         backgroundColor: const Color(0xFFE8EEF2),
@@ -81,14 +193,6 @@ class _TrackRouteMapState extends State<TrackRouteMap> {
         keepAlive: true,
       ),
       children: [
-        if (!_isWidgetTest)
-          TileLayer(
-            urlTemplate:
-                'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-            subdomains: const ['a', 'b', 'c', 'd'],
-            userAgentPackageName: 'com.example.w2t_mobile',
-            tileDisplay: const TileDisplay.instantaneous(),
-          ),
         PolylineLayer(
           polylines: [
             Polyline(
@@ -136,25 +240,18 @@ class _TrackRouteMapState extends State<TrackRouteMap> {
             ),
           ],
         ),
-        if (!compact)
-          const Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: Text(
-                '© CARTO / OSM',
-                style: TextStyle(fontSize: 10, color: Color(0xFF6B7780)),
-              ),
-            ),
-          ),
       ],
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    final map = _isWidgetTest || kIsWeb ? _fallbackMap() : _googleMap();
     return Stack(
       key: ValueKey(_order.id),
       fit: StackFit.expand,
       children: [
-        IgnorePointer(ignoring: compact, child: map),
+        IgnorePointer(ignoring: widget.compact, child: map),
         if (widget.showLocate)
           Positioned(
             top: 12,
