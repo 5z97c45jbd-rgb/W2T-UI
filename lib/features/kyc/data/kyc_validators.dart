@@ -193,6 +193,18 @@ abstract final class KycValidators {
     return trimmed.toLowerCase().endsWith('.pdf');
   }
 
+  static bool isImagePath(String? path) {
+    final trimmed = path?.trim().toLowerCase() ?? '';
+    if (trimmed.isEmpty || isPdfPath(path)) return false;
+    return trimmed.endsWith('.jpg') ||
+        trimmed.endsWith('.jpeg') ||
+        trimmed.endsWith('.png') ||
+        trimmed.endsWith('.webp') ||
+        trimmed.endsWith('.heic') ||
+        trimmed.endsWith('.heif') ||
+        trimmed.endsWith('.gif');
+  }
+
   static bool canContinueStoreImage(String? storeImagePath) => true;
 
   static int enteredDocumentCount({

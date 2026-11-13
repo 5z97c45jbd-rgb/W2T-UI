@@ -174,7 +174,7 @@ void main() {
     );
     _fillRequiredFields(cubit);
     cubit.updateStoreImagePath('/tmp/store.jpg');
-    cubit.updateAadhaarImagePath('/tmp/aadhaar.pdf');
+    cubit.updateAadhaarImagePath('/tmp/aadhaar.jpg');
 
     await cubit.submit(userId: 'user-1');
 
@@ -182,7 +182,7 @@ void main() {
     expect(cubit.state.merchantId, 'merchant-1');
     expect(kycApi.lastBusinessId, 'merchant-1');
     expect(merchantsApi.lastImagePath, '/tmp/store.jpg');
-    expect(kycApi.lastFilePath, '/tmp/aadhaar.pdf');
+    expect(kycApi.lastFilePath, '/tmp/aadhaar.jpg');
     expect(kycApi.lastDocumentMap, {
       'PAN': 'ABCDE1234F',
       'GSTIN': '36ABCDE1234F1Z5',
@@ -195,9 +195,9 @@ void main() {
   test('store and Aadhaar images can be removed', () {
     final cubit = KycRegistrationCubit();
     cubit.updateStoreImagePath('/tmp/store.jpg');
-    cubit.updateAadhaarImagePath('/tmp/aadhaar.pdf');
+    cubit.updateAadhaarImagePath('/tmp/aadhaar.jpg');
     expect(cubit.state.storeImagePath, '/tmp/store.jpg');
-    expect(cubit.state.aadhaarImagePath, '/tmp/aadhaar.pdf');
+    expect(cubit.state.aadhaarImagePath, '/tmp/aadhaar.jpg');
 
     cubit.updateStoreImagePath(null);
     cubit.updateAadhaarImagePath(null);

@@ -155,7 +155,7 @@ class KycRegistrationCubit extends Cubit<KycRegistrationState> {
         caseId: kycCase.id,
         businessName: state.businessName.trim(),
         documentMap: _documentMap,
-        filePath: KycValidators.isPdfPath(state.aadhaarImagePath)
+        filePath: KycValidators.isImagePath(state.aadhaarImagePath)
             ? state.aadhaarImagePath
             : null,
       );

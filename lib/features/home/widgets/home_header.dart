@@ -99,11 +99,6 @@ class _HeaderActions extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _HeaderIconButton(
-          icon: Icons.favorite_border_rounded,
-          onPressed: () {},
-        ),
-        const SizedBox(width: 6),
         Stack(
           clipBehavior: Clip.none,
           children: [

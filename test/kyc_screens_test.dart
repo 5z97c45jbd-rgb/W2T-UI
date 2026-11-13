@@ -67,10 +67,10 @@ void main() {
     expect(find.textContaining('FSSAI Number'), findsOneWidget);
     expect(find.text('Upload'), findsNothing);
     expect(find.textContaining('Aadhaar Card'), findsOneWidget);
-    expect(find.text('Add Aadhaar PDF'), findsOneWidget);
-    expect(find.text('PDF only (Max 5 MB)'), findsOneWidget);
+    expect(find.text('Add Aadhaar Image'), findsOneWidget);
+    expect(find.text('JPG or PNG only (Max 5 MB)'), findsOneWidget);
     expect(find.byType(KycRemoveImageButton), findsNothing);
-    cubit.updateAadhaarImagePath('/tmp/aadhaar.pdf');
+    cubit.updateAadhaarImagePath('/tmp/aadhaar.jpg');
     await tester.pump();
     expect(find.byType(KycRemoveImageButton), findsOneWidget);
 

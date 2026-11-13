@@ -121,13 +121,14 @@ void main() {
     );
   });
 
-  test('aadhaar upload only accepts pdf paths', () {
-    expect(KycValidators.isPdfPath(null), isFalse);
-    expect(KycValidators.isPdfPath(''), isFalse);
-    expect(KycValidators.isPdfPath('/tmp/aadhaar.jpg'), isFalse);
-    expect(KycValidators.isPdfPath('/tmp/aadhaar.png'), isFalse);
-    expect(KycValidators.isPdfPath('/tmp/aadhaar.pdf'), isTrue);
-    expect(KycValidators.isPdfPath('/tmp/AADHAAR.PDF'), isTrue);
+  test('aadhaar upload only accepts image paths', () {
+    expect(KycValidators.isImagePath(null), isFalse);
+    expect(KycValidators.isImagePath(''), isFalse);
+    expect(KycValidators.isImagePath('/tmp/aadhaar.pdf'), isFalse);
+    expect(KycValidators.isImagePath('/tmp/AADHAAR.PDF'), isFalse);
+    expect(KycValidators.isImagePath('/tmp/aadhaar.jpg'), isTrue);
+    expect(KycValidators.isImagePath('/tmp/aadhaar.png'), isTrue);
+    expect(KycValidators.isImagePath('/tmp/AADHAAR.JPEG'), isTrue);
   });
 
   test('store image continue is optional', () {
