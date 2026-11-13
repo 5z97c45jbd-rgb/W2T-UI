@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:latlong2/latlong.dart';
 import 'package:w2t_mobile/core/constants/app_colors.dart';
+import 'package:w2t_mobile/core/maps/google_maps_bootstrap.dart';
 import 'package:w2t_mobile/features/home/data/models/tracked_order.dart';
 import 'package:w2t_mobile/features/home/widgets/track_order/track_order_chrome.dart';
 
@@ -29,11 +30,20 @@ class TrackRouteMap extends StatefulWidget {
 class _TrackRouteMapState extends State<TrackRouteMap> {
   gmaps.GoogleMapController? _googleController;
   late final MapController _fallbackController;
+  bool _googleMapsReady = false;
 
   @override
   void initState() {
     super.initState();
     _fallbackController = MapController();
+    _prepareGoogleMaps();
+  }
+
+  Future<void> _prepareGoogleMaps() async {
+    if (_isWidgetTest || kIsWeb) return;
+    final ready = await GoogleMapsBootstrap.ensureInitialized();
+    if (!mounted) return;
+    setState(() => _googleMapsReady = ready);
   }
 
   @override
@@ -246,7 +256,7 @@ class _TrackRouteMapState extends State<TrackRouteMap> {
 
   @override
   Widget build(BuildContext context) {
-    final map = _isWidgetTest || kIsWeb ? _fallbackMap() : _googleMap();
+    final map = _googleMapsReady ? _googleMap() : _fallbackMap();
     return Stack(
       key: ValueKey(_order.id),
       fit: StackFit.expand,

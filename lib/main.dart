@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:w2t_mobile/core/maps/google_maps_bootstrap.dart';
 import 'package:w2t_mobile/core/network/auth_token_holder.dart';
 import 'package:w2t_mobile/core/network/dio_client.dart';
 import 'package:w2t_mobile/core/notifications/push_notification_service.dart';
@@ -26,6 +29,7 @@ import 'package:w2t_mobile/features/kyc/data/kyc_api.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  unawaited(GoogleMapsBootstrap.ensureInitialized());
   await DeviceTokenService.ensureInitialized();
   await PushNotificationService.ensureInitialized();
   final session = await SessionStore().read();

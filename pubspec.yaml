@@ -49,6 +49,8 @@ dependencies:
   file_picker: ^13.3.3
   flutter_map: ^8.3.2
   google_maps_flutter: ^2.12.3
+  google_maps_flutter_android: ^2.19.1
+  google_maps_flutter_platform_interface: ^2.16.0
   latlong2: ^0.10.1
   geolocator: ^14.1.2
   geocoding: ^5.0.1
